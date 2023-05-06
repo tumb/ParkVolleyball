@@ -11,14 +11,17 @@ export default function Home({ posts }) {
 
 // query data from supabase with get serverside props
 export async function getServerSideProps() {
-  const { data, error } = await supabase.from("league").select();
+  //Make a supabase js query to get the data from this sql query
+  const { data, error } = await supabase
+    .from("schedule")
+    .select(`*, team1: team(*), team2: team(*), leagueid: league(*)`);
 
   if (error) {
-     return {
-       props: {
-         posts: error,
-       },
-     };
+    return {
+      props: {
+        posts: error,
+      },
+    };
   }
 
   return {
