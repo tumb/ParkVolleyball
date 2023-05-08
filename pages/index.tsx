@@ -1,13 +1,7 @@
-import BorderedCard from "@/components/UI/BorderedCard";
-import Card from "@/components/UI/Card";
-import Layout from "@/components/UI/Layout";
-import { supabase } from "@/lib/supabase";
+import React from 'react'
 
 export default function Home() {
   return (
-    <Layout>
- 
-      <Card />
-    </Layout>
-  );
+    <div>index</div>
+  )
 }
