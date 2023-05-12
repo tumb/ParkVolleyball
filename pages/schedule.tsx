@@ -1,9 +1,9 @@
 import Card from "@/components/UI/Card";
 import Layout from "@/components/UI/Layout";
+import ScheduleTable from "@/components/UI/Table";
 import { supabase } from "@/lib/supabase";
 
-
-type ScheduleProps = {
+export type ScheduleProps = {
   scheduleid: number;
   matchdate: string;
   team1: {
@@ -14,7 +14,7 @@ type ScheduleProps = {
     teamname: string;
   };
   wins2: number;
-  divisionname: string;
+  divisionid: { divisionname: string };
   leagueid: number;
 };
 
@@ -34,13 +34,10 @@ export default function schedule({
       <h2 className="text-2xl">
         Match Date: <span className="font-semibold">{matchDate}</span>
       </h2>
-      {schedules.map((schedule) => (
-        <Card
-          key={schedule.scheduleid}
-          team1={schedule.team1.teamname}
-          team2={schedule.team2.teamname}
-        />
-      ))}
+
+      <div className="w-full">
+        <ScheduleTable schedules={schedules} />
+      </div>
     </Layout>
   );
 }
@@ -48,7 +45,9 @@ export default function schedule({
 export async function getServerSideProps() {
   const { data, error } = await supabase
     .from("schedule")
-    .select(`scheduleid, matchdate, team1: team1(teamname), team2: team2(teamname)`);
+    .select(
+      `*, scheduleid, matchdate, team1: team1(teamname), team2: team2(teamname), divisionid: division("divisionname")`
+    );
 
   if (error) {
     console.log(
