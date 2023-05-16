@@ -3,6 +3,7 @@ import { LeagueContext } from "@/context/LeagueContext";
 import { supabase } from "@/lib/supabase";
 import "@/styles/globals.css";
 import type { AppProps } from "next/app";
+import { Toaster } from "react-hot-toast";
 
 let leagueId: number;
 
@@ -22,6 +23,7 @@ getLeagueId();
 export default function App({ Component, pageProps }: AppProps) {
   return (
     <LeagueContext.Provider value={leagueId}>
+      <Toaster />
       <Navbar />
       <Component {...pageProps} />
     </LeagueContext.Provider>
