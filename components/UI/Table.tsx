@@ -1,7 +1,7 @@
-import { ScheduleProps } from "@/pages/schedule";
+import { ScheduleData } from "@/pages/schedule";
 import React from "react";
 
-const textColor = (schedule: ScheduleProps) => {
+const textColor = (schedule: ScheduleData) => {
   if (
     schedule.divisionid?.divisionname === "Red" ||
     schedule.divisionid?.divisionname === "red"
@@ -25,7 +25,7 @@ const textColor = (schedule: ScheduleProps) => {
 export default function ScheduleTable({
   schedules,
 }: {
-  schedules: ScheduleProps[];
+  schedules: ScheduleData[];
 }) {
   return (
     <div className="overflow-x-auto rounded-lg border ">
@@ -48,8 +48,11 @@ export default function ScheduleTable({
         </thead>
 
         <tbody className="divide-y divide-gray-200 text-center">
-          {schedules?.map((schedule: ScheduleProps) => (
-            <tr className="odd:bg-gray-50 hover:shadow" key={schedule.scheduleid}>
+          {schedules?.map((schedule: ScheduleData) => (
+            <tr
+              className="odd:bg-gray-50 hover:shadow"
+              key={schedule.scheduleid}
+            >
               <td
                 className={`whitespace-nowrap px-4 py-2 font-medium ${textColor(
                   schedule

@@ -6,7 +6,7 @@ import icon from "@/assets/icon-512x512.png";
 export default function Navbar() {
   return (
     <header aria-label="Site Header" className="bg-white">
-      <div className="mx-auto max-w-screen shadow-md px-4 sm:px-6 lg:px-8">
+      <div className="max-w-screen mx-auto px-4 shadow-md sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           <div className="flex-1 md:flex md:items-center md:gap-12">
             <Link
@@ -15,13 +15,29 @@ export default function Navbar() {
             >
               <span className="sr-only">Home</span>
               <Image src={icon} alt="site-logo" width={40} />
-              <span className="font-semibold text-2xl">Parkvball</span>
+              <span className="text-2xl font-semibold">Parkvball</span>
             </Link>
           </div>
 
           <div className="md:flex md:items-center md:gap-12">
             <nav aria-label="Site Nav" className="hidden md:block">
               <ul className="flex items-center gap-6 text-sm">
+                <li>
+                  <Link
+                    className="text-gray-500 transition hover:text-gray-500/75"
+                    href="/schedule"
+                  >
+                    Schedule
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    className="text-gray-500 transition hover:text-gray-500/75"
+                    href="/standings"
+                  >
+                    Standings
+                  </Link>
+                </li>
                 <li>
                   <Link
                     className="text-gray-500 transition hover:text-gray-500/75"

@@ -1,6 +1,20 @@
-import React from "react";
+import { supabase } from "@/lib/supabase";
+import { ScheduleFormData } from "@/pages/schedule";
+import React, { useState } from "react";
 
-export default function ScheduleForm() {
+type ScheduleFormProps = ScheduleFormData & {
+  updateFields: (fields: Partial<ScheduleFormData>) => void;
+  handleScheduleSearch: (e: React.FormEvent) => void;
+};
+
+export default function ScheduleForm({
+  date,
+  division,
+  day,
+  year,
+  updateFields,
+  handleScheduleSearch,
+}: ScheduleFormProps) {
   return (
     <div className="mx-auto max-w-screen-xl px-4 py-16 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-lg">
@@ -9,12 +23,12 @@ export default function ScheduleForm() {
         </h1>
 
         <p className="mx-auto mt-4 max-w-md text-center text-gray-500">
-         Find which teams are playing each other
-          on a specific date.
+          Find which teams are playing each other on a specific date.
         </p>
 
         <form
           action=""
+          onSubmit={handleScheduleSearch}
           className="mb-0 mt-6 space-y-4 rounded-lg p-4 shadow-lg sm:p-6 lg:p-8"
         >
           <div>
@@ -23,51 +37,75 @@ export default function ScheduleForm() {
             </label>
 
             <div className="relative">
-              <input
-                type="Day"
-                className="w-full rounded-lg border-gray-200 p-4 pe-12 text-sm shadow-sm"
+              <select
+                className="border-gray-200bg-gray-100  w-full rounded-lg bg-gray-100 p-4 pe-12 text-sm shadow-sm"
                 placeholder="Enter Day"
-              />
+                value={day}
+                onChange={(e) => updateFields({ day: e.target.value })}
+              >
+                <option value="">Choose a League/Day</option>
+                <option value="Monday">Monday</option>
+                <option value="Tuesday">Tuesday</option>
+                <option value="Wednesday">Wednesday</option>
+                <option value="Thursday">Thursday</option>
+                <option value="Friday">Friday</option>
+                <option value="Sunday">Sunday</option>
+                <option value="Saturday">Saturday</option>
+              </select>
             </div>
           </div>
 
           <div>
-            <label htmlFor="date" className="">
-              Date
+            <label htmlFor="matchDate" className="">
+              Match Date
             </label>
 
             <div className="relative">
               <input
                 type="date"
-                className="w-full rounded-lg border-gray-200 p-4 pe-12 text-sm shadow-sm"
-                placeholder="Enter Date"
+                className="w-full rounded-lg border-gray-200 bg-gray-100 p-4 pe-12 text-sm shadow-sm"
+                placeholder="Enter matchDate"
+                value={date}
+                onChange={(e) => updateFields({ date: e.target.value })}
               />
             </div>
           </div>
-          <div>
+          {/* <div>
             <label htmlFor="Division" className="">
               Division
             </label>
 
             <div className="relative">
-              <input
-                type="text"
-                className="w-full rounded-lg border-gray-200 p-4 pe-12 text-sm shadow-sm"
-                placeholder="Enter Division"
-              />
+              <select
+                className="w-full rounded-lg border-gray-200 bg-gray-100 p-4 pe-12 text-sm shadow-sm"
+                placeholder="Enter Year"
+                value={division}
+                onChange={(e) => updateFields({ division: e.target.value })}
+              >
+                <option value="">Choose a Division</option>
+                <option value="2021">Blue</option>
+                <option value="2022">Green</option>
+                <option value="2023">Red</option>
+              </select>
             </div>
-          </div>
+          </div> */}
           <div>
             <label htmlFor="Year" className="">
               Year
             </label>
 
             <div className="relative">
-              <input
-                type="text"
-                className="w-full rounded-lg border-gray-200 p-4 pe-12 text-sm shadow-sm"
+              <select
+                className="w-full rounded-lg border-gray-200 bg-gray-100 p-4 pe-12 text-sm shadow-sm"
                 placeholder="Enter Year"
-              />
+                value={year}
+                onChange={(e) => updateFields({ year: e.target.value })}
+              >
+                <option value="">Choose a Year</option>
+                <option value="2021">2021</option>
+                <option value="2022">2022</option>
+                <option value="2023">2023</option>
+              </select>
             </div>
           </div>
 
