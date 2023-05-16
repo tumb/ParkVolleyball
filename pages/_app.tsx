@@ -1,28 +1,26 @@
 import Navbar from "@/components/UI/Navbar";
-import { LeagueContext } from "@/context/LeagueContext";
+import { LeagueContext, LeagueProp } from "@/context/LeagueContext";
+import { Database } from "@/lib/database.types";
 import { supabase } from "@/lib/supabase";
 import "@/styles/globals.css";
 import type { AppProps } from "next/app";
+import { useState } from "react";
 import { Toaster } from "react-hot-toast";
 
-let leagueId: number;
 
-const getLeagueId = async () => {
-  let { data: league, error } = await supabase.from("league").select();
-
-  if (error) {
-    console.log("🚀 ~ file: _app.tsx:11 ~ error: \n", error);
-  } else {
-    console.log("🚀 ~ file: _app.tsx:13 ~ league: \n", league);
-    // leagueId = league[0].leagueid;
-  }
-};
-
-getLeagueId();
 
 export default function App({ Component, pageProps }: AppProps) {
+  const [league, setLeague] = useState<LeagueProp>();
+
   return (
-    <LeagueContext.Provider value={leagueId}>
+    <LeagueContext.Provider
+      value={{
+        league: league,
+        onUpdate: (value: LeagueProp) => {
+          setLeague(value);
+        },
+      }}
+    >
       <Toaster />
       <Navbar />
       <Component {...pageProps} />

@@ -1,10 +1,13 @@
+import { LeagueContext } from "@/context/LeagueContext";
 import { supabase } from "@/lib/supabase";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { toast } from "react-hot-toast";
 
 export default function LeagueForm() {
   const [day, setDay] = useState("");
   const [year, setYear] = useState(2023);
+
+  const leagueCtx = useContext(LeagueContext);
 
   const handleLeagueSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -12,36 +15,60 @@ export default function LeagueForm() {
 
     let { data: league, error } = await supabase
       .from("league")
-      .select("*")
+      .select()
       .eq("day", day)
       .eq("year", year);
 
-    if (error) {
+    if (league?.length) {
+      console.log(
+        "🚀 ~ file: LeagueForm.tsx:20 ~ handleLeagueSearch ~ league: \n",
+        league,
+        league[0].leagueid
+      );
+
+      toast.success("Success", { id: notification });
+      leagueCtx.onUpdate(league[0]);
+      console.log(
+        "🚀 ~ file: LeagueForm.tsx:35 ~ handleLeagueSearch ~ leagueCtx: \n",
+        leagueCtx
+      );
+    } else {
       console.log(
         "🚀 ~ file: LeagueForm.tsx:28 ~ handleLeagueSearch ~ error: \n",
         error
       );
-      toast.error("Error", { id: notification });
-    } else {
-      console.log(
-        "🚀 ~ file: LeagueForm.tsx:20 ~ handleLeagueSearch ~ league: \n",
-        league
-      );
-      toast.success("Success", { id: notification });
+      toast.error("No league found! Please try again", { id: notification });
     }
   };
 
   return (
     <div className="mx-auto max-w-screen-xl px-4 py-16 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-lg">
-        <h1 className="text-center text-2xl font-bold text-indigo-600 sm:text-3xl">
-          League Search
-        </h1>
-
-        <p className="mx-auto mt-4 max-w-md text-center text-gray-500">
-          Find your league to get started
-        </p>
-
+        {leagueCtx.league ? (
+          <>
+            <h1 className="text-center text-2xl font-bold text-indigo-600 sm:text-3xl">
+              Your League Information:
+            </h1>
+            <p className="mx-auto mt-4 max-w-md text-center text-gray-500">
+              League Id: {leagueCtx.league.leagueid}
+            </p>
+            <p className="mx-auto mt-4 max-w-md text-center text-gray-500">
+              League Day: {leagueCtx.league.day}, {leagueCtx.league.year}
+            </p>
+            <p className="mx-auto mt-4 max-w-md text-center text-gray-500">
+              Search Again?
+            </p>
+          </>
+        ) : (
+          <>
+            <h1 className="text-center text-2xl font-bold text-indigo-600 sm:text-3xl">
+              League Search
+            </h1>
+            <p className="mx-auto mt-4 max-w-md text-center text-gray-500">
+              Find your league to get started
+            </p>
+          </>
+        )}
         <form
           action=""
           onSubmit={handleLeagueSearch}
