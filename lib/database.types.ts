@@ -236,13 +236,50 @@ export interface Database {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      calculate_standings: {
+        Args: {
+          leagueid: number
+        }
+        Returns: {
+          teamname: string
+          total: number
+        }[]
+      }
+      calculate_standings4: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          teamname: string
+          total: number
+        }[]
+      }
+      select_schedule2: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          scheduleid: number
+          matchdate: string
+          team1: string
+          wins1: number
+          team2: string
+          wins2: number
+          divisionname: string
+          leagueid: number
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
     }
     CompositeTypes: {
-      [_ in never]: never
+      schedule_result: {
+        scheduleid: number
+        matchdate: string
+        team1: string
+        wins1: number
+        team2: string
+        wins2: number
+        divisionname: string
+        leagueid: number
+      }
     }
   }
 }

@@ -22,6 +22,7 @@ export default function standings({
 
 export async function getServerSideProps() {
   const { data, error } = await supabase.rpc("calculate_standings4");
+  
 
   if (error) {
     console.error(error);

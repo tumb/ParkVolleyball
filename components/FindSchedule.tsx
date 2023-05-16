@@ -3,6 +3,18 @@ import ScheduleForm from "./UI/ScheduleForm";
 import schedule, { ScheduleData, ScheduleFormData } from "@/pages/schedule";
 import { supabase } from "@/lib/supabase";
 import ScheduleTable from "./UI/Table";
+import { Database } from "@/lib/database.types";
+
+type GetScheduleProps = Awaited<ReturnType<typeof getSchedule>>;
+
+async function getSchedule() {
+  return await supabase
+    .from("schedule")
+    .select(
+      `*, scheduleid, matchdate, team1: team1(teamname), team2: team2(teamname), divisionid: division("divisionname")`
+    )
+    .eq("leagueid", 2);
+}
 
 const INITIAL_DATA = {
   day: "",
@@ -13,7 +25,7 @@ const INITIAL_DATA = {
 
 export default function FindSchedule() {
   const [data, setData] = useState(INITIAL_DATA);
-  const [schedules, setSchedules] = useState<ScheduleData>([]);
+  const [schedules, setSchedules] = useState<GetScheduleProps>();
   function updateFields(fields: Partial<ScheduleFormData>) {
     setData((prev) => {
       return { ...prev, ...fields };
@@ -52,7 +64,7 @@ export default function FindSchedule() {
     );
 
     if (data) {
-      setSchedules(data);
+      // setSchedules(data);
     }
   };
 
@@ -69,11 +81,11 @@ export default function FindSchedule() {
       />
 
       {/* TODO: Add schecule table here */}
-      {schedule.length ? (
+      {/* {schedule.length ? (
         <ScheduleTable schedules={schedules} />
       ) : (
         <div>loading... </div>
-      )}
+      )} */}
     </div>
   );
 }

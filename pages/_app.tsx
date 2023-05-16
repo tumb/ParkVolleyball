@@ -4,18 +4,16 @@ import { supabase } from "@/lib/supabase";
 import "@/styles/globals.css";
 import type { AppProps } from "next/app";
 
-let leagueId;
+let leagueId: number;
 
 const getLeagueId = async () => {
-  let { data: league, error } = await supabase
-    .from("league")
-    .select();
+  let { data: league, error } = await supabase.from("league").select();
 
   if (error) {
     console.log("🚀 ~ file: _app.tsx:11 ~ error: \n", error);
   } else {
     console.log("🚀 ~ file: _app.tsx:13 ~ league: \n", league);
-    leagueId = league?[0].leagueid;
+    // leagueId = league[0].leagueid;
   }
 };
 
