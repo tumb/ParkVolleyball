@@ -1,14 +1,16 @@
-import React, { useState } from "react";
+import React, { Dispatch, SetStateAction, useState } from "react";
 
-export default function UnderLineTabs() {
-  const [scheduleOpen, setScheduleOpen] = useState(false);
-  const [standingsOpen, setStandingsOpen] = useState(true);
-
-  const handleTabClick = () => {
-    setScheduleOpen(!scheduleOpen);
-    setStandingsOpen(!standingsOpen);
-  };
-
+export default function UnderLineTabs({
+  setScheduleOpen,
+  setStandingsOpen,
+  scheduleOpen,
+  standingsOpen,
+}: {
+  setScheduleOpen: Dispatch<SetStateAction<boolean>>;
+  setStandingsOpen: Dispatch<SetStateAction<boolean>>;
+  scheduleOpen: boolean;
+  standingsOpen: boolean;
+}) {
   return (
     <div>
       <ul className="flex border-b border-gray-100">

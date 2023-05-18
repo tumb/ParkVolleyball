@@ -2,7 +2,7 @@ import StandingsTable from "@/components/UI/StandingsTable";
 import { supabase } from "@/lib/supabase";
 import React from "react";
 
-type StandingProp = {
+export type StandingProp = {
   teamname: string;
   total: number;
 };

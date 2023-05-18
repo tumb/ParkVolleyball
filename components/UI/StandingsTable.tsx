@@ -9,7 +9,7 @@ type StandingProp = {
 export default function StandingsTable({
   standings,    
 }: {
-  standings: StandingProp[];
+  standings: StandingProp[] | null;
 }) {
   return (
     <div className="overflow-x-auto rounded-lg border">
