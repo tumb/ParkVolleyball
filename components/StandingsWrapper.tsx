@@ -9,9 +9,14 @@ export default function StandingsWrapper() {
   const [loading, setLoading] = useState(false);
 
   async function getStandingData() {
-
     setLoading(true);
-    const { data, error } = await supabase.rpc("calculate_standings4");
+
+    const { data, error } = await supabase.rpc("calculate_standings", {
+      leagueid: 2,
+    });
+
+    if (error) console.error(error);
+    else console.log(data);
 
     if (data) {
       setLoading(false);
