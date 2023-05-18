@@ -4,8 +4,8 @@ import StandingsWrapper from "../StandingsWrapper";
 import ScheduleWrapper from "../ScheduleWrapper";
 
 export default function Hero() {
-  const [scheduleOpen, setScheduleOpen] = useState(false);
-  const [standingsOpen, setStandingsOpen] = useState(true);
+  const [scheduleOpen, setScheduleOpen] = useState(true);
+  const [standingsOpen, setStandingsOpen] = useState(false);
   return (
     <div>
       <UnderLineTabs
