@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useContext } from "react";
 import standings from "../../pages/standings";
+import { LeagueContext } from "@/context/LeagueContext";
 
 type StandingProp = {
   teamname: string;
@@ -7,12 +8,38 @@ type StandingProp = {
 };
 
 export default function StandingsTable({
-  standings,    
+  standings,
 }: {
   standings: StandingProp[] | null;
 }) {
+
+  const leagueCtx = useContext(LeagueContext);
+
+  
+  
+  if (standings === null) {
+    return (
+      <div className="mx-auto max-w-screen-xl px-4 py-16 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-lg">
+          <h1 className="text-center text-2xl font-bold text-indigo-600 sm:text-3xl">
+            No standings available!
+          </h1>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="overflow-x-auto rounded-lg border">
+      <h1 className="text-center text-2xl font-bold text-indigo-600 sm:text-3xl">
+        Standings
+      </h1>
+      <p className="mx-auto mt-4 max-w-md text-center text-gray-500">
+        League Id: {leagueCtx.league?.leagueid}
+      </p>
+      <p className="mx-auto mt-4 max-w-md text-center text-gray-500">
+        League Day: {leagueCtx.league?.day}, {leagueCtx.league?.year}
+      </p>
       <table className="min-w-full divide-y-2 divide-gray-200 bg-white text-sm">
         <thead className="text-center">
           <tr>
