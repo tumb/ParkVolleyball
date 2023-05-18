@@ -25,7 +25,7 @@ export default function StandingsWrapper() {
       setLoading(false);
 
       setStandings(data);
-    } else if (data.length === 0) {
+    } else if (data?.length === 0) {
       setLoading(false);
       setStandings(null);
     } else {
