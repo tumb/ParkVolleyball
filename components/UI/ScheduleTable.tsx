@@ -72,12 +72,7 @@ export default function ScheduleTable({
               key={schedule.scheduleid}
             >
               <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                {new Date(schedule.matchdate).toLocaleDateString("en-US",{
-                  weekday: "long",
-                  year: "numeric",
-                  month: "short",
-                  day: "numeric",
-                })}
+                {new Date(schedule.matchdate).toDateString()}
               </td>
               <td
                 className={`whitespace-nowrap px-4 py-2 font-medium ${textColor(
