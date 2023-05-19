@@ -20,23 +20,9 @@ export default function LeagueForm() {
       .eq("year", year);
 
     if (league?.length) {
-      console.log(
-        "🚀 ~ file: LeagueForm.tsx:20 ~ handleLeagueSearch ~ league: \n",
-        league,
-        league[0].leagueid
-      );
-
       toast.success("Success", { id: notification });
       leagueCtx.onUpdate(league[0]);
-      console.log(
-        "🚀 ~ file: LeagueForm.tsx:35 ~ handleLeagueSearch ~ leagueCtx: \n",
-        leagueCtx
-      );
     } else {
-      console.log(
-        "🚀 ~ file: LeagueForm.tsx:28 ~ handleLeagueSearch ~ error: \n",
-        error
-      );
       toast.error("No league found! Please try again", { id: notification });
     }
   };

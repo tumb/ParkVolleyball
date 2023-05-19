@@ -17,29 +17,3 @@ export default function schedule() {
     </Layout>
   );
 }
-
-// export async function getServerSideProps() {
-//   const { data, error } = await supabase
-//     .from("schedule")
-//     .select(
-//       `*, scheduleid, matchdate, team1: team1(teamname), team2: team2(teamname), divisionid: division("divisionname")`
-//     );
-
-//   if (error) {
-//     console.log(
-//       "🚀 ~ file: index.tsx:30 ~ getServerSideProps ~ error: \n",
-//       error
-//     );
-//     return {
-//       props: {
-//         schedules: error,
-//       },
-//     };
-//   }
-
-//   return {
-//     props: {
-//       schedules: data,
-//     },
-//   };
-// }

@@ -33,10 +33,6 @@ export default function FindSchedule() {
 
   const handleScheduleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log(
-      "🚀 ~ file: FindSchedule.tsx:14 ~ FindSchedule ~ data: \n",
-      data
-    );
 
     const { data: schedules, error } = await supabase
       .from("schedule")
@@ -44,10 +40,6 @@ export default function FindSchedule() {
         `*, scheduleid, matchdate, team1: team1(teamname), team2: team2(teamname), divisionid: division("divisionname")`
       )
       .eq("leagueid", 2);
-    console.log(
-      "🚀 ~ file: FindSchedule.tsx:33 ~ handleScheduleSearch ~ schedule: \n",
-      schedules
-    );
   };
 
   const getSchedules = async () => {
@@ -57,10 +49,6 @@ export default function FindSchedule() {
         `*, scheduleid, matchdate, team1: team1(teamname), team2: team2(teamname), divisionid: division("divisionname")`
       )
       .eq("leagueid", 2);
-    console.log(
-      "🚀 ~ file: FindSchedule.tsx:33 ~ handleScheduleSearch ~ schedule: \n",
-      data
-    );
 
     if (data) {
       // setSchedules(data);

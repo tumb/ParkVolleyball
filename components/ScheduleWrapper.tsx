@@ -25,11 +25,6 @@ export default function ScheduleWrapper() {
 
     if (schedules?.length) {
       setLoading(false);
-
-      console.log(
-        "🚀 ~ file: ScheduleWrapper.tsx:35 ~ getSchedule ~ schedules:\n",
-        schedules
-      );
       setSchedules(schedules as ScheduleData[]);
     } else if (schedules?.length === 0) {
       setLoading(false);
