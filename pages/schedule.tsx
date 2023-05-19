@@ -1,32 +1,5 @@
 import FindSchedule from "@/components/FindSchedule";
-import Card from "@/components/UI/Card";
 import Layout from "@/components/UI/Layout";
-import ScheduleForm from "@/components/UI/ScheduleForm";
-import ScheduleTable from "@/components/UI/Table";
-import { supabase } from "@/lib/supabase";
-import React from "react";
-
-export type ScheduleFormData = {
-  day: string;
-  date: string;
-  division: string;
-  year: string;
-};
-
-export type ScheduleData = {
-  scheduleid: number;
-  matchdate: string;
-  team1: {
-    teamname: string;
-  };
-  wins1: number;
-  team2: {
-    teamname: string;
-  };
-  wins2: number;
-  divisionid: { divisionname: string };
-  leagueid: number;
-};
 
 export default function schedule() {
   return (

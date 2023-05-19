@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from "react";
 import ScheduleForm from "./UI/ScheduleForm";
-import schedule, { ScheduleData, ScheduleFormData } from "@/pages/schedule";
 import { supabase } from "@/lib/supabase";
-import ScheduleTable from "./UI/Table";
-import { Database } from "@/lib/database.types";
+import { ScheduleFormData } from "@/lib/types";
 
-type GetScheduleProps = Awaited<ReturnType<typeof getSchedule>>;
+export type GetScheduleProps = Awaited<ReturnType<typeof getSchedule>>;
 
 async function getSchedule() {
   return await supabase
@@ -13,7 +11,8 @@ async function getSchedule() {
     .select(
       `*, scheduleid, matchdate, team1: team1(teamname), team2: team2(teamname), divisionid: division("divisionname")`
     )
-    .eq("leagueid", 2);
+    .eq("leagueid", 2)
+    .order("matchdate", { ascending: false });
 }
 
 const INITIAL_DATA = {

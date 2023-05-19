@@ -1,11 +1,5 @@
-import { supabase } from "@/lib/supabase";
-import { ScheduleFormData } from "@/pages/schedule";
-import React, { useState } from "react";
+import { ScheduleFormProps } from "@/lib/types";
 
-type ScheduleFormProps = ScheduleFormData & {
-  updateFields: (fields: Partial<ScheduleFormData>) => void;
-  handleScheduleSearch: (e: React.FormEvent) => void;
-};
 
 export default function ScheduleForm({
   date,

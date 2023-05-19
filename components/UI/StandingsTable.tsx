@@ -1,11 +1,9 @@
 import React, { useContext } from "react";
 import standings from "../../pages/standings";
 import { LeagueContext } from "@/context/LeagueContext";
+import { StandingProp } from "@/lib/types";
 
-type StandingProp = {
-  teamname: string;
-  total: number;
-};
+
 
 export default function StandingsTable({
   standings,
@@ -30,9 +28,9 @@ export default function StandingsTable({
   }
 
   return (
-    <div className="overflow-x-auto rounded-lg border">
-      <h1 className="text-center text-2xl font-bold text-indigo-600 sm:text-3xl">
-        Standings
+    <div className="overflow-x-auto rounded-lg border pt-12">
+      <h1 className="pt-12 text-center text-2xl font-semibold text-indigo-600">
+        Standings For
       </h1>
       <p className="mx-auto mt-4 max-w-md text-center text-gray-500">
         League Id: {leagueCtx.league?.leagueid}
