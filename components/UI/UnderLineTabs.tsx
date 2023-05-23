@@ -28,7 +28,7 @@ export default function UnderLineTabs({
 
             <div className="flex items-center justify-center gap-4">
               <span className="text-sm font-medium text-gray-900">
-                Schdeule
+                Schedule
               </span>
             </div>
           </button>
