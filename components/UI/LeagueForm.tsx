@@ -1,6 +1,6 @@
-import { LeagueContext } from "@/context/LeagueContext";
+import { LeagueContext, LeagueProp } from "@/context/LeagueContext";
 import { supabase } from "@/lib/supabase";
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 
 export default function LeagueForm() {
@@ -9,7 +9,7 @@ export default function LeagueForm() {
   const [matchDates, setMatchDates] = useState<{ [x: string]: any }[] | null>(
     null
   );
-  const [matchDate, setMatchDate] = useState("");
+  const [selectedMatchDate, setSelectedMatchDate] = useState("");
 
   const leagueCtx = useContext(LeagueContext);
 
@@ -30,6 +30,19 @@ export default function LeagueForm() {
     setMatchDates(data);
   };
 
+  const matchDateHandler = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedMatchDate(e.target.value);
+    const newMatchDate = e.target.value;
+
+    // Update the leagueCtx to include the matchDate value
+    const updatedLeague: LeagueProp = {
+      ...(leagueCtx.league || {}),
+      matchDate: newMatchDate,
+    };
+
+    leagueCtx.onUpdate(updatedLeague);
+  };
+
   const handleLeagueSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     const notification = toast.loading("Sending...");
@@ -43,11 +56,21 @@ export default function LeagueForm() {
     if (league?.length) {
       toast.success("Success", { id: notification });
       getMatchDates(league[0].leagueid);
-      leagueCtx.onUpdate(league[0]);
+
+      leagueCtx.onUpdate({
+        day: league[0].day,
+        leagueid: league[0].leagueid,
+        year: league[0].year,
+        matchDate: "",
+      });
     } else {
       toast.error("No league found! Please try again", { id: notification });
     }
   };
+
+  useEffect(() => {
+    console.log("Updated leagueCtx:", leagueCtx.league?.matchDate);
+  }, [leagueCtx.league]);
 
   return (
     <div className="mx-auto max-w-screen-xl px-4 py-16 sm:px-6 lg:px-8">
@@ -135,8 +158,8 @@ export default function LeagueForm() {
                   <select
                     className="w-full rounded-lg border-gray-200 bg-gray-100 p-4 pe-12 text-sm shadow-sm"
                     placeholder="Enter matchDate"
-                    value={matchDate}
-                    onChange={(e) => setMatchDate(e.target.value)}
+                    value={selectedMatchDate}
+                    onChange={matchDateHandler}
                   >
                     {matchDates.map((matchDate, index) => (
                       <option value={matchDate.matchdate} key={index}>

@@ -1,7 +1,5 @@
 import Navbar from "@/components/UI/Navbar";
 import { LeagueContext, LeagueProp } from "@/context/LeagueContext";
-import { Database } from "@/lib/database.types";
-import { supabase } from "@/lib/supabase";
 import "@/styles/globals.css";
 import type { AppProps } from "next/app";
 import { useState } from "react";

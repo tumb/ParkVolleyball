@@ -1,13 +1,15 @@
 import { createContext } from "react";
-import { Database } from "../lib/database.types";
+
 
 export type LeagueProp =
   | {
-      day: string | null;
-      leagueid: number;
-      year: number | null;
+      matchDate: string;
+      day?: string | null | undefined;
+      leagueid?: number | undefined;
+      year?: number | null | undefined;
     }
   | undefined;
+
 
 // Create a context for the current league
 export const LeagueContext = createContext<{

@@ -1,5 +1,6 @@
+import { LeagueContext } from "@/context/LeagueContext";
 import { ScheduleData } from "@/lib/types";
-import React from "react";
+import React, { useContext } from "react";
 
 const textColor = (schedule: ScheduleData) => {
   if (
@@ -27,6 +28,8 @@ export default function ScheduleTable({
 }: {
   schedules: ScheduleData[] | null | undefined;
 }) {
+  const leagueCtx = useContext(LeagueContext);
+
   if (schedules === null) {
     return (
       <div className="mx-auto max-w-screen-xl px-4 py-16 sm:px-6 lg:px-8">
@@ -40,9 +43,19 @@ export default function ScheduleTable({
   }
   return (
     <div className="overflow-x-auto rounded-lg border">
-      <h1 className="py-12 text-center text-2xl font-semibold text-indigo-600">
+      <h1 className="py-6 text-center text-2xl font-semibold text-indigo-600">
         Schedules
       </h1>
+      {leagueCtx.league?.matchDate ? (
+        <h2 className="pb-6 text-center text-lg font-semibold text-indigo-600">
+          Showing schedules for: {" "}
+          {new Date(leagueCtx.league.matchDate).toDateString()}
+        </h2>
+      ) : (
+        <h2 className="pb-6 text-center text-lg font-semibold text-indigo-600">
+          Showing all schedules available
+        </h2>
+      )}
 
       <table className="min-w-full divide-y-2 divide-gray-200 bg-white text-sm">
         <thead className="text-center">

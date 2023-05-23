@@ -10,7 +10,7 @@ export default function ScheduleWrapper() {
   const [loading, setLoading] = useState(false);
   const leagueCtx = useContext(LeagueContext);
 
-  async function getSchedule() {
+  async function getScheduleWithMatchDate() {
     setLoading(true);
     if (leagueCtx.league?.leagueid === undefined) {
       return;
@@ -21,7 +21,34 @@ export default function ScheduleWrapper() {
         `*, scheduleid, matchdate, team1: team1(teamname), team2: team2(teamname), divisionid: division("divisionname")`
       )
       .eq("leagueid", leagueCtx.league?.leagueid)
-      .order("matchdate", { ascending: false }).order("divisionid")
+      .eq("matchdate", leagueCtx.league.matchDate)
+      .order("matchdate", { ascending: false })
+      .order("divisionid");
+
+    if (schedules?.length) {
+      setLoading(false);
+      setSchedules(schedules as ScheduleData[]);
+    } else if (schedules?.length === 0) {
+      setLoading(false);
+      setSchedules(null);
+    } else {
+      console.error(error);
+    }
+  }
+
+  async function getAllSchedule() {
+    setLoading(true);
+    if (leagueCtx.league?.leagueid === undefined) {
+      return;
+    }
+    const { data: schedules, error } = await supabase
+      .from("schedule")
+      .select(
+        `*, scheduleid, matchdate, team1: team1(teamname), team2: team2(teamname), divisionid: division("divisionname")`
+      )
+      .eq("leagueid", leagueCtx.league?.leagueid)
+      .order("matchdate", { ascending: false })
+      .order("divisionid");
 
     if (schedules?.length) {
       setLoading(false);
@@ -35,7 +62,7 @@ export default function ScheduleWrapper() {
   }
 
   useEffect(() => {
-    getSchedule();
+    leagueCtx.league?.matchDate ? getScheduleWithMatchDate() : getAllSchedule();
   }, [leagueCtx]);
 
   return (
