@@ -233,7 +233,12 @@ export interface Database {
       }
     }
     Views: {
-      [_ in never]: never
+      distinct_macthdate: {
+        Row: {
+          leagueid: number | null
+          matchdate: string | null
+        }
+      }
     }
     Functions: {
       calculate_standings: {

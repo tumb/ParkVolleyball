@@ -4,10 +4,31 @@ import React, { useContext, useState } from "react";
 import { toast } from "react-hot-toast";
 
 export default function LeagueForm() {
-  const [day, setDay] = useState("");
+  const [day, setDay] = useState("Monday");
   const [year, setYear] = useState(2023);
+  const [matchDates, setMatchDates] = useState<{ [x: string]: any }[] | null>(
+    null
+  );
+  const [matchDate, setMatchDate] = useState("");
 
   const leagueCtx = useContext(LeagueContext);
+
+  const getMatchDates = async (leagueId: number) => {
+    const { data, error } = await supabase
+      .from("distinct_macthdate")
+      .select("*")
+      .eq("leagueid", leagueId);
+
+    if (error) {
+      console.log(
+        "🚀 ~ file: LeagueForm.tsx:15 ~ getMatchDates ~ error:\n",
+        error
+      );
+    }
+    console.log("🚀 ~ file: LeagueForm.tsx:15 ~ getMatchDates ~ data:\n", data);
+
+    setMatchDates(data);
+  };
 
   const handleLeagueSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,6 +42,7 @@ export default function LeagueForm() {
 
     if (league?.length) {
       toast.success("Success", { id: notification });
+      getMatchDates(league[0].leagueid);
       leagueCtx.onUpdate(league[0]);
     } else {
       toast.error("No league found! Please try again", { id: notification });
@@ -29,7 +51,7 @@ export default function LeagueForm() {
 
   return (
     <div className="mx-auto max-w-screen-xl px-4 py-16 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-lg">
+      <div className="mx-auto">
         {leagueCtx.league ? (
           <>
             <h1 className="text-center text-2xl font-bold text-indigo-600 sm:text-3xl">
@@ -60,47 +82,70 @@ export default function LeagueForm() {
           onSubmit={handleLeagueSearch}
           className="mb-0 mt-6 space-y-4 rounded-lg p-4 shadow-lg sm:p-6 lg:p-8"
         >
-          <div>
-            <label htmlFor="Day" className="">
-              Day
-            </label>
+          <div className="flex items-center justify-between space-x-6">
+            <div className="w-full flex-col">
+              <label htmlFor="Day" className="">
+                Day
+              </label>
 
-            <div className="relative">
-              <select
-                className="border-gray-200bg-gray-100  w-full rounded-lg bg-gray-100 p-4 pe-12 text-sm shadow-sm"
-                placeholder="Enter Day"
-                value={day}
-                onChange={(e) => setDay(e.target.value)}
-              >
-                <option value="">Choose a League/Day</option>
-                <option value="Monday">Monday</option>
-                <option value="Tuesday">Tuesday</option>
-                <option value="Wednesday">Wednesday</option>
-                <option value="Thursday">Thursday</option>
-                <option value="Friday">Friday</option>
-                <option value="Sunday">Sunday</option>
-                <option value="Saturday">Saturday</option>
-              </select>
+              <div className="relative">
+                <select
+                  className="border-gray-200bg-gray-100 w-full rounded-lg bg-gray-100 px-6 py-4 pe-12 text-sm shadow-sm"
+                  placeholder="Enter Day"
+                  value={day}
+                  onChange={(e) => setDay(e.target.value)}
+                >
+                  <option value="Monday">Monday</option>
+                  <option value="Tuesday">Tuesday</option>
+                  <option value="Wednesday">Wednesday</option>
+                  <option value="Thursday">Thursday</option>
+                  <option value="Friday">Friday</option>
+                  <option value="Sunday">Sunday</option>
+                  <option value="Saturday">Saturday</option>
+                </select>
+              </div>
             </div>
-          </div>
 
-          <div>
-            <label htmlFor="Year" className="">
-              Year
-            </label>
+            <div className="w-full flex-col">
+              <label htmlFor="Year" className="">
+                Year
+              </label>
 
-            <div className="relative">
-              <select
-                className="w-full rounded-lg border-gray-200 bg-gray-100 p-4 pe-12 text-sm shadow-sm"
-                placeholder="Enter Year"
-                value={year}
-                onChange={(e) => setYear(parseInt(e.target.value))}
-              >
-                <option value="">Choose a Year</option>
-                <option value="2021">2021</option>
-                <option value="2022">2022</option>
-                <option value="2023">2023</option>
-              </select>
+              <div className="relative">
+                <select
+                  className="w-full rounded-lg border-gray-200 bg-gray-100 p-4 pe-12 text-sm shadow-sm"
+                  placeholder="Enter Year"
+                  value={year}
+                  onChange={(e) => setYear(parseInt(e.target.value))}
+                >
+                  <option value="2021">2021</option>
+                  <option value="2022">2022</option>
+                  <option value="2023">2023</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="w-full flex-col">
+              <label htmlFor="matchDate" className="">
+                Available Matchdates
+              </label>
+
+              {matchDates && (
+                <div className="relative">
+                  <select
+                    className="w-full rounded-lg border-gray-200 bg-gray-100 p-4 pe-12 text-sm shadow-sm"
+                    placeholder="Enter matchDate"
+                    value={matchDate}
+                    onChange={(e) => setMatchDate(e.target.value)}
+                  >
+                    {matchDates.map((matchDate, index) => (
+                      <option value={matchDate.matchdate} key={index}>
+                        {new Date(matchDate?.matchdate).toDateString()}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
             </div>
           </div>
 
