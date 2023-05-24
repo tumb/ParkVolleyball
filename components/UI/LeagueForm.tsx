@@ -43,7 +43,9 @@ export default function LeagueForm() {
     leagueCtx.onUpdate(updatedLeague);
   };
 
-  const handleLeagueSearch = async (e) => {
+  const handleLeagueSearch = async (
+    e: React.ChangeEvent<HTMLSelectElement>
+  ) => {
     e.preventDefault();
     setYear(parseInt(e.target.value));
     const notification = toast.loading("Searching for a league...");
@@ -103,7 +105,6 @@ export default function LeagueForm() {
         )}
         <form
           action=""
-          onSubmit={handleLeagueSearch}
           className="mb-0 mt-6 space-y-4 rounded-lg p-4 shadow-lg sm:p-6 lg:p-8"
         >
           <div className="flex items-center justify-between space-x-6">
