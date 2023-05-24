@@ -43,11 +43,7 @@ export default function LeagueForm() {
     leagueCtx.onUpdate(updatedLeague);
   };
 
-  const handleLeagueSearch = async (
-    e: React.ChangeEvent<HTMLSelectElement>
-  ) => {
-    e.preventDefault();
-    setYear(parseInt(e.target.value));
+  const handleLeagueSearch = async () => {
     const notification = toast.loading("Searching for a league...");
 
     let { data: league, error } = await supabase
@@ -55,6 +51,10 @@ export default function LeagueForm() {
       .select()
       .eq("day", day)
       .eq("year", year);
+    console.log(
+      "🚀 ~ file: LeagueForm.tsx:58 ~ LeagueForm ~ league:\n",
+      league
+    );
 
     if (league?.length) {
       toast.success("Found it 😊", { id: notification });
@@ -75,34 +75,13 @@ export default function LeagueForm() {
     console.log("Updated leagueCtx:", leagueCtx.league?.matchDate);
   }, [leagueCtx.league]);
 
+  useEffect(() => {
+    handleLeagueSearch();
+  }, [day, year]);
+
   return (
-    <div className="mx-auto max-w-screen-xl px-4 py-16 sm:px-6 lg:px-8">
+    <div className="max-w-screen mx-auto px-4 py-2">
       <div className="mx-auto">
-        {leagueCtx.league ? (
-          <>
-            <h1 className="text-center text-2xl font-bold text-indigo-600 sm:text-3xl">
-              Your League Information:
-            </h1>
-            <p className="mx-auto mt-4 max-w-md text-center text-gray-500">
-              League Id: {leagueCtx.league.leagueid}
-            </p>
-            <p className="mx-auto mt-4 max-w-md text-center text-gray-500">
-              League Day: {leagueCtx.league.day}, {leagueCtx.league.year}
-            </p>
-            <p className="mx-auto mt-4 max-w-md text-center text-gray-500">
-              Search Again?
-            </p>
-          </>
-        ) : (
-          <>
-            <h1 className="text-center text-2xl font-bold text-indigo-600 sm:text-3xl">
-              League Search
-            </h1>
-            <p className="mx-auto mt-4 max-w-md text-center text-gray-500">
-              Find your league to get started
-            </p>
-          </>
-        )}
         <form
           action=""
           className="mb-0 mt-6 space-y-4 rounded-lg p-4 shadow-lg sm:p-6 lg:p-8"
@@ -141,7 +120,7 @@ export default function LeagueForm() {
                   className="w-full rounded-lg border-gray-200 bg-gray-100 p-4 pe-12 text-sm shadow-sm"
                   placeholder="Enter Year"
                   value={year}
-                  onChange={handleLeagueSearch}
+                  onChange={(e) => setYear(parseInt(e.target.value))}
                 >
                   <option value="2021">2021</option>
                   <option value="2022">2022</option>
