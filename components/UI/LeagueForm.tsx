@@ -17,7 +17,8 @@ export default function LeagueForm() {
     const { data, error } = await supabase
       .from("distinct_macthdate")
       .select("*")
-      .eq("leagueid", leagueId);
+      .eq("leagueid", leagueId)
+      .order("matchdate");
 
     if (error) {
       console.log(

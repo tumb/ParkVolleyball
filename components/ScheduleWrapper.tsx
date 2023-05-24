@@ -22,7 +22,7 @@ export default function ScheduleWrapper() {
       )
       .eq("leagueid", leagueCtx.league?.leagueid)
       .eq("matchdate", leagueCtx.league.matchDate)
-      .order("matchdate", { ascending: false })
+      .order("matchdate", { ascending: true })
       .order("divisionid");
 
     if (schedules?.length) {
@@ -47,7 +47,7 @@ export default function ScheduleWrapper() {
         `*, scheduleid, matchdate, team1: team1(teamname), team2: team2(teamname), divisionid: division("divisionname")`
       )
       .eq("leagueid", leagueCtx.league?.leagueid)
-      .order("matchdate", { ascending: false })
+      .order("matchdate", { ascending: true })
       .order("divisionid");
 
     if (schedules?.length) {
