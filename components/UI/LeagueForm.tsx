@@ -80,7 +80,7 @@ export default function LeagueForm() {
       <div className="mx-auto">
         {leagueCtx.league ? (
           <>
-            <h1 className="text-center text-2xl font-bold text-indigo-600 sm:text-3xl">
+            <h1 className="text-center text-2xl font-bold  sm:text-3xl">
               Your League Information:
             </h1>
             <p className="mx-auto mt-4 max-w-md text-center text-gray-500">
@@ -95,7 +95,7 @@ export default function LeagueForm() {
           </>
         ) : (
           <>
-            <h1 className="text-center text-2xl font-bold text-indigo-600 sm:text-3xl">
+            <h1 className="text-center text-2xl font-bold  sm:text-3xl">
               League Search
             </h1>
             <p className="mx-auto mt-4 max-w-md text-center text-gray-500">

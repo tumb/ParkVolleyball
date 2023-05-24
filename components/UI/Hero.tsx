@@ -7,7 +7,7 @@ export default function Hero() {
   const [scheduleOpen, setScheduleOpen] = useState(true);
   const [standingsOpen, setStandingsOpen] = useState(false);
   return (
-    <div>
+    <div className="">
       <UnderLineTabs
         setScheduleOpen={setScheduleOpen}
         setStandingsOpen={setStandingsOpen}
