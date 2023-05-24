@@ -43,9 +43,10 @@ export default function LeagueForm() {
     leagueCtx.onUpdate(updatedLeague);
   };
 
-  const handleLeagueSearch = async (e: React.FormEvent) => {
+  const handleLeagueSearch = async (e) => {
     e.preventDefault();
-    const notification = toast.loading("Sending...");
+    setYear(parseInt(e.target.value));
+    const notification = toast.loading("Searching for a league...");
 
     let { data: league, error } = await supabase
       .from("league")
@@ -54,7 +55,7 @@ export default function LeagueForm() {
       .eq("year", year);
 
     if (league?.length) {
-      toast.success("Success", { id: notification });
+      toast.success("Found it 😊", { id: notification });
       getMatchDates(league[0].leagueid);
 
       leagueCtx.onUpdate({
@@ -139,7 +140,7 @@ export default function LeagueForm() {
                   className="w-full rounded-lg border-gray-200 bg-gray-100 p-4 pe-12 text-sm shadow-sm"
                   placeholder="Enter Year"
                   value={year}
-                  onChange={(e) => setYear(parseInt(e.target.value))}
+                  onChange={handleLeagueSearch}
                 >
                   <option value="2021">2021</option>
                   <option value="2022">2022</option>
@@ -171,13 +172,6 @@ export default function LeagueForm() {
               )}
             </div>
           </div>
-
-          <button
-            type="submit"
-            className="block w-full rounded-lg bg-indigo-600 px-5 py-3 text-sm font-medium text-white"
-          >
-            Find League
-          </button>
         </form>
       </div>
     </div>
