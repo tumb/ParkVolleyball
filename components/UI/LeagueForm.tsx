@@ -18,7 +18,7 @@ export default function LeagueForm() {
       .from("distinct_macthdate")
       .select("*")
       .eq("leagueid", leagueId)
-      .order("matchdate");
+      .order("matchdate", {ascending: false});
 
     if (error) {
       console.log(
@@ -81,11 +81,11 @@ export default function LeagueForm() {
   }, [day, year]);
 
   return (
-    <div className="max-w-screen mx-auto px-4 py-2">
+    <div className="max-w-screen-xl mx-auto px-4 py-24">
       <div className="mx-auto">
         <form
           action=""
-          className="mb-0 mt-6 space-y-4 rounded-lg p-4 shadow-lg sm:p-6 lg:p-8"
+          className="mb-0 mt-6 space-y-4 rounded-lg p-4 shadow-lg sm:p-6 lg:p-8 bg-white"
         >
           <div className="flex items-center justify-between space-x-6">
             <div className="w-full flex-col">

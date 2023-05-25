@@ -23,8 +23,8 @@ export default function StandingsTable({
   }
 
   return (
-    <div className="overflow-x-auto rounded-lg border pt-12">
-      <h1 className="pt-12 text-center text-2xl font-semibold text-indigo-600">
+    <div className="overflow-x-auto rounded-lg border">
+      <h1 className="py-12 text-center text-2xl font-semibold text-indigo-600">
         League: {leagueCtx.league?.day}, {leagueCtx.league?.year}
       </h1>
 
