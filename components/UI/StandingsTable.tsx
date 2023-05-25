@@ -3,18 +3,13 @@ import standings from "../../pages/standings";
 import { LeagueContext } from "@/context/LeagueContext";
 import { StandingProp } from "@/lib/types";
 
-
-
 export default function StandingsTable({
   standings,
 }: {
   standings: StandingProp[] | null;
 }) {
-
   const leagueCtx = useContext(LeagueContext);
 
-  
-  
   if (standings === null) {
     return (
       <div className="mx-auto max-w-screen-xl px-4 py-16 sm:px-6 lg:px-8">
@@ -30,14 +25,9 @@ export default function StandingsTable({
   return (
     <div className="overflow-x-auto rounded-lg border pt-12">
       <h1 className="pt-12 text-center text-2xl font-semibold text-indigo-600">
-        Standings For
+        League: {leagueCtx.league?.day}, {leagueCtx.league?.year}
       </h1>
-      <p className="mx-auto mt-4 max-w-md text-center text-gray-500">
-        League Id: {leagueCtx.league?.leagueid}
-      </p>
-      <p className="mx-auto mt-4 max-w-md text-center text-gray-500">
-        League Day: {leagueCtx.league?.day}, {leagueCtx.league?.year}
-      </p>
+
       <table className="min-w-full divide-y-2 divide-gray-200 bg-white text-sm">
         <thead className="text-center">
           <tr>
