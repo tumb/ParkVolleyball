@@ -18,7 +18,7 @@ export default function LeagueForm() {
       .from("distinct_macthdate")
       .select("*")
       .eq("leagueid", leagueId)
-      .order("matchdate", {ascending: false});
+      .order("matchdate");
 
     if (error) {
       console.log(
@@ -145,7 +145,7 @@ export default function LeagueForm() {
                   >
                     {matchDates.map((matchDate, index) => (
                       <option value={matchDate.matchdate} key={index}>
-                        {new Date(matchDate?.matchdate).toDateString()}
+                        {new Date(matchDate?.matchdate).toString()}
                       </option>
                     ))}
                   </select>
