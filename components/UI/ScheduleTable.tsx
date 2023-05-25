@@ -48,7 +48,7 @@ export default function ScheduleTable({
       </h1>
       {leagueCtx.league?.matchDate ? (
         <h2 className="pb-6 text-center text-lg font-semibold text-indigo-600">
-          Showing schedules for: {" "}
+          Showing schedules for:{" "}
           {new Date(leagueCtx.league.matchDate).toDateString()}
         </h2>
       ) : (
@@ -85,7 +85,13 @@ export default function ScheduleTable({
               key={schedule.scheduleid}
             >
               <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                {new Date(schedule.matchdate).toDateString()}
+                {new Date(schedule.matchdate).toLocaleDateString("en-US", {
+                  timeZone: "GMT",
+                  weekday: "long",
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })}
               </td>
               <td
                 className={`whitespace-nowrap px-4 py-2 font-medium ${textColor(

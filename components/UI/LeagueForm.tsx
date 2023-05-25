@@ -81,11 +81,11 @@ export default function LeagueForm() {
   }, [day, year]);
 
   return (
-    <div className="max-w-screen-xl mx-auto px-4 py-24">
+    <div className="mx-auto max-w-screen-xl px-4 py-24">
       <div className="mx-auto">
         <form
           action=""
-          className="mb-0 mt-6 space-y-4 rounded-lg p-4 shadow-lg sm:p-6 lg:p-8 bg-white"
+          className="mb-0 mt-6 space-y-4 rounded-lg bg-white p-4 shadow-lg sm:p-6 lg:p-8"
         >
           <div className="flex items-center justify-between space-x-6">
             <div className="w-full flex-col">
@@ -145,7 +145,16 @@ export default function LeagueForm() {
                   >
                     {matchDates.map((matchDate, index) => (
                       <option value={matchDate.matchdate} key={index}>
-                        {new Date(matchDate?.matchdate).toString()}
+                        {new Date(matchDate?.matchdate).toLocaleDateString(
+                          "en-US",
+                          {
+                            timeZone: "GMT",
+                            weekday: "long",
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                          }
+                        )}
                       </option>
                     ))}
                   </select>
