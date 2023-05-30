@@ -87,7 +87,7 @@ export default function LeagueForm() {
           action=""
           className="mb-0 mt-6 space-y-4 rounded-lg bg-white p-4 shadow-lg sm:p-6 lg:p-8"
         >
-          <div className="flex items-center justify-between space-x-6">
+          <div className="flex flex-col items-center justify-between sm:flex-row sm:space-x-6 space-y-2">
             <div className="w-full flex-col">
               <label htmlFor="Day" className="">
                 Day
@@ -95,7 +95,7 @@ export default function LeagueForm() {
 
               <div className="relative">
                 <select
-                  className="border-gray-200bg-gray-100 w-full rounded-lg bg-gray-100 px-6 py-4 pe-12 text-sm shadow-sm"
+                  className="border-gray-200bg-gray-100 w-full rounded-lg bg-gray-100 p-2 text-xs shadow-sm sm:px-6 sm:py-4 sm:text-sm"
                   placeholder="Enter Day"
                   value={day}
                   onChange={(e) => setDay(e.target.value)}
@@ -118,7 +118,7 @@ export default function LeagueForm() {
 
               <div className="relative">
                 <select
-                  className="w-full rounded-lg border-gray-200 bg-gray-100 p-4 pe-12 text-sm shadow-sm"
+                  className="border-gray-200bg-gray-100 w-full rounded-lg bg-gray-100 p-2 text-xs shadow-sm sm:px-6 sm:py-4 sm:text-sm"
                   placeholder="Enter Year"
                   value={year}
                   onChange={(e) => setYear(parseInt(e.target.value))}
@@ -138,7 +138,7 @@ export default function LeagueForm() {
               {matchDates && (
                 <div className="relative">
                   <select
-                    className="w-full rounded-lg border-gray-200 bg-gray-100 p-4 pe-12 text-sm shadow-sm"
+                    className="border-gray-200bg-gray-100 w-full rounded-lg bg-gray-100 p-2 text-xs shadow-sm sm:px-6 sm:py-4 sm:text-sm"
                     placeholder="Enter matchDate"
                     value={selectedMatchDate}
                     onChange={matchDateHandler}
