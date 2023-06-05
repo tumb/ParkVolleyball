@@ -1,3 +1,5 @@
+import { Database } from "./database.types";
+
 export type ScheduleFormData = {
   day: string;
   date: string;
@@ -26,3 +28,5 @@ export type StandingProp = {
   teamname: string;
   total: number;
 };
+
+export type TeamData = Database["public"]["Tables"]["team"]["Row"];

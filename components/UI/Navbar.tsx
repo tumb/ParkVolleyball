@@ -25,6 +25,14 @@ export default function Navbar() {
                 <li>
                   <Link
                     className="text-gray-500 transition hover:text-gray-500/75"
+                    href="/teams"
+                  >
+                    Teams
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    className="text-gray-500 transition hover:text-gray-500/75"
                     href="/rules"
                   >
                     Rules
