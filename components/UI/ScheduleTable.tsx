@@ -69,11 +69,17 @@ export default function ScheduleTable({
             <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
               Team 1
             </th>
+            <th className="whitespace-nowrap py-2 font-medium text-gray-900">
+              Team 1 wins
+            </th>
             <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
               VS
             </th>
             <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
               Team2
+            </th>
+            <th className="whitespace-nowrap py-2 font-medium text-gray-900">
+              Team 2 wins
             </th>
           </tr>
         </thead>
@@ -104,9 +110,15 @@ export default function ScheduleTable({
               <td className="whitespace-nowrap px-4 py-2 text-gray-700">
                 {schedule.team1.teamname}
               </td>
+              <td className="whitespace-nowrap py-2 text-gray-700">
+                {schedule.team1wins}
+              </td>
               <td className="whitespace-nowrap px-4 py-2 text-gray-700">vs</td>
               <td className="whitespace-nowrap px-4 py-2 text-gray-700">
                 {schedule.team2.teamname}
+              </td>
+              <td className="whitespace-nowrap py-2 text-gray-700">
+                {schedule.team2wins}
               </td>
             </tr>
           ))}
