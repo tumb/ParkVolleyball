@@ -9,7 +9,7 @@ export type ScheduleFormData = {
 
 export type ScheduleData = {
   scheduleid: number | null;
-  matchdate: string;
+  matchdate: string ;
   team1: { teamname: string | null };
   team2: { teamname: string | null };
   team1wins: number | null;
@@ -32,9 +32,9 @@ export type StandingProp = {
 export type TeamData = Database["public"]["Tables"]["team"]["Row"];
 
 export type RecordData = {
-  teamname: string;
-  opponent: string;
-  division: string;
+  teamname: string | null | undefined;
+  opponent: string | null | undefined;
+  division: string | null;
   date: string;
-  won: number;
-}
+  won: string | number | undefined;
+};

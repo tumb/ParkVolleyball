@@ -19,13 +19,11 @@ export default function TeamForm() {
     console.log("🚀 ~ file: TeamForm.tsx:7 ~ getTeams ~ team:\n", team);
   };
 
-  const handleTeamChange = (
-    event: React.ChangeEvent<HTMLSelectElement>
-  ) => {
+  const handleTeamChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedTeamId(parseInt(event.target.value));
     const newTeamId = parseInt(event.target.value);
     const newTeamName = teamData?.find((team) => team.teamid === newTeamId);
-   
+
     // Update the teamCtx to include the teamId value
     const updatedTeam: TeamRecordProp = {
       ...(teamCtx.teamRecord || {}),
@@ -35,13 +33,13 @@ export default function TeamForm() {
 
     teamCtx.onUpdate(updatedTeam);
   };
-  
+
   useEffect(() => {
     getTeams();
   }, []);
 
   return (
-    <div className="mx-auto max-w-screen-xl px-4 py-24">
+    <div className="mx-auto max-w-screen-sm px-4 py-24">
       <div className="mx-auto">
         <form
           action=""
@@ -70,48 +68,6 @@ export default function TeamForm() {
                   </select>
                 </div>
               )}
-            </div>
-
-            <div className="w-full flex-col">
-              <label htmlFor="Day" className="">
-                Day
-              </label>
-
-              <div className="relative">
-                <select
-                  className="border-gray-200bg-gray-100 w-full rounded-lg bg-gray-100 p-2 text-xs shadow-sm sm:px-6 sm:py-4 sm:text-sm"
-                  placeholder="Enter Day"
-                  //   value={day}
-                  //   onChange={(e) => setDay(e.target.value)}
-                >
-                  <option value="Monday">Monday</option>
-                  <option value="Tuesday">Tuesday</option>
-                  <option value="Wednesday">Wednesday</option>
-                  <option value="Thursday">Thursday</option>
-                  <option value="Friday">Friday</option>
-                  <option value="Sunday">Sunday</option>
-                  <option value="Saturday">Saturday</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="w-full flex-col">
-              <label htmlFor="Year" className="">
-                Year
-              </label>
-
-              <div className="relative">
-                <select
-                  className="border-gray-200bg-gray-100 w-full rounded-lg bg-gray-100 p-2 text-xs shadow-sm sm:px-6 sm:py-4 sm:text-sm"
-                  placeholder="Enter Year"
-                  //   value={year}
-                  //   onChange={(e) => setYear(parseInt(e.target.value))}
-                >
-                  <option value="2021">2021</option>
-                  <option value="2022">2022</option>
-                  <option value="2023">2023</option>
-                </select>
-              </div>
             </div>
           </div>
         </form>

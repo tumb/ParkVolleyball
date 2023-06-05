@@ -53,7 +53,7 @@ export default function ScheduleTable({
         </h2>
       ) : (
         <h2 className="pb-6 text-center text-lg font-semibold text-indigo-600">
-          Showing all schedules available
+          Showing schedules for the first day available. Select another date to view other schedules...
         </h2>
       )}
 

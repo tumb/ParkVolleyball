@@ -1,22 +1,15 @@
 import React, { useContext, useEffect, useState } from "react";
 import TeamForm from "./TeamForm";
-import { RecordData, TeamData } from "@/lib/types";
+import { RecordData, ScheduleData, TeamData } from "@/lib/types";
 import RecordTable from "./RecordTable";
 import { supabase } from "@/lib/supabase";
 import { TeamRecordContext } from "@/context/TeamRecordContext";
 
 export default function TeamWrapper() {
-  const [selectedTeamId, setSelectedTeamId] = useState<number | null>(null);
-  const [selectedTeamName, setSelectedTeamName] = useState<string | null>("");
   const [recordData, setRecordData] = useState<RecordData[] | null>(null);
 
   const teamCtx = useContext(TeamRecordContext);
 
-
-  console.log(
-    "🚀 ~ file: TeamWrapper.tsx:11 ~ TeamWrapper ~ selectedTeamName:\n",
-    selectedTeamName
-  );
   const findSchedulesForTeam = async (teamId: number) => {
     const { data, error } = await supabase
       .from("schedule")
@@ -30,9 +23,34 @@ export default function TeamWrapper() {
     if (data?.length) {
       console.log("schedule for a team:\n", data);
 
-      //Map the data to the RecordData type object. For all the entries, teamname should be the same from the teamId.
-      // Then set the other teamname to the opponent. Calculte the wins and losses by comparing the teamId to the winner. 0 for loss, 2 for win, 1 for draw.
-      // set the matchdate as the date.
+      const mappedData: RecordData[] = data.map((schedule) => {
+        let teamname: string | null | undefined = teamCtx.teamRecord?.teamname;
+        let opponent: string | undefined;
+        let won: string | number | undefined;
+        //@ts-ignore
+        if (schedule.team1.teamname === teamCtx.teamRecord?.teamname) {
+          //@ts-ignore
+          opponent = schedule.team2.teamname!;
+          won = schedule.team1wins === null ? "No Data" : schedule.team1wins;
+          //@ts-ignore
+        } else if (schedule.team2.teamname === teamCtx.teamRecord?.teamname) {
+          //@ts-ignore
+          opponent = schedule.team1.teamname!;
+          won = schedule.team2wins === null ? "No Data" : schedule.team2wins;
+        }
+
+        return {
+          teamname,
+          opponent,
+          won,
+          date: schedule.matchdate ? schedule.matchdate : "No Data",
+          //@ts-ignore
+          division: schedule.divisionid.divisionname,
+        };
+      });
+
+      console.log("mappedData:\n", mappedData);
+      setRecordData(mappedData);
     } else if (data?.length === 0) {
       console.log("no schedule for a team:\n", data);
     } else {
@@ -41,17 +59,12 @@ export default function TeamWrapper() {
   };
 
   useEffect(() => {
-    if (selectedTeamId) {
-      findSchedulesForTeam(selectedTeamId);
+    console.log(teamCtx);
+    if (teamCtx.teamRecord?.teamid) {
+      findSchedulesForTeam(teamCtx.teamRecord.teamid);
     }
-  }, [selectedTeamId]);
+  }, [teamCtx]);
 
-
-
-  useEffect(() => {
-    console.log(teamCtx)
-  }, [teamCtx])
-  
   return (
     <div>
       <TeamForm />

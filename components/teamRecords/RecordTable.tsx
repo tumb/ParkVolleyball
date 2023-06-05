@@ -31,6 +31,10 @@ export default function RecordTable({
             </th>
 
             <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+              Division
+            </th>
+
+            <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
               Won ?
             </th>
 
@@ -46,11 +50,23 @@ export default function RecordTable({
               <td className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
                 {record.opponent}
               </td>
+
+              <td className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                {record.division}
+              </td>
+
               <td className="whitespace-nowrap px-4 py-2 text-gray-700">
                 {record.won}
               </td>
+
               <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                {record.date}
+                {new Date(record.date).toLocaleDateString("en-US", {
+                  timeZone: "GMT",
+                  weekday: "long",
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })}
               </td>
             </tr>
           ))}
