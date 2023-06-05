@@ -5,7 +5,7 @@ import icon from "@/assets/icon-512x512.png";
 
 export default function Navbar() {
   return (
-    <header aria-label="Site Header" className="bg-white">
+    <header aria-label="Site Header" className="sticky top-0 bg-white">
       <div className="max-w-screen mx-auto px-4 shadow-md sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           <div className="flex-1 md:flex md:items-center md:gap-12">

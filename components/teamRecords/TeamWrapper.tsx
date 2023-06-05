@@ -4,6 +4,8 @@ import { RecordData, ScheduleData, TeamData } from "@/lib/types";
 import RecordTable from "./RecordTable";
 import { supabase } from "@/lib/supabase";
 import { TeamRecordContext } from "@/context/TeamRecordContext";
+import { toast } from "react-hot-toast";
+
 
 export default function TeamWrapper() {
   const [recordData, setRecordData] = useState<RecordData[] | null>(null);
@@ -11,6 +13,9 @@ export default function TeamWrapper() {
   const teamCtx = useContext(TeamRecordContext);
 
   const findSchedulesForTeam = async (teamId: number) => {
+
+    const notification = toast.loading("Finding Team records");
+    
     const { data, error } = await supabase
       .from("schedule")
       .select(
@@ -21,7 +26,8 @@ export default function TeamWrapper() {
       .order("divisionid");
 
     if (data?.length) {
-      console.log("schedule for a team:\n", data);
+      toast.success("Found it 😊", { id: notification });
+
 
       const mappedData: RecordData[] = data.map((schedule) => {
         let teamname: string | null | undefined = teamCtx.teamRecord?.teamname;
@@ -49,17 +55,16 @@ export default function TeamWrapper() {
         };
       });
 
-      console.log("mappedData:\n", mappedData);
       setRecordData(mappedData);
     } else if (data?.length === 0) {
-      console.log("no schedule for a team:\n", data);
+      toast.error("No records found 😢", { id: notification });
     } else {
+      toast.error("Something went wrong 😢", { id: notification });
       console.error(error);
     }
   };
 
   useEffect(() => {
-    console.log(teamCtx);
     if (teamCtx.teamRecord?.teamid) {
       findSchedulesForTeam(teamCtx.teamRecord.teamid);
     }

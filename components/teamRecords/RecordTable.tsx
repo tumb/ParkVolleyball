@@ -1,5 +1,5 @@
-import { RecordData, TeamData } from "@/lib/types";
-import React from "react";
+import { RecordData } from "@/lib/types";
+import { Ring } from "@uiball/loaders";
 
 export default function RecordTable({
   recordData,
@@ -8,12 +8,8 @@ export default function RecordTable({
 }) {
   if (recordData === null) {
     return (
-      <div className="mx-auto max-w-screen-xl px-4 py-16 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-lg">
-          <h1 className="text-center text-2xl font-bold text-indigo-600 sm:text-3xl">
-            No teamData available!
-          </h1>
-        </div>
+      <div className="mx-auto flex max-w-screen-xl items-center justify-center px-4 py-16 sm:px-6 lg:px-8">
+        <Ring />
       </div>
     );
   }
