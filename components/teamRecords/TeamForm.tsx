@@ -1,22 +1,14 @@
+import { TeamRecordContext, TeamRecordProp } from "@/context/TeamRecordContext";
 import { supabase } from "@/lib/supabase";
 import { TeamData } from "@/lib/types";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 
-type TeamFormProps = {
-  teamData: TeamData[] | null;
-  setTeamData: React.Dispatch<React.SetStateAction<TeamData[] | null>>;
-  setSelectedTeamId: React.Dispatch<React.SetStateAction<number | null>>;
-  selectedTeamId: number | null;
-  setSelectedTeamName: React.Dispatch<React.SetStateAction<string | null>>;
-};
+export default function TeamForm() {
+  const [teamData, setTeamData] = useState<TeamData[] | null>(null);
+  const [selectedTeamId, setSelectedTeamId] = useState<number>();
 
-export default function TeamForm({
-  teamData,
-  setTeamData,
-  setSelectedTeamId,
-  selectedTeamId,
-  setSelectedTeamName,
-}: TeamFormProps) {
+  const teamCtx = useContext(TeamRecordContext);
+
   const getTeams = async () => {
     let { data: team, error } = await supabase.from("team").select("*");
 
@@ -27,6 +19,23 @@ export default function TeamForm({
     console.log("🚀 ~ file: TeamForm.tsx:7 ~ getTeams ~ team:\n", team);
   };
 
+  const handleTeamChange = (
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    setSelectedTeamId(parseInt(event.target.value));
+    const newTeamId = parseInt(event.target.value);
+    const newTeamName = teamData?.find((team) => team.teamid === newTeamId);
+   
+    // Update the teamCtx to include the teamId value
+    const updatedTeam: TeamRecordProp = {
+      ...(teamCtx.teamRecord || {}),
+      teamid: newTeamId,
+      teamname: newTeamName?.teamname,
+    };
+
+    teamCtx.onUpdate(updatedTeam);
+  };
+  
   useEffect(() => {
     getTeams();
   }, []);
@@ -50,11 +59,8 @@ export default function TeamForm({
                     className="border-gray-200bg-gray-100 w-full rounded-lg bg-gray-100 p-2 text-xs shadow-sm sm:px-6 sm:py-4 sm:text-sm"
                     placeholder="Enter matchDate"
                     name="teamName"
-                    value={selectedTeamId || ""}
-                    onChange={(e) => {
-                      setSelectedTeamId(e.target.value as unknown as number);
-                      
-                    }}
+                    value={selectedTeamId}
+                    onChange={handleTeamChange}
                   >
                     {teamData?.map((team, index) => (
                       <option value={team.teamid} key={index}>

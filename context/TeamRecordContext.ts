@@ -4,18 +4,18 @@
 import { RecordData } from "@/lib/types";
 import { createContext } from "react";
 
-export type TeamRecordProp = {
-    teamid: number | null;
-    teamname: string | null;
-    record: RecordData[];
-} | undefined;
+export type TeamRecordProp =
+  | {
+      teamid?: number | null;
+      teamname?: string | null | undefined;
+    }
+  | undefined;
 
 export const TeamRecordContext = createContext<{
-    teamRecord: TeamRecordProp;
-    onUpdate: (value: TeamRecordProp) => void;
-
+  teamRecord: TeamRecordProp;
+  onUpdate: (value: TeamRecordProp) => void;
 }>({
-    teamRecord: undefined,
+  teamRecord: undefined,
 
-    onUpdate: (value) => { },
-}); 
+  onUpdate: (value) => {},
+});

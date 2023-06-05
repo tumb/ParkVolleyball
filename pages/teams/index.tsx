@@ -1,10 +1,22 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 import TeamWrapper from "@/components/teamRecords/TeamWrapper";
-import React from "react";
+import { TeamRecordContext, TeamRecordProp } from "@/context/TeamRecordContext";
+import { RecordData } from "@/lib/types";
+import React, { useState } from "react";
 
 export default function index() {
+  const [recordData, setrecordData] = useState<TeamRecordProp>();
+
   return (
-    <div>
+    <TeamRecordContext.Provider
+      value={{
+        teamRecord: recordData,
+        onUpdate: (value: TeamRecordProp) => {
+          setrecordData(value);
+        },
+      }}
+    >
       <TeamWrapper />
-    </div>
+    </TeamRecordContext.Provider>
   );
 }
