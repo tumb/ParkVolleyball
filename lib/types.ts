@@ -30,3 +30,11 @@ export type StandingProp = {
 };
 
 export type TeamData = Database["public"]["Tables"]["team"]["Row"];
+
+export type RecordData = {
+  teamname: string;
+  opponent: string;
+  division: string;
+  date: string;
+  won: number;
+}

@@ -2,9 +2,21 @@ import { supabase } from "@/lib/supabase";
 import { TeamData } from "@/lib/types";
 import React, { useEffect, useState } from "react";
 
-export default function TeamForm() {
-  const [teamData, setTeamData] = useState<TeamData[] | null>(null);
+type TeamFormProps = {
+  teamData: TeamData[] | null;
+  setTeamData: React.Dispatch<React.SetStateAction<TeamData[] | null>>;
+  setSelectedTeamId: React.Dispatch<React.SetStateAction<number | null>>;
+  selectedTeamId: number | null;
+  setSelectedTeamName: React.Dispatch<React.SetStateAction<string | null>>;
+};
 
+export default function TeamForm({
+  teamData,
+  setTeamData,
+  setSelectedTeamId,
+  selectedTeamId,
+  setSelectedTeamName,
+}: TeamFormProps) {
   const getTeams = async () => {
     let { data: team, error } = await supabase.from("team").select("*");
 
@@ -38,11 +50,14 @@ export default function TeamForm() {
                     className="border-gray-200bg-gray-100 w-full rounded-lg bg-gray-100 p-2 text-xs shadow-sm sm:px-6 sm:py-4 sm:text-sm"
                     placeholder="Enter matchDate"
                     name="teamName"
-                    // value={selectedMatchDate}
-                    // onChange={matchDateHandler}
+                    value={selectedTeamId || ""}
+                    onChange={(e) => {
+                      setSelectedTeamId(e.target.value as unknown as number);
+                      
+                    }}
                   >
                     {teamData?.map((team, index) => (
-                      <option value={team.teamname!} key={index}>
+                      <option value={team.teamid} key={index}>
                         {team.teamname}
                       </option>
                     ))}
