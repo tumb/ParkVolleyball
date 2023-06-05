@@ -1,3 +1,5 @@
+import { Database } from "./database.types";
+
 export type ScheduleFormData = {
   day: string;
   date: string;
@@ -7,7 +9,7 @@ export type ScheduleFormData = {
 
 export type ScheduleData = {
   scheduleid: number | null;
-  matchdate: string;
+  matchdate: string ;
   team1: { teamname: string | null };
   team2: { teamname: string | null };
   team1wins: number | null;
@@ -25,4 +27,14 @@ export type ScheduleFormProps = ScheduleFormData & {
 export type StandingProp = {
   teamname: string;
   total: number;
+};
+
+export type TeamData = Database["public"]["Tables"]["team"]["Row"];
+
+export type RecordData = {
+  teamname: string | null | undefined;
+  opponent: string | null | undefined;
+  division: string | null;
+  date: string;
+  won: string | number | undefined;
 };
