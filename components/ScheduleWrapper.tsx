@@ -24,8 +24,9 @@ export default function ScheduleWrapper() {
       .eq("matchdate", leagueCtx.league.matchDate)
       .order("matchdate", { ascending: false })
       .order("divisionid");
-
-    if (schedules?.length) {
+      
+      if (schedules?.length) {
+      console.log("🚀 ~ file: ScheduleWrapper.tsx:27 ~ getScheduleWithMatchDate ~ schedules:\n", schedules)
       setLoading(false);
       setSchedules(schedules as ScheduleData[]);
     } else if (schedules?.length === 0) {
@@ -47,12 +48,18 @@ export default function ScheduleWrapper() {
         `*, scheduleid, matchdate, team1: team1(teamname), team2: team2(teamname), divisionid: division("divisionname")`
       )
       .eq("leagueid", leagueCtx.league?.leagueid)
-      .order("matchdate", { ascending: false })
+      .order("matchdate")
       .order("divisionid");
 
     if (schedules?.length) {
       setLoading(false);
-      setSchedules(schedules as ScheduleData[]);
+      //Set only the schedules with the first matchDate. I don't need the rest.
+
+      const firstMatchDate = schedules[0].matchdate;
+      const filteredSchedules = schedules.filter(
+        (schedule) => schedule.matchdate === firstMatchDate
+      );
+      setSchedules(filteredSchedules as ScheduleData[]);
     } else if (schedules?.length === 0) {
       setLoading(false);
       setSchedules(null);
