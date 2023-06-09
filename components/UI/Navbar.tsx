@@ -41,6 +41,14 @@ export default function Navbar() {
                 <li>
                   <Link
                     className="text-gray-500 transition hover:text-gray-500/75"
+                    href="/map"
+                  >
+                    Directions
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    className="text-gray-500 transition hover:text-gray-500/75"
                     href="/signupinfo"
                   >
                     Signup Information

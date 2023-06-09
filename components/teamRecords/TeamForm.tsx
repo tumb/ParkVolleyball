@@ -15,7 +15,10 @@ export default function TeamForm() {
 
   const getTeams = async () => {
     setLoading(true);
-    let { data: team, error } = await supabase.from("team").select("*");
+    let { data: team, error } = await supabase
+      .from("team")
+      .select("*")
+      .order("teamname");
 
     if (error) {
       setLoading(false);

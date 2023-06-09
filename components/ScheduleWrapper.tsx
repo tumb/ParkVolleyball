@@ -24,9 +24,12 @@ export default function ScheduleWrapper() {
       .eq("matchdate", leagueCtx.league.matchDate)
       .order("matchdate", { ascending: false })
       .order("divisionid");
-      
-      if (schedules?.length) {
-      console.log("🚀 ~ file: ScheduleWrapper.tsx:27 ~ getScheduleWithMatchDate ~ schedules:\n", schedules)
+
+    if (schedules?.length) {
+      console.log(
+        "🚀 ~ file: ScheduleWrapper.tsx:27 ~ getScheduleWithMatchDate ~ schedules:\n",
+        schedules
+      );
       setLoading(false);
       setSchedules(schedules as ScheduleData[]);
     } else if (schedules?.length === 0) {
@@ -45,7 +48,7 @@ export default function ScheduleWrapper() {
     const { data: schedules, error } = await supabase
       .from("schedule")
       .select(
-        `*, scheduleid, matchdate, team1: team1(teamname), team2: team2(teamname), divisionid: division("divisionname")`
+        `*, scheduleid, matchdate, team1: team1(*), team2: team2(*), divisionid: division("divisionname")`
       )
       .eq("leagueid", leagueCtx.league?.leagueid)
       .order("matchdate")
