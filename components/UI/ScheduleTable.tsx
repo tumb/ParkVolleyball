@@ -116,7 +116,12 @@ export default function ScheduleTable({
               </td>
               <td className="whitespace-nowrap px-4 py-2 text-gray-700">vs</td>
               <td className="whitespace-nowrap px-4 py-2 text-gray-700 hover:text-blue-500 hover:underline">
-                <Link href={`/teams/${schedule?.team2?.teamname}`}>
+                <Link
+                  href={{
+                    pathname: `/teams/${schedule?.team2?.teamname}`,
+                    query: { teamId: schedule?.team2?.teamid },
+                  }}
+                >
                   {schedule?.team2?.teamname}
                 </Link>
               </td>

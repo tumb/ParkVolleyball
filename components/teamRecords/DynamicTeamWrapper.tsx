@@ -4,7 +4,13 @@ import React, { useEffect, useState } from "react";
 import RecordTable from "./RecordTable";
 import { LineWobble, Ring } from "@uiball/loaders";
 
-export default function DynamicTeamWrapper({ routerTeamName, teamId }) {
+export default function DynamicTeamWrapper({
+  routerTeamName,
+  teamId,
+}: {
+  routerTeamName: string;
+  teamId: number;
+}) {
   const [recordData, setRecordData] = useState<RecordData[] | null | undefined>(
     null
   );
@@ -73,9 +79,7 @@ export default function DynamicTeamWrapper({ routerTeamName, teamId }) {
   }
   return (
     <div>
-      <h1 className="p-4 text-center text-3xl font-bold">
-        Team Details
-      </h1>
+      <h1 className="p-4 text-center text-3xl font-bold">Team Details</h1>
       {/* Render the team's information here */}
       {(recordData !== null || undefined) && (
         <RecordTable recordData={recordData} />
