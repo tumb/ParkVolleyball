@@ -8,16 +8,24 @@ export type ScheduleFormData = {
 };
 
 export type ScheduleData = {
-  scheduleid: number | null;
-  matchdate: string ;
-  team1: { teamname: string | null };
-  team2: { teamname: string | null };
-  team1wins: number | null;
-  team2wins: number | null;
-
-  divisionid: { divisionname: string | null };
+  divisionid: {
+    divisionname: string | null;
+  };
   leagueid: number | null;
-};
+  matchdate: string | null;
+  scheduleid: number;
+  team1: {
+    teamname: string | null;
+    teamid: number | null;
+  } | null;
+  team1wins: number | null;
+  team2: {
+    teamname: string | null;
+    teamid: number | null;
+  } | null;
+  team2wins: number | null;
+} | null;
+
 
 export type ScheduleFormProps = ScheduleFormData & {
   updateFields: (fields: Partial<ScheduleFormData>) => void;
@@ -33,8 +41,8 @@ export type TeamData = Database["public"]["Tables"]["team"]["Row"];
 
 export type RecordData = {
   teamname: string | null | undefined;
-  opponent: string | null | undefined;
-  division: string | null;
-  date: string;
+  opponent: string | undefined;
   won: string | number | undefined;
+  date: string;
+  division: any;
 };

@@ -4,9 +4,9 @@ import { Ring } from "@uiball/loaders";
 export default function RecordTable({
   recordData,
 }: {
-  recordData: RecordData[] | null;
+  recordData: RecordData[] | null | undefined;
 }) {
-  if (recordData === null) {
+  if (recordData === null || recordData === undefined) {
     return (
       <div className="mx-auto flex max-w-screen-xl items-center justify-center px-4 py-16 sm:px-6 lg:px-8">
         <Ring />
@@ -26,10 +26,22 @@ export default function RecordTable({
     }
   };
 
+  if (recordData.length === 0) {
+    return (
+      <div className="mx-auto max-w-screen-xl px-4 py-16 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-lg">
+          <h1 className="text-center text-2xl font-bold text-indigo-600 sm:text-3xl">
+            No Records available!
+          </h1>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="overflow-x-auto rounded-lg border">
+    <div className="overflow-x-auto rounded-lg">
       <h1 className="py-6 text-center text-2xl font-semibold text-indigo-600">
-        {recordData[0]?.teamname} opponents:
+        {recordData && recordData[0]?.teamname} opponents:
       </h1>
       <table className="min-w-full divide-y-2 divide-gray-200 bg-white text-sm">
         <thead className="text-center">
@@ -43,7 +55,11 @@ export default function RecordTable({
             </th>
 
             <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-              Won ?
+              Won
+            </th>
+
+            <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+              Lost
             </th>
 
             <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
@@ -65,12 +81,15 @@ export default function RecordTable({
                 )}
                 `}
               >
-                {" "}
                 {record.division}
               </td>
 
               <td className="whitespace-nowrap px-4 py-2 text-gray-700">
                 {record.won}
+              </td>
+
+              <td className="whitespace-nowrap px-4 py-2 text-gray-700">
+                {3 - Number(record.won)}
               </td>
 
               <td className="whitespace-nowrap px-4 py-2 text-gray-700">

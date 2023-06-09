@@ -3,21 +3,12 @@ import { ScheduleData } from "@/lib/types";
 import Link from "next/link";
 import React, { useContext } from "react";
 
-const textColor = (schedule: ScheduleData) => {
-  if (
-    schedule.divisionid?.divisionname === "Red" ||
-    schedule.divisionid?.divisionname === "red"
-  ) {
+const textColor = (divisionName: string) => {
+  if (divisionName === "Red" || divisionName === "red") {
     return "text-red-600";
-  } else if (
-    schedule.divisionid?.divisionname === "Green" ||
-    schedule.divisionid?.divisionname === "green"
-  ) {
+  } else if (divisionName === "Green" || divisionName === "green") {
     return "text-green-600";
-  } else if (
-    schedule.divisionid?.divisionname === "Blue" ||
-    schedule.divisionid?.divisionname === "blue"
-  ) {
+  } else if (divisionName === "Blue" || divisionName === "blue") {
     return "text-blue-600";
   } else {
     return "text-gray-700";
@@ -88,13 +79,13 @@ export default function ScheduleTable({
         </thead>
 
         <tbody className="divide-y divide-gray-200 text-center">
-          {schedules?.map((schedule: ScheduleData) => (
+          {schedules?.map((schedule) => (
             <tr
               className="odd:bg-gray-50 hover:shadow"
-              key={schedule.scheduleid}
+              key={schedule?.scheduleid}
             >
               <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                {new Date(schedule.matchdate).toLocaleDateString("en-US", {
+                {new Date(schedule?.matchdate!).toLocaleDateString("en-US", {
                   timeZone: "GMT",
                   weekday: "long",
                   year: "numeric",
@@ -104,28 +95,33 @@ export default function ScheduleTable({
               </td>
               <td
                 className={`whitespace-nowrap px-4 py-2 font-medium ${textColor(
-                  schedule
+                  schedule?.divisionid?.divisionname!
                 )}
                 `}
               >
-                {schedule.divisionid?.divisionname}
+                {schedule?.divisionid?.divisionname}
               </td>
-              <td className="whitespace-nowrap px-4 py-2 text-gray-700 hover:bg-blue-50">
-                <Link href={`/teams/${schedule.team1.teamname}`}>
-                  {schedule.team1.teamname}
+              <td className="whitespace-nowrap px-4 py-2 text-gray-700 hover:text-blue-500 hover:underline">
+                <Link
+                  href={{
+                    pathname: `/teams/${schedule?.team1?.teamname}`,
+                    query: { teamId: schedule?.team1?.teamid },
+                  }}
+                >
+                  {schedule?.team1?.teamname}
                 </Link>
               </td>
               <td className="whitespace-nowrap py-2 text-gray-700">
-                {schedule.team1wins}
+                {schedule?.team1wins}
               </td>
               <td className="whitespace-nowrap px-4 py-2 text-gray-700">vs</td>
-              <td className="whitespace-nowrap px-4 py-2 text-gray-700 hover:bg-blue-50">
-                <Link href={`/teams/${schedule.team2.teamname}`}>
-                  {schedule.team2.teamname}
+              <td className="whitespace-nowrap px-4 py-2 text-gray-700 hover:text-blue-500 hover:underline">
+                <Link href={`/teams/${schedule?.team2?.teamname}`}>
+                  {schedule?.team2?.teamname}
                 </Link>
               </td>
               <td className="whitespace-nowrap py-2 text-gray-700">
-                {schedule.team2wins}
+                {schedule?.team2wins}
               </td>
             </tr>
           ))}

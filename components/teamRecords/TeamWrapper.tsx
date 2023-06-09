@@ -8,7 +8,6 @@ import { toast } from "react-hot-toast";
 
 export default function TeamWrapper() {
   const [recordData, setRecordData] = useState<RecordData[] | null>(null);
-  const [duplicate, setDuplicate] = useState(false);
 
   const teamCtx = useContext(TeamRecordContext);
 
