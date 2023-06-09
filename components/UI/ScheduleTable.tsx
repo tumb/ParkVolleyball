@@ -1,5 +1,6 @@
 import { LeagueContext } from "@/context/LeagueContext";
 import { ScheduleData } from "@/lib/types";
+import Link from "next/link";
 import React, { useContext } from "react";
 
 const textColor = (schedule: ScheduleData) => {
@@ -29,6 +30,7 @@ export default function ScheduleTable({
   schedules: ScheduleData[] | null | undefined;
 }) {
   const leagueCtx = useContext(LeagueContext);
+  console.log("👉️ ~ file: ScheduleTable.tsx:35 ~ schedules:\n", schedules);
 
   if (schedules === null) {
     return (
@@ -53,7 +55,8 @@ export default function ScheduleTable({
         </h2>
       ) : (
         <h2 className="pb-6 text-center text-lg font-semibold text-indigo-600">
-          Showing schedules for the first day available. Select another date to view other schedules...
+          Showing schedules for the first day available. Select another date to
+          view other schedules...
         </h2>
       )}
 
@@ -107,15 +110,19 @@ export default function ScheduleTable({
               >
                 {schedule.divisionid?.divisionname}
               </td>
-              <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                {schedule.team1.teamname}
+              <td className="whitespace-nowrap px-4 py-2 text-gray-700 hover:bg-blue-50">
+                <Link href={`/teams/${schedule.team1.teamname}`}>
+                  {schedule.team1.teamname}
+                </Link>
               </td>
               <td className="whitespace-nowrap py-2 text-gray-700">
                 {schedule.team1wins}
               </td>
               <td className="whitespace-nowrap px-4 py-2 text-gray-700">vs</td>
-              <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                {schedule.team2.teamname}
+              <td className="whitespace-nowrap px-4 py-2 text-gray-700 hover:bg-blue-50">
+                <Link href={`/teams/${schedule.team2.teamname}`}>
+                  {schedule.team2.teamname}
+                </Link>
               </td>
               <td className="whitespace-nowrap py-2 text-gray-700">
                 {schedule.team2wins}

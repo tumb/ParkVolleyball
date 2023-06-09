@@ -43,7 +43,7 @@ export default function Navbar() {
                     className="text-gray-500 transition hover:text-gray-500/75"
                     href="/map"
                   >
-                    Map
+                    Directions
                   </Link>
                 </li>
                 <li>

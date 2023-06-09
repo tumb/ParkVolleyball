@@ -3,7 +3,10 @@ import React from "react";
 
 export default function MapRender() {
   return (
-    <div className="h-screen w-screen">
+    <div className="h-screen w-full">
+      <div className="p-20">
+        Add text here
+      </div>
       <LoadScript
         googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!}
         libraries={["places"]}

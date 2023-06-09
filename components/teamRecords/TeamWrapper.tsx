@@ -6,16 +6,15 @@ import { supabase } from "@/lib/supabase";
 import { TeamRecordContext } from "@/context/TeamRecordContext";
 import { toast } from "react-hot-toast";
 
-
 export default function TeamWrapper() {
   const [recordData, setRecordData] = useState<RecordData[] | null>(null);
+  const [duplicate, setDuplicate] = useState(false);
 
   const teamCtx = useContext(TeamRecordContext);
 
   const findSchedulesForTeam = async (teamId: number) => {
-
     const notification = toast.loading("Finding Team records");
-    
+
     const { data, error } = await supabase
       .from("schedule")
       .select(
@@ -27,7 +26,6 @@ export default function TeamWrapper() {
 
     if (data?.length) {
       toast.success("Found it 😊", { id: notification });
-
 
       const mappedData: RecordData[] = data.map((schedule) => {
         let teamname: string | null | undefined = teamCtx.teamRecord?.teamname;
@@ -74,6 +72,7 @@ export default function TeamWrapper() {
     <div>
       <TeamForm />
 
+      {/* <pre>{JSON.stringify(recordData, null, 2)}</pre> */}
       <RecordTable recordData={recordData} />
     </div>
   );

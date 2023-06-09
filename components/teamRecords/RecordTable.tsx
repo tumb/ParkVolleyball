@@ -14,6 +14,18 @@ export default function RecordTable({
     );
   }
 
+  const textColor = (divisionName: string) => {
+    if (divisionName === "Red" || divisionName === "red") {
+      return "text-red-600";
+    } else if (divisionName === "Green" || divisionName === "green") {
+      return "text-green-600";
+    } else if (divisionName === "Blue" || divisionName === "blue") {
+      return "text-blue-600";
+    } else {
+      return "text-gray-700";
+    }
+  };
+
   return (
     <div className="overflow-x-auto rounded-lg border">
       <h1 className="py-6 text-center text-2xl font-semibold text-indigo-600">
@@ -47,7 +59,13 @@ export default function RecordTable({
                 {record.opponent}
               </td>
 
-              <td className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+              <td
+                className={`whitespace-nowrap px-4 py-2 font-medium ${textColor(
+                  record.division!
+                )}
+                `}
+              >
+                {" "}
                 {record.division}
               </td>
 
