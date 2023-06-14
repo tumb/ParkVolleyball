@@ -27,7 +27,7 @@ export default function DynamicTeamWrapper({
 
       if (error) {
         console.log("error getting team id", error);
-        alert("Error getting team id");
+        alert("Something went wrong. Please reload the page");
       }
 
       const mappedData = data?.map((item) => {
@@ -62,7 +62,7 @@ export default function DynamicTeamWrapper({
       setRecordData(mappedData);
     } catch (error) {
       console.log("error getting team id", error);
-      alert("Error getting team id");
+      alert("Something went wrong. Please reload the page");
     }
   }
 

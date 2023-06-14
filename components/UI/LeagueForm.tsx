@@ -87,9 +87,9 @@ export default function LeagueForm() {
           action=""
           className="mb-0 mt-6 space-y-4 rounded-lg bg-white p-4 shadow-lg sm:p-6 lg:p-8"
         >
-          <div className="flex flex-col items-center justify-between sm:flex-row sm:space-x-6 space-y-2">
-            <div className="w-full flex-col">
-              <label htmlFor="Day" className="">
+          <div className="flex flex-col items-center justify-between sm:flex-row">
+            <div className="w-full flex-col space-y-2 p-2">
+              <label htmlFor="Day" className="text-sm font-semibold">
                 Day
               </label>
 
@@ -111,8 +111,8 @@ export default function LeagueForm() {
               </div>
             </div>
 
-            <div className="w-full flex-col">
-              <label htmlFor="Year" className="">
+            <div className="w-full flex-col space-y-2 p-2">
+              <label htmlFor="Year" className="text-sm font-semibold">
                 Year
               </label>
 
@@ -130,8 +130,8 @@ export default function LeagueForm() {
               </div>
             </div>
 
-            <div className="w-full flex-col">
-              <label htmlFor="matchDate" className="">
+            <div className="w-full flex-col space-y-2 p-2">
+              <label htmlFor="matchDate" className="text-sm font-semibold">
                 Available Matchdates
               </label>
 
