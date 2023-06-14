@@ -26,7 +26,6 @@ export type ScheduleData = {
   team2wins: number | null;
 } | null;
 
-
 export type ScheduleFormProps = ScheduleFormData & {
   updateFields: (fields: Partial<ScheduleFormData>) => void;
   handleScheduleSearch: (e: React.FormEvent) => void;
@@ -43,6 +42,7 @@ export type RecordData = {
   teamname: string | null | undefined;
   opponent: string | undefined;
   won: string | number | undefined;
+  isPlayed: boolean;
   date: string;
   division: any;
 };
