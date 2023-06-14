@@ -4,14 +4,14 @@ import React, { useContext, useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 
 export default function LeagueForm() {
-  const [day, setDay] = useState("Monday");
-  const [year, setYear] = useState(2023);
   const [matchDates, setMatchDates] = useState<{ [x: string]: any }[] | null>(
     null
   );
   const [selectedMatchDate, setSelectedMatchDate] = useState("");
 
   const leagueCtx = useContext(LeagueContext);
+  const [day, setDay] = useState(leagueCtx.league?.day);
+  const [year, setYear] = useState(leagueCtx.league?.year);
 
   const getMatchDates = async (leagueId: number) => {
     const { data, error } = await supabase
@@ -97,7 +97,7 @@ export default function LeagueForm() {
                 <select
                   className="border-gray-200bg-gray-100 w-full rounded-lg bg-gray-100 p-2 text-xs shadow-sm sm:px-6 sm:py-4 sm:text-sm"
                   placeholder="Enter Day"
-                  value={day}
+                  value={day!}
                   onChange={(e) => setDay(e.target.value)}
                 >
                   <option value="Monday">Monday</option>
@@ -120,7 +120,7 @@ export default function LeagueForm() {
                 <select
                   className="border-gray-200bg-gray-100 w-full rounded-lg bg-gray-100 p-2 text-xs shadow-sm sm:px-6 sm:py-4 sm:text-sm"
                   placeholder="Enter Year"
-                  value={year}
+                  value={year!}
                   onChange={(e) => setYear(parseInt(e.target.value))}
                 >
                   <option value="2021">2021</option>
