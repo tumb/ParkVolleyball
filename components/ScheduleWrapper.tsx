@@ -18,7 +18,7 @@ export default function ScheduleWrapper() {
     const { data: schedules, error } = await supabase
       .from("schedule")
       .select(
-        `*, scheduleid, matchdate, team1: team1(teamname), team2: team2(teamname), divisionid: division("divisionname")`
+        `*, scheduleid, matchdate, team1: team1(*), team2: team2(*), divisionid: division("divisionname")`
       )
       .eq("leagueid", leagueCtx.league?.leagueid)
       .eq("matchdate", leagueCtx.league.matchDate)

@@ -4,14 +4,14 @@ import React, { useContext, useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 
 export default function LeagueForm() {
-  const [day, setDay] = useState("Monday");
-  const [year, setYear] = useState(2023);
   const [matchDates, setMatchDates] = useState<{ [x: string]: any }[] | null>(
     null
   );
   const [selectedMatchDate, setSelectedMatchDate] = useState("");
 
   const leagueCtx = useContext(LeagueContext);
+  const [day, setDay] = useState(leagueCtx.league?.day);
+  const [year, setYear] = useState(leagueCtx.league?.year);
 
   const getMatchDates = async (leagueId: number) => {
     const { data, error } = await supabase
@@ -87,17 +87,17 @@ export default function LeagueForm() {
           action=""
           className="mb-0 mt-6 space-y-4 rounded-lg bg-white p-4 shadow-lg sm:p-6 lg:p-8"
         >
-          <div className="flex flex-col items-center justify-between sm:flex-row sm:space-x-6 space-y-2">
-            <div className="w-full flex-col">
-              <label htmlFor="Day" className="">
+          <div className="flex flex-col items-center justify-between sm:flex-row">
+            <div className="w-full flex-col space-y-2 p-2">
+              <label htmlFor="Day" className="text-sm font-semibold">
                 Day
               </label>
 
               <div className="relative">
                 <select
-                  className="border-gray-200bg-gray-100 w-full rounded-lg bg-gray-100 p-2 text-xs shadow-sm sm:px-6 sm:py-4 sm:text-sm"
+                  className="w-full rounded-lg border-gray-200 bg-gray-100 p-2 text-xs shadow-sm sm:px-6 sm:py-4 sm:text-sm"
                   placeholder="Enter Day"
-                  value={day}
+                  value={day!}
                   onChange={(e) => setDay(e.target.value)}
                 >
                   <option value="Monday">Monday</option>
@@ -111,16 +111,16 @@ export default function LeagueForm() {
               </div>
             </div>
 
-            <div className="w-full flex-col">
-              <label htmlFor="Year" className="">
+            <div className="w-full flex-col space-y-2 p-2">
+              <label htmlFor="Year" className="text-sm font-semibold">
                 Year
               </label>
 
               <div className="relative">
                 <select
-                  className="border-gray-200bg-gray-100 w-full rounded-lg bg-gray-100 p-2 text-xs shadow-sm sm:px-6 sm:py-4 sm:text-sm"
+                  className="w-full rounded-lg border-gray-200 bg-gray-100 p-2 text-xs shadow-sm sm:px-6 sm:py-4 sm:text-sm"
                   placeholder="Enter Year"
-                  value={year}
+                  value={year!}
                   onChange={(e) => setYear(parseInt(e.target.value))}
                 >
                   <option value="2021">2021</option>
@@ -130,15 +130,15 @@ export default function LeagueForm() {
               </div>
             </div>
 
-            <div className="w-full flex-col">
-              <label htmlFor="matchDate" className="">
+            <div className="w-full flex-col space-y-2 p-2">
+              <label htmlFor="matchDate" className="text-sm font-semibold">
                 Available Matchdates
               </label>
 
               {matchDates && (
                 <div className="relative">
                   <select
-                    className="border-gray-200bg-gray-100 w-full rounded-lg bg-gray-100 p-2 text-xs shadow-sm sm:px-6 sm:py-4 sm:text-sm"
+                    className="w-full rounded-lg border-gray-200 bg-gray-100 p-2 text-xs shadow-sm sm:px-6 sm:py-4 sm:text-sm"
                     placeholder="Enter matchDate"
                     value={selectedMatchDate}
                     onChange={matchDateHandler}

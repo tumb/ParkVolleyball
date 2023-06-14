@@ -3,7 +3,7 @@ import { createContext } from "react";
 
 export type LeagueProp =
   | {
-      matchDate: string;
+      matchDate?: string;
       day?: string | null | undefined;
       leagueid?: number | undefined;
       year?: number | null | undefined;

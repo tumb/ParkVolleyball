@@ -1,6 +1,5 @@
 import { ScheduleFormProps } from "@/lib/types";
 
-
 export default function ScheduleForm({
   date,
   division,
@@ -32,7 +31,7 @@ export default function ScheduleForm({
 
             <div className="relative">
               <select
-                className="border-gray-200bg-gray-100  w-full rounded-lg bg-gray-100 p-4 pe-12 text-sm shadow-sm"
+                className="w-full  rounded-lg border-gray-200 bg-gray-100 p-4 pe-12 text-sm shadow-sm"
                 placeholder="Enter Day"
                 value={day}
                 onChange={(e) => updateFields({ day: e.target.value })}

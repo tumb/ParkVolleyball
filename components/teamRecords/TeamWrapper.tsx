@@ -30,6 +30,7 @@ export default function TeamWrapper() {
         let teamname: string | null | undefined = teamCtx.teamRecord?.teamname;
         let opponent: string | undefined;
         let won: string | number | undefined;
+        let isPlayed: boolean;
         //@ts-ignore
         if (schedule.team1.teamname === teamCtx.teamRecord?.teamname) {
           //@ts-ignore
@@ -42,13 +43,16 @@ export default function TeamWrapper() {
           won = schedule.team2wins === null ? "No Data" : schedule.team2wins;
         }
 
+        isPlayed = checkIsPlayed(schedule.team1wins || 0, schedule.team2wins || 0);
+
         return {
           teamname,
           opponent,
           won,
+          isPlayed,
           date: schedule.matchdate ? schedule.matchdate : "No Data",
           //@ts-ignore
-          division: schedule.divisionid.divisionname,
+          division: schedule.divisionid?.divisionname,
         };
       });
 
@@ -60,6 +64,12 @@ export default function TeamWrapper() {
       console.error(error);
     }
   };
+  function checkIsPlayed(team1wins: number, team2wins: number) {
+    if (team1wins === 0 && team2wins === 0) {
+      return false;
+    }
+    return true;
+  }
 
   useEffect(() => {
     if (teamCtx.teamRecord?.teamid) {

@@ -6,14 +6,6 @@ export default function RecordTable({
 }: {
   recordData: RecordData[] | null | undefined;
 }) {
-  if (recordData === null || recordData === undefined) {
-    return (
-      <div className="mx-auto flex max-w-screen-xl items-center justify-center px-4 py-16 sm:px-6 lg:px-8">
-        <Ring />
-      </div>
-    );
-  }
-
   const textColor = (divisionName: string) => {
     if (divisionName === "Red" || divisionName === "red") {
       return "text-red-600";
@@ -25,6 +17,16 @@ export default function RecordTable({
       return "text-gray-700";
     }
   };
+
+
+  
+  if (recordData === null || recordData === undefined) {
+    return (
+      <div className="mx-auto flex max-w-screen-xl items-center justify-center px-4 py-16 sm:px-6 lg:px-8">
+        <Ring />
+      </div>
+    );
+  }
 
   if (recordData.length === 0) {
     return (
@@ -85,11 +87,11 @@ export default function RecordTable({
               </td>
 
               <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                {record.won}
+                {record.isPlayed ? record.won : "-"}
               </td>
 
               <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                {3 - Number(record.won)}
+                {record.isPlayed ? 3 - Number(record.won) : "-"}
               </td>
 
               <td className="whitespace-nowrap px-4 py-2 text-gray-700">

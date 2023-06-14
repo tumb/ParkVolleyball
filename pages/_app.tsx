@@ -5,10 +5,11 @@ import type { AppProps } from "next/app";
 import { useState } from "react";
 import { Toaster } from "react-hot-toast";
 
-
-
 export default function App({ Component, pageProps }: AppProps) {
-  const [league, setLeague] = useState<LeagueProp>();
+  const [league, setLeague] = useState<LeagueProp>({
+    day: "Monday",
+    year: 2023,
+  });
 
   return (
     <LeagueContext.Provider
