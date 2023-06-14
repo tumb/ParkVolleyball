@@ -48,7 +48,7 @@ export default function TeamWrapper() {
           won,
           date: schedule.matchdate ? schedule.matchdate : "No Data",
           //@ts-ignore
-          division: schedule.divisionid.divisionname,
+          division: schedule.divisionid?.divisionname,
         };
       });
 

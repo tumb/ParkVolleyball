@@ -2,10 +2,11 @@ import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 import icon from "@/assets/icon-512x512.png";
+import NavForm from "./NavForm";
 
 export default function Navbar() {
   return (
-    <header aria-label="Site Header" className="sticky top-0 bg-white z-50">
+    <header aria-label="Site Header" className="sticky top-0 z-50 bg-white">
       <div className="max-w-screen mx-auto px-4 shadow-md sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           <div className="flex-1 md:flex md:items-center md:gap-12">
@@ -17,6 +18,10 @@ export default function Navbar() {
               <Image src={icon} alt="site-logo" width={40} />
               <span className="text-2xl font-semibold">Parkvball</span>
             </Link>
+          </div>
+
+          <div className="md:flex md:items-center md:gap-12">
+            <NavForm />
           </div>
 
           <div className="md:flex md:items-center md:gap-12">
