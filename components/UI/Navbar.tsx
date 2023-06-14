@@ -21,12 +21,9 @@ export default function Navbar() {
           </div>
 
           <div className="md:flex md:items-center md:gap-12">
-            <NavForm />
-          </div>
-
-          <div className="md:flex md:items-center md:gap-12">
             <nav aria-label="Site Nav" className="hidden md:block">
               <ul className="flex items-center gap-6 text-sm">
+                <NavForm />
                 <li>
                   <Link
                     className="text-gray-500 transition hover:text-gray-500/75"

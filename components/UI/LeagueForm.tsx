@@ -95,7 +95,7 @@ export default function LeagueForm() {
 
               <div className="relative">
                 <select
-                  className="border-gray-200bg-gray-100 w-full rounded-lg bg-gray-100 p-2 text-xs shadow-sm sm:px-6 sm:py-4 sm:text-sm"
+                  className="w-full rounded-lg border-gray-200 bg-gray-100 p-2 text-xs shadow-sm sm:px-6 sm:py-4 sm:text-sm"
                   placeholder="Enter Day"
                   value={day!}
                   onChange={(e) => setDay(e.target.value)}
@@ -118,7 +118,7 @@ export default function LeagueForm() {
 
               <div className="relative">
                 <select
-                  className="border-gray-200bg-gray-100 w-full rounded-lg bg-gray-100 p-2 text-xs shadow-sm sm:px-6 sm:py-4 sm:text-sm"
+                  className="w-full rounded-lg border-gray-200 bg-gray-100 p-2 text-xs shadow-sm sm:px-6 sm:py-4 sm:text-sm"
                   placeholder="Enter Year"
                   value={year!}
                   onChange={(e) => setYear(parseInt(e.target.value))}
@@ -138,7 +138,7 @@ export default function LeagueForm() {
               {matchDates && (
                 <div className="relative">
                   <select
-                    className="border-gray-200bg-gray-100 w-full rounded-lg bg-gray-100 p-2 text-xs shadow-sm sm:px-6 sm:py-4 sm:text-sm"
+                    className="w-full rounded-lg border-gray-200 bg-gray-100 p-2 text-xs shadow-sm sm:px-6 sm:py-4 sm:text-sm"
                     placeholder="Enter matchDate"
                     value={selectedMatchDate}
                     onChange={matchDateHandler}

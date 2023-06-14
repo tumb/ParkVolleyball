@@ -49,19 +49,16 @@ export default function NavForm() {
 
   return (
     <div className="mx-auto h-fit">
-      <form
-        action=""
-        className=""
-      >
+      <form action="" className="">
         <div className="flex flex-col items-center justify-between sm:flex-row">
-          <div className="w-full flex space-y-2 p-2">
-            <label htmlFor="Day" className="text-sm font-semibold">
+          <div className="flex w-full items-center justify-between p-2">
+            <label htmlFor="Day" className="px-2 text-sm font-semibold">
               Day
             </label>
 
             <div className="relative">
               <select
-                className="border-gray-200bg-gray-100 w-full rounded-lg bg-gray-100 p-2 text-xs shadow-sm sm:px-6 sm:py-4 sm:text-sm"
+                className="min-w-full rounded-lg border border-gray-200 bg-white p-2 text-xs shadow-sm sm:text-sm"
                 placeholder="Enter Day"
                 value={day!}
                 onChange={(e) => setDay(e.target.value)}
@@ -77,14 +74,14 @@ export default function NavForm() {
             </div>
           </div>
 
-          <div className="w-full flex space-y-2 p-2">
-            <label htmlFor="Year" className="text-sm font-semibold">
+          <div className="flex w-full items-center justify-between p-2">
+            <label htmlFor="Year" className="px-2 text-sm font-semibold">
               Year
             </label>
 
             <div className="relative">
               <select
-                className="border-gray-200bg-gray-100 w-full rounded-lg bg-gray-100 p-2 text-xs shadow-sm sm:px-6 sm:py-4 sm:text-sm"
+                className="min-w-full rounded-lg border border-gray-200 bg-white p-2 text-xs shadow-sm sm:text-sm"
                 placeholder="Enter Year"
                 value={year!}
                 onChange={(e) => setYear(parseInt(e.target.value))}
