@@ -6,7 +6,7 @@ import NavForm from "./NavForm";
 import Sidebar from "./Sidebar";
 
 export default function Navbar() {
-  const [sidebar, setSidebar] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   return (
     <header aria-label="Site Header" className="sticky top-0 z-50 bg-white">
       <div className="max-w-screen mx-auto px-4 shadow-md sm:px-6 lg:px-8">
@@ -45,7 +45,7 @@ export default function Navbar() {
                 <li>
                   <Link
                     className="text-gray-500 transition hover:text-gray-500/75"
-                    href="/map"
+                    href="/directions"
                   >
                     Directions
                   </Link>
@@ -66,10 +66,10 @@ export default function Navbar() {
                 <button
                   className="rounded bg-gray-100 p-2 text-gray-600 transition hover:text-gray-600/75"
                   onClick={(e) => {
-                    setSidebar(!sidebar);
+                    setIsOpen(!isOpen);
                   }}
                 >
-                  {sidebar ? (
+                  {isOpen ? (
                     <div>
                       <svg
                         aria-hidden="true"
@@ -86,9 +86,6 @@ export default function Navbar() {
                           strokeWidth="2"
                         />
                       </svg>
-                      <div className="fixed left-0 top-16 flex h-screen w-screen flex-col">
-                        <Sidebar />
-                      </div>
                     </div>
                   ) : (
                     <div>
@@ -113,6 +110,11 @@ export default function Navbar() {
                 </button>
               </div>
             </div>
+            {isOpen && (
+              <div className="fixed left-0 top-16 flex h-screen w-screen flex-col">
+                <Sidebar />
+              </div>
+            )}
           </div>
         </div>
       </div>
