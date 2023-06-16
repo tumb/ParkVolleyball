@@ -73,7 +73,8 @@ export default function LeagueForm() {
   };
 
   useEffect(() => {
-    console.log("Updated leagueCtx:", leagueCtx.league?.matchDate);
+    setDay(leagueCtx.league?.day);
+    setYear(leagueCtx.league?.year);
   }, [leagueCtx.league]);
 
   useEffect(() => {

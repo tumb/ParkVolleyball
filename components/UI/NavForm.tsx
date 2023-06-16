@@ -1,16 +1,10 @@
 import { LeagueContext } from "@/context/LeagueContext";
-import { TeamRecordContext, TeamRecordProp } from "@/context/TeamRecordContext";
+import { TeamRecordContext } from "@/context/TeamRecordContext";
 import { supabase } from "@/lib/supabase";
-import { TeamData } from "@/lib/types";
-import { DotSpinner, Jelly } from "@uiball/loaders";
-import React, { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
-import { BarLoader } from "react-spinners";
 
 export default function NavForm() {
-  const [loading, setLoading] = useState(false);
-
-  const teamCtx = useContext(TeamRecordContext);
   const leagueCtx = useContext(LeagueContext);
 
   const [day, setDay] = useState(leagueCtx.league?.day);
@@ -50,7 +44,7 @@ export default function NavForm() {
   return (
     <div className="mx-auto h-fit">
       <form action="" className="">
-        <div className="flex flex-col items-center justify-between sm:flex-row">
+        <div className="flex items-center justify-between sm:flex-row">
           <div className="flex w-full items-center justify-between p-2">
             <label htmlFor="Day" className="px-2 text-sm font-semibold">
               Day

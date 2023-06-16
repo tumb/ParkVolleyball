@@ -18,8 +18,6 @@ export default function RecordTable({
     }
   };
 
-
-  
   if (recordData === null || recordData === undefined) {
     return (
       <div className="mx-auto flex max-w-screen-xl items-center justify-center px-4 py-16 sm:px-6 lg:px-8">
@@ -87,11 +85,11 @@ export default function RecordTable({
               </td>
 
               <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                {record.isPlayed ? record.won : "-"}
+                {record.isPlayed ? record.teamWins : "-"}
               </td>
 
               <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                {record.isPlayed ? 3 - Number(record.won) : "-"}
+                {record.isPlayed ? record.opponentWins : "-"}
               </td>
 
               <td className="whitespace-nowrap px-4 py-2 text-gray-700">

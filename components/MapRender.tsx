@@ -1,12 +1,9 @@
-import { GoogleMap, LoadScript } from "@react-google-maps/api";
+import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
 import React from "react";
 
 export default function MapRender() {
   return (
-    <div className="h-screen w-full">
-      <div className="p-20">
-        Add text here
-      </div>
+    <div className="w-fit">
       <LoadScript
         googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!}
         libraries={["places"]}
@@ -16,12 +13,19 @@ export default function MapRender() {
             height: "100vh",
             width: "100vw",
           }}
-          zoom={7}
+          zoom={14}
           center={{
-            lat: -3.745,
-            lng: -38.523,
+            lat: 42.93183755865146,
+            lng: -78.8687929694006,
           }}
-        />
+        >
+          <Marker
+            position={{
+              lat: 42.93183755865146,
+              lng: -78.8687929694006,
+            }}
+          />
+        </GoogleMap>
       </LoadScript>
     </div>
   );

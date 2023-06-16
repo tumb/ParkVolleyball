@@ -41,7 +41,8 @@ export type TeamData = Database["public"]["Tables"]["team"]["Row"];
 export type RecordData = {
   teamname: string | null | undefined;
   opponent: string | undefined;
-  won: string | number | undefined;
+  teamWins: number;
+  opponentWins: number;
   isPlayed: boolean;
   date: string;
   division: any;

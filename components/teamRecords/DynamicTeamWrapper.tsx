@@ -32,18 +32,20 @@ export default function DynamicTeamWrapper({
 
       const mappedData: RecordData[] | undefined = data?.map((item) => {
         let opponent: string | undefined;
-        let won: string | number | undefined;
+        let teamWins: number = 0;
+        let opponentWins: number = 0;
         let isPlayed: boolean;
         //@ts-ignore
         if (item.team1.teamname === routerTeamName) {
           //@ts-ignore
           opponent = item.team2.teamname!;
-          won = item.team1wins === null ? "No Data" : item.team1wins;
-          //@ts-ignore
+          teamWins = item.team1wins!;
+          opponentWins = item.team2wins!; //@ts-ignore
         } else if (item.team2.teamname === routerTeamName) {
           //@ts-ignore
           opponent = item.team1.teamname!;
-          won = item.team2wins === null ? "No Data" : item.team2wins;
+          teamWins = item.team2wins!;
+          opponentWins = item.team1wins!;
         }
 
         isPlayed = item.team1wins === 0 && item.team2wins === 0 ? false : true;
@@ -51,7 +53,8 @@ export default function DynamicTeamWrapper({
         return {
           teamname: routerTeamName,
           opponent,
-          won,
+          teamWins,
+          opponentWins,
           isPlayed,
           date: item.matchdate ? item.matchdate : "No Data",
           //@ts-ignore

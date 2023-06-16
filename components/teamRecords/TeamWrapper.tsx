@@ -29,26 +29,33 @@ export default function TeamWrapper() {
       const mappedData: RecordData[] = data.map((schedule) => {
         let teamname: string | null | undefined = teamCtx.teamRecord?.teamname;
         let opponent: string | undefined;
-        let won: string | number | undefined;
+        let teamWins: number = 0;
+        let opponentWins: number = 0;
         let isPlayed: boolean;
         //@ts-ignore
         if (schedule.team1.teamname === teamCtx.teamRecord?.teamname) {
           //@ts-ignore
           opponent = schedule.team2.teamname!;
-          won = schedule.team1wins === null ? "No Data" : schedule.team1wins;
+          teamWins = schedule.team1wins!;
+          opponentWins = schedule.team2wins!;
           //@ts-ignore
         } else if (schedule.team2.teamname === teamCtx.teamRecord?.teamname) {
           //@ts-ignore
           opponent = schedule.team1.teamname!;
-          won = schedule.team2wins === null ? "No Data" : schedule.team2wins;
+          teamWins = schedule.team2wins!;
+          opponentWins = schedule.team1wins!;
         }
 
-        isPlayed = checkIsPlayed(schedule.team1wins || 0, schedule.team2wins || 0);
+        isPlayed = checkIsPlayed(
+          schedule.team1wins || 0,
+          schedule.team2wins || 0
+        );
 
         return {
           teamname,
           opponent,
-          won,
+          teamWins,
+          opponentWins,
           isPlayed,
           date: schedule.matchdate ? schedule.matchdate : "No Data",
           //@ts-ignore
