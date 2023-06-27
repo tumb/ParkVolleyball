@@ -18,7 +18,7 @@ export default function LeagueForm() {
       .from("distinct_macthdate")
       .select("*")
       .eq("leagueid", leagueId)
-      .order("matchdate");
+      .order("matchdate", {ascending: false}) ;
 
     if (error) {
       console.log(
@@ -102,12 +102,7 @@ export default function LeagueForm() {
                   onChange={(e) => setDay(e.target.value)}
                 >
                   <option value="Monday">Monday</option>
-                  <option value="Tuesday">Tuesday</option>
-                  <option value="Wednesday">Wednesday</option>
                   <option value="Thursday">Thursday</option>
-                  <option value="Friday">Friday</option>
-                  <option value="Sunday">Sunday</option>
-                  <option value="Saturday">Saturday</option>
                 </select>
               </div>
             </div>

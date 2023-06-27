@@ -37,7 +37,7 @@ export default function ScheduleTable({
   return (
     <div className="overflow-x-auto rounded-lg border">
       <h1 className="py-6 text-center text-2xl font-semibold text-indigo-600">
-        Schedules
+        Scheduled Matches
       </h1>
       {leagueCtx.league?.matchDate ? (
         <h2 className="pb-6 text-center text-lg font-semibold text-indigo-600">
@@ -58,13 +58,10 @@ export default function ScheduleTable({
               Match Date
             </th>
             <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-              Division
-            </th>
-            <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
               Team 1
             </th>
             <th className="whitespace-nowrap py-2 font-medium text-gray-900">
-              Team 1 wins
+              Wins
             </th>
             <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
               VS
@@ -73,7 +70,7 @@ export default function ScheduleTable({
               Team2
             </th>
             <th className="whitespace-nowrap py-2 font-medium text-gray-900">
-              Team 2 wins
+              Wins
             </th>
           </tr>
         </thead>
@@ -93,15 +90,7 @@ export default function ScheduleTable({
                   day: "numeric",
                 })}
               </td>
-              <td
-                className={`whitespace-nowrap px-4 py-2 font-medium ${textColor(
-                  schedule?.divisionid?.divisionname!
-                )}
-                `}
-              >
-                {schedule?.divisionid?.divisionname}
-              </td>
-              <td className="whitespace-nowrap px-4 py-2 text-gray-700 hover:text-blue-500 hover:underline">
+              <td className={`whitespace-nowrap px-4 py-2 ${textColor(schedule?.divisionid?.divisionname!)} hover:text-blue-500 hover:underline `}>
                 <Link
                   href={{
                     pathname: `/teams/${schedule?.team1?.teamname}`,
@@ -111,11 +100,12 @@ export default function ScheduleTable({
                   {schedule?.team1?.teamname}
                 </Link>
               </td>
-              <td className="whitespace-nowrap py-2 text-gray-700">
+              <td className="whitespace-nowrap py-2 ">
                 {schedule?.team1wins}
               </td>
-              <td className="whitespace-nowrap px-4 py-2 text-gray-700">vs</td>
-              <td className="whitespace-nowrap px-4 py-2 text-gray-700 hover:text-blue-500 hover:underline">
+              <td className={`whitespace-nowrap px-4 py-2 ${textColor(schedule?.divisionid?.divisionname!)}`}>vs
+			  </td>
+              <td className={`whitespace-nowrap px-4 py-2 ${textColor(schedule?.divisionid?.divisionname!)} hover:text-blue-500 hover:underline`}>
                 <Link
                   href={{
                     pathname: `/teams/${schedule?.team2?.teamname}`,

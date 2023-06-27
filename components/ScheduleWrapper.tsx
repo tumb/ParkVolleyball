@@ -58,7 +58,7 @@ export default function ScheduleWrapper() {
       setLoading(false);
       //Set only the schedules with the first matchDate. I don't need the rest.
 
-      const firstMatchDate = schedules[0].matchdate;
+      const firstMatchDate = schedules[schedules.length-1].matchdate;
       const filteredSchedules = schedules.filter(
         (schedule) => schedule.matchdate === firstMatchDate
       );

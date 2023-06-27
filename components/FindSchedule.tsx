@@ -39,7 +39,9 @@ export default function FindSchedule() {
       .select(
         `*, scheduleid, matchdate, team1: team1(teamname), team2: team2(teamname), divisionid: division("divisionname")`
       )
-      .eq("leagueid", 2);
+      .eq("leagueid", 2)
+      .order("matchdate", { ascending: false });
+
   };
 
   const getSchedules = async () => {
@@ -48,7 +50,8 @@ export default function FindSchedule() {
       .select(
         `*, scheduleid, matchdate, team1: team1(teamname), team2: team2(teamname), divisionid: division("divisionname")`
       )
-      .eq("leagueid", 2);
+      .eq("leagueid", 2)
+      .order("matchdate", { ascending: false });
 
     if (data) {
       // setSchedules(data);
