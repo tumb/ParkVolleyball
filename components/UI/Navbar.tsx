@@ -28,7 +28,7 @@ export default function Navbar() {
                 <NavForm />
                 <li>
                   <Link
-                    className="text-gray-500 transition hover:text-gray-500/75"
+                    className="text-green-800 transition hover:text-blue-800/75"
                     href="/teams"
                   >
                     Teams
@@ -36,7 +36,7 @@ export default function Navbar() {
                 </li>
                 <li>
                   <Link
-                    className="text-gray-500 transition hover:text-gray-500/75"
+                    className="text-green-800 transition hover:text-blue-800/75"
                     href="/rules"
                   >
                     Rules
@@ -44,7 +44,7 @@ export default function Navbar() {
                 </li>
                 <li>
                   <Link
-                    className="text-gray-500 transition hover:text-gray-500/75"
+                    className="text-green-800 transition hover:text-blue-800/75"
                     href="/directions"
                   >
                     Directions
@@ -52,7 +52,7 @@ export default function Navbar() {
                 </li>
                 <li>
                   <Link
-                    className="text-gray-500 transition hover:text-gray-500/75"
+                    className="text-green-800 transition hover:text-blue-800/75"
                     href="/signupinfo"
                   >
                     Signup Information
