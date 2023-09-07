@@ -4,7 +4,7 @@ export default function Document() {
   return (
     <Html lang="en">
       <Head>
-	    <script defer data-domain="parkvball.com" src="https://plausible.io/js/script.js"></script>
+		<title>Delaware Park Doubles</title>
 	  </Head>
       <body>
         <Main />
