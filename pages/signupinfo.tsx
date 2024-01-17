@@ -30,7 +30,7 @@ export default function signupinfo() {
           </li>
           <li> New teams can put themselves on the list anytime before mid-April by sending an email to me. Don't count on my memory or a phone call. </li>
           <li> Returning teams who want to play must confirm by mid-April. New teams are considered after that. </li>
-          <li> To be a team (not just interested) on any list, you must give your name, email address and your partner's name. </li>
+          <li> To be a team (not just interested) on any list, you must give your name, email address, and your partner's name. </li>
           <li> Until you've named a partner you are not a team.           </li>
         </ul>
       </div>
