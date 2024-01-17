@@ -5,7 +5,7 @@ export default function signupinfo() {
   return (
     <div className="flex flex-col items-start justify-center p-4 space-y-4 text-gray-800">
       <div className="text-sm space-y-4">
-        <h2 className="text-2xl font-semibold">Signup Information</h2>
+        <h2 className="text-2xl font-semibold">Are you sure you want to sign up? </h2>
         <ul className="list-disc px-4">
           <li>
             Location is Buffalo's Delaware Park. Within the park, we play just
@@ -20,6 +20,18 @@ export default function signupinfo() {
           </li>
           <li>Teams are one man and one woman</li>
           <li>Courts are on grass. We cancel when they are wet/slippery</li>
+        </ul>
+      </div>
+      <div className="text-sm space-y-4">
+        <h2 className="text-2xl font-semibold">Signup Information</h2>
+        <ul className="list-disc px-4">
+          <li> 
+            What teams are playing will be decided in April of the year. You can state an interest any time before then. 
+          </li>
+          <li> New teams can put themselves on the list anytime before mid-April by sending an email to me. Don't count on my memory or a phone call. </li>
+          <li> Returning teams who want to play must confirm by mid-April. New teams are considered after that. </li>
+          <li> To be a team (not just interested) on any list, you must give your name, email address and your partner's name. </li>
+          <li> Until you've named a partner you are not a team.           </li>
         </ul>
       </div>
 
