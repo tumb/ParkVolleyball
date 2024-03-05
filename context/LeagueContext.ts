@@ -20,7 +20,14 @@ export const LeagueContext = createContext<{
 }>
 
 ({
-  league: undefined,
+  league: {
+    matchDate: 'none',
+    day: 'TestDay',
+    leagueid: 0,
+    year: 2024,
+    divisionName: 'brown',
+    divisionId: 0,
+  },
   onUpdate: (value) => {},
 });
 
