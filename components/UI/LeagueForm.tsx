@@ -62,9 +62,9 @@ export default function LeagueForm() {
       getMatchDates(league[0].leagueid);
 
       leagueCtx.onUpdate({
-        day: league[0].day,
+        day: league[0].day != null ? league[0].day : "" ,
         leagueid: league[0].leagueid,
-        year: league[0].year,
+        year: league[0].year != null ? league[0].year : 2024,
         matchDate: "",
       });
     } else {
