@@ -11,7 +11,7 @@ import {findSelectedDivision, isValidDate, createMatch, saveToSupabase} from "@/
 
 let time = '10:17' ;
 
-export default function makeSchedule() 
+export default function MakeSchedule() 
     {
       const leagueCtx = useContext(LeagueContext);
         const [scheduleDate, setScheduleDate] = useState("yyyy-mm-dd") ;
