@@ -76,7 +76,7 @@ export type ScheduleProps = {
   team2wins: number ; 
 }
 
-export type SchedulingSetupProps = {
+export type SchedulingSetupProps =   {
   divisionHandler: (e: ChangeEvent<HTMLSelectElement>) => void;
   divisionid: number;
   dateHandler:  (e: ChangeEvent<HTMLInputElement>) => void;
