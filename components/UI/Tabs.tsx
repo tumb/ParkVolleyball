@@ -12,7 +12,7 @@ export default function Tabs() {
             href=""
           >
             <span className="absolute inset-x-0 -bottom-px h-px w-full bg-white"></span>
-            Schedules
+            Schedules 3:44
           </a>
         </li>
 

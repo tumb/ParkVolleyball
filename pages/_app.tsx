@@ -1,6 +1,7 @@
 import Navbar from "@/components/UI/Navbar";
 import { LeagueContext, LeagueProp } from "@/context/LeagueContext";
 import "@/styles/globals.css";
+import "@/styles/layouts.css" ; 
 import type { AppProps } from "next/app";
 import { useState } from "react";
 import { Toaster } from "react-hot-toast";

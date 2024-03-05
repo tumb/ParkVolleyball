@@ -37,7 +37,7 @@ export default function ScheduleTable({
   return (
     <div className="overflow-x-auto rounded-lg border">
       <h1 className="py-6 text-center text-2xl font-semibold text-indigo-600">
-        Scheduled Matches
+        Scheduled Matches 
       </h1>
       {leagueCtx.league?.matchDate ? (
         <h2 className="pb-6 text-center text-lg font-semibold text-indigo-600">

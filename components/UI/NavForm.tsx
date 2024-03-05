@@ -11,20 +11,19 @@ export default function NavForm() {
   const [year, setYear] = useState(leagueCtx.league?.year);
 
   const handleLeagueSearch = async () => {
-    const notification = toast.loading("Searching for a league...");
-
+  //  const notification = toast.loading("Searching for a league 22...");
+    console.log("--- start handleLeagueSearch day: ", day) ; 
     let { data: league, error } = await supabase
       .from("league")
       .select()
       .eq("day", day)
       .eq("year", year);
     console.log(
-      "🚀 ~ file: LeagueForm.tsx:58 ~ LeagueForm ~ league:\n",
+      "🚀 ~ file: NavForm.tsx:22 ~ LeagueForm ~ league:\n",
       league
     );
 
     if (league?.length) {
-      toast.success("Found it 😊", { id: notification });
 
       leagueCtx.onUpdate({
         day: league[0].day,
@@ -33,7 +32,7 @@ export default function NavForm() {
         matchDate: "",
       });
     } else {
-      toast.error("No league found! Please try again", { id: notification });
+    //  toast.error("No league found! Please try again", { id: notification });
     }
   };
 
@@ -58,12 +57,9 @@ export default function NavForm() {
                 onChange={(e) => setDay(e.target.value)}
               >
                 <option value="Monday">Monday</option>
-                <option value="Tuesday">Tuesday</option>
                 <option value="Wednesday">Wednesday</option>
                 <option value="Thursday">Thursday</option>
-                <option value="Friday">Friday</option>
-                <option value="Sunday">Sunday</option>
-                <option value="Saturday">Saturday</option>
+                <option value="Testday">Testday</option>
               </select>
             </div>
           </div>

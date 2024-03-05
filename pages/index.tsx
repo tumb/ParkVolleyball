@@ -1,4 +1,4 @@
-import Cta from "@/components/UI/Cta";
+// import Cta from "@/components/UI/Cta";
 import Hero from "@/components/UI/Hero";
 import LeagueForm from "@/components/UI/LeagueForm";
 

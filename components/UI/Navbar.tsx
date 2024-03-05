@@ -55,7 +55,7 @@ export default function Navbar() {
                     className="text-green-800 transition hover:text-blue-800/75"
                     href="/signupinfo"
                   >
-                    Signup Information
+                    Signup Information 
                   </Link>
                 </li>
               </ul>

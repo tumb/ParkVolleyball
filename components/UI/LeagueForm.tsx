@@ -45,7 +45,7 @@ export default function LeagueForm() {
   };
 
   const handleLeagueSearch = async () => {
-    const notification = toast.loading("Searching for a league...");
+    // const notification = toast.loading("Searching for a league...");
 
     let { data: league, error } = await supabase
       .from("league")
@@ -58,7 +58,7 @@ export default function LeagueForm() {
     );
 
     if (league?.length) {
-      toast.success("Found it 😊", { id: notification });
+      // toast.success("Found it 😊", { id: notification });
       getMatchDates(league[0].leagueid);
 
       leagueCtx.onUpdate({
@@ -68,7 +68,7 @@ export default function LeagueForm() {
         matchDate: "",
       });
     } else {
-      toast.error("No league found! Please try again", { id: notification });
+      // toast.error("No league found! Please try again", { id: notification });
     }
   };
 
@@ -103,6 +103,7 @@ export default function LeagueForm() {
                 >
                   <option value="Monday">Monday</option>
                   <option value="Thursday">Thursday</option>
+                  <option value="Testday">Testday</option>
                 </select>
               </div>
             </div>
