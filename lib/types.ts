@@ -77,10 +77,28 @@ export type ScheduleProps = {
   team2wins: number ; 
 }
 
+export type PlayerProps = {
+  playerid: number ; 
+  firstname: string ;
+  lastname: string ; 
+  gender: string ; 
+  email: string ; 
+  phone: string ;
+  elo: number ; 
+  entrydate: string ; 
+}
+
 export type SchedulingSetupProps =   {
   divisionHandler: (e: ChangeEvent<HTMLSelectElement>) => void;
   divisionid: number;
   dateHandler:  (e: ChangeEvent<HTMLInputElement>) => void;
   scheduleDate: string ; 
   allDivisions: DivisionProps[] ; 
+}
+
+
+export type LeagueProps =   {
+  leagueid: number;
+  year: number ;
+  day: string ; 
 }

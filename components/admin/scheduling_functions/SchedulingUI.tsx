@@ -52,23 +52,38 @@ export async function saveToSupabase(schedule: ScheduleProps) {
     }
   }
   else {
-    var match: Omit<ScheduleProps, 'scheduleid'> = schedule ;
     try {
+      // Omit the scheduleid property from the schedule object
+      const { scheduleid, ...scheduleWithoutId } = schedule;
       const { data, error } = await supabase
         .from("schedule")
-        .insert([match]);
-  
+        .insert([scheduleWithoutId]);
+      if(data !== null) {
+        tempId = (data as ScheduleProps[])[0]?.scheduleid ;
+        console.log("tempId: ", tempId) ;
+      }
+      else {
+        console.log("data returned is null.") ;
+      }
       if (error) {
         throw error;
       }
-  
-      console.log("Schedule saved successfully with new scheduleid:", data);
+      console.log("Schedule saved successfully with new scheduleid: ", tempId);
     } catch (error: any) {
       console.error("Error saving schedule:", error.message);
     }
   }
-  
-
 }
+
+export function getCurrentFormattedDate()  {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = (now.getMonth() + 1).toString().padStart(2, '0');
+  const day = now.getDate().toString().padStart(2, '0');
+  
+  return `${year}-${month}-${day}`;
+}
+
+
 
 

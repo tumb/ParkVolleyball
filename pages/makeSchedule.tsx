@@ -1,6 +1,6 @@
 import React from "react";
 import Link from "next/link";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState, useCallback } from "react";
 import { LeagueContext } from "@/context/LeagueContext";
 import SchedulingSetup from "@/components/UI/SchedulingSetup";
 import { toast } from "react-hot-toast";
@@ -34,6 +34,17 @@ export default function MakeSchedule()
           }
         }
 
+
+        const updateTeams = () => {
+          findTeamsSearch() ; 
+          console.log("Teams found: " + teams.length) ; 
+        }
+
+
+        const updateTeamsCallback = useCallback(() => {
+          updateTeams();
+        }, [updateTeams]);
+
         useEffect(() => {
           if(selectedDivision) {
             leagueCtx.league.divisionName = selectedDivision.divisionname ; 
@@ -42,7 +53,7 @@ export default function MakeSchedule()
             updateTeams() ;
           } 
           // console.log("--- End divisionHandler ---") ;
-        }, [selectedDivision]) ;
+        }, [selectedDivision, leagueCtx.league]) ;
 
         const dateHandler = (e: React.ChangeEvent<HTMLInputElement>) =>  {
           console.log("-- Started dateHandler. scheduleDate: " + scheduleDate) ;
@@ -104,12 +115,7 @@ export default function MakeSchedule()
 
         useEffect(() => {
           findDistinctDivisionsSearch() ;
-        }, []) ; 
-
-        const updateTeams = () => {
-          findTeamsSearch() ; 
-          console.log("Teams found: " + teams.length) ; 
-        }
+        }, [leagueCtx.league]) ; 
 
         function onPairTwoTeamsButtonClick() {
           console.log("--- onPairTwoTeamsButtonClick started") ;
