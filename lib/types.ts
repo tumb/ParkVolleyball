@@ -57,6 +57,13 @@ export type DivisionProps = {
         divisionvalue: number ; 
       }
 
+export const emptyDivision: DivisionProps = {
+  divisionid: -1,
+  leagueid: -1,
+  divisionname: 'brown',
+  divisionvalue: -1,
+} ;
+
 export type TeamProps = {
   teamid: number ; 
   teamname: string ; 

@@ -200,7 +200,7 @@ export default function AddLeague()
         `}
       </style>
       <div id="debuggingInfoDiv">
-        Add a Player
+        Add a League notifications
         <br/>
         <br/>
         <br/>

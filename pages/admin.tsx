@@ -20,6 +20,14 @@ export default function admin()
       <div>
         <br/>
         <Link className=" m-4 p-4 bg-blue-200 font-bold rounded-lgtext-green-800 transition hover:text-blue-800/75"
+              href="/submitResults" >
+                    Submit Results
+        </Link>
+      </div>
+      <br/>
+      <div>
+        <br/>
+        <Link className=" m-4 p-4 bg-blue-200 font-bold rounded-lgtext-green-800 transition hover:text-blue-800/75"
               href="/addPlayer" >
                     Add a Player
         </Link>
@@ -30,6 +38,14 @@ export default function admin()
         <Link className=" m-4 p-4 bg-blue-200 font-bold rounded-lgtext-green-800 transition hover:text-blue-800/75"
               href="/addLeague" >
                     Create New League
+        </Link>
+      </div>
+      <br/>
+      <div>
+        <br/>
+        <Link className=" m-4 p-4 bg-blue-200 font-bold rounded-lgtext-green-800 transition hover:text-blue-800/75"
+              href="/addTeam" >
+                    Create Teams
         </Link>
       </div>
     </div>

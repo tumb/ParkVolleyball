@@ -6,7 +6,9 @@ import SchedulingSetup from "@/components/UI/SchedulingSetup";
 import { toast } from "react-hot-toast";
 import { supabase } from "@/lib/supabase";
 import {DivisionProps, ScheduleProps, SchedulingSetupProps, TeamProps, ScheduleData } from "@/lib/types" ;
-import {findSelectedDivision, isValidDate, createMatch, saveToSupabase} from "@/components/admin/scheduling_functions/SchedulingUI" ;
+import {findSelectedDivision, isValidDate, createMatch} from "@/components/admin/scheduling_functions/SchedulingUI" ;
+import { saveToSupabase } from "@/components/database/fetches";
+
 // import '@/styles/layouts.css' ; Not allowed to add a global style sheet. I put this into ./pages/_app.tsx but don't know that I'll use it. 
 
 let time = '10:17' ;
@@ -184,7 +186,7 @@ export default function MakeSchedule()
             background-color: lightgreen ; 
             width: 100% ; 
             margin-top: 10px ;
-          }     
+          }  
           #teamsSelectionDiv {
             background-color: lightgray ; 
             width: 40% ; 

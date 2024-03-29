@@ -221,6 +221,16 @@ export default function AddPlayer()
           <div>
             <br/>
             <Link
+                className=" m-4 p-4 bg-blue-200 font-bold rounded-lg text-black-800 transition hover:text-blue-800/75"
+                href="/addTeam"
+              >
+                AddTeam
+              </Link>
+          </div>
+          <br/>
+          <div>
+            <br/>
+            <Link
                 className=" m-4 p-4 bg-red-200 font-bold rounded-lg text-black-800 transition hover:text-blue-800/75"
                 href="/admin"
               >

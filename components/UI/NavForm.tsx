@@ -9,6 +9,7 @@ export default function NavForm() {
 
   const [day, setDay] = useState(leagueCtx.league?.day);
   const [year, setYear] = useState(leagueCtx.league?.year);
+  const [allYears, setAllYears] = useState<number[]>([]) ; 
 
   const handleLeagueSearch = async () => {
   //  const notification = toast.loading("Searching for a league 22...");
@@ -57,7 +58,6 @@ export default function NavForm() {
                 onChange={(e) => setDay(e.target.value)}
               >
                 <option value="Monday">Monday</option>
-                <option value="Wednesday">Wednesday</option>
                 <option value="Thursday">Thursday</option>
                 <option value="Testday">Testday</option>
               </select>
@@ -79,6 +79,7 @@ export default function NavForm() {
                 <option value="2021">2021</option>
                 <option value="2022">2022</option>
                 <option value="2023">2023</option>
+                <option value="2024">2024</option>
               </select>
             </div>
           </div>
