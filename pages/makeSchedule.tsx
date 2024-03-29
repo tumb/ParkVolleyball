@@ -7,7 +7,7 @@ import { toast } from "react-hot-toast";
 import { supabase } from "@/lib/supabase";
 import {DivisionProps, ScheduleProps, SchedulingSetupProps, TeamProps, ScheduleData } from "@/lib/types" ;
 import {findSelectedDivision, isValidDate, createMatch} from "@/components/admin/scheduling_functions/SchedulingUI" ;
-import { saveToSupabase } from "@/components/database/fetches";
+import { saveToSupabase } from "@/components/database/savesOrModifications";
 
 // import '@/styles/layouts.css' ; Not allowed to add a global style sheet. I put this into ./pages/_app.tsx but don't know that I'll use it. 
 
