@@ -57,7 +57,7 @@ export default function AddTeam() {
 			findPlayersByGender("M");
 			findPlayersByGender("F");
 		}
-	}, []);
+	}, [men, women]);
 
 	useEffect(() => {
 		async function fetchExistingTeams() {
@@ -293,7 +293,7 @@ export default function AddTeam() {
 							<label className="inputLabel">Division:</label>
 							<div className="division-radio-group" id="division-radio-group">
 								{allDivisions.map((division) => (
-						            <label className="radio-button" htmlFor="two"><input type="radio"  name="division" key={division.divisionid} value={division.divisionid} onChange={divisionHandler}/> {division.divisionname}</label>
+						            <label  key={division.divisionid} className="radio-button" htmlFor="two"><input type="radio"  key={division.divisionid} value={division.divisionid} onChange={divisionHandler}/> {division.divisionname}</label>
           						))}
 							</div>
 						</div>
