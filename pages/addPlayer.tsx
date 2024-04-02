@@ -7,8 +7,6 @@ import {PlayerProps } from "@/lib/types" ;
 import { getCurrentFormattedDate } from "@/components/admin/scheduling_functions/SchedulingUI";
 // import '@/styles/layouts.css' ; Not allowed to add a global style sheet. I put this into ./pages/_app.tsx but don't know that I'll use it. 
 
-let time = '10:17' ;
-
 export default function AddPlayer() 
     {
         const [warningMessage, setWarningMessage] = useState("") ;

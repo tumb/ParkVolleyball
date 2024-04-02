@@ -41,10 +41,11 @@ export default function signupinfo() {
           Feel free to ask for more information.
           <br /> Email me at:{" "}
           <a
-            href="mailto: thom.burnett@gmail.com"
+            href="mailto: Delawareparkvball@gmail.com."
             className="text-blue-700 underline"
           >
-            thom.burnett@gmail.com
+            Delawareparkvball@gmail.com
+            <br/>
           </a>
         </p>
       </div>

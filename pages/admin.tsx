@@ -1,13 +1,12 @@
 import React from "react";
 import Link from "next/link";
 
-let time = '12:55' ;
 
 export default function admin() 
     {
     return (
     <div >
-        Admin page {time}
+        Admin page
         <br/>
       <div>
         <br/>

@@ -1,9 +1,9 @@
 import { DivisionProps, TeamProps, ScheduleProps } from "@/lib/types";
 
 export const findSelectedDivision = (divId: number, divisions:DivisionProps[]): DivisionProps | undefined => {
-   console.log("findSelectedDivision() divId: ", divId) ;
+//   console.log("findSelectedDivision() divId: ", divId) ;
   const selected = divisions.find((division: DivisionProps) => division.divisionid === divId);
-   console.log("returning division: ", selected?.divisionid) ; 
+//   console.log("returning division: ", selected?.divisionid) ; 
   return selected;
 };
 

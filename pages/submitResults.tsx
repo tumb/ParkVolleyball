@@ -126,18 +126,25 @@ export default function SubmitResults() {
 	} ;
 
 	function buildTableRowOfMatchForInput(match:ScheduleProps) {
+		const divisionColor = computeDivisionColor(match.divisionid) ;
+		// console.log("divisionColor: ", divisionColor) ;
 		return (
 			<>
 			<td>{match.matchdate}</td>
 			<td>{teamNameFromId(match.team1)}</td>
-      		<td><input type="number" className="winInput" key={match.scheduleid + "-" + match.team1} name={match.scheduleid + "-" + match.team1} 
+      		<td><input type="number" className={`winInput ${divisionColor}`} key={match.scheduleid + "-" + match.team1} name={match.scheduleid + "-" + match.team1} 
 				value={match.team1wins > 0 ? match.team1wins : 0} onChange={handleInputChange}></input></td>
       		<td> vs</td>
       		<td>{teamNameFromId(match.team2)}</td>
-      		<td><input type="number" className="winInput" key={match.scheduleid + "-" + match.team2} name={match.scheduleid + "-" + match.team2} 
+      		<td><input type="number" className={`winInput ${divisionColor}`} key={match.scheduleid + "-" + match.team2} name={match.scheduleid + "-" + match.team2} 
 				value={match.team2wins > 0 ? match.team2wins : 0} onChange={handleInputChange}></input></td>
 			</>
 		)
+	}
+
+	function computeDivisionColor(divisionId : number) {
+		const thisDivision = findSelectedDivision(divisionId, allDivisions) ; 
+		return "division-"+thisDivision?.divisionname ; 
 	}
 
 	function teamNameFromId(teamId: number) {
@@ -220,6 +227,15 @@ export default function SubmitResults() {
 			border: solid ; 
 			height: 50px ; 
 			align-items: center ; 
+		}
+		.division-red {
+			border-color: red ; 
+		}
+		.division-green{
+			border-color: green ; 
+		}
+		.division-blue {
+			border-color: blue ; 
 		}
 	  `}
 			</style>
