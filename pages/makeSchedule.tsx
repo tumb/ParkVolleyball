@@ -8,6 +8,7 @@ import { supabase } from "@/lib/supabase";
 import {DivisionProps, ScheduleProps, SchedulingSetupProps, TeamProps, ScheduleData } from "@/lib/types" ;
 import {findSelectedDivision, isValidDate, createMatch} from "@/components/admin/scheduling_functions/SchedulingUI" ;
 import { saveToSupabase } from "@/components/database/savesOrModifications";
+import { findMatchesForLeagueAndDate, findMatchesForLeagueDateDivision } from "@/components/database/fetches";
 
 // import '@/styles/layouts.css' ; Not allowed to add a global style sheet. I put this into ./pages/_app.tsx but don't know that I'll use it. 
 
@@ -22,8 +23,7 @@ export default function MakeSchedule()
         const [selectedDivision, setSelectedDivsion] = useState(({divisionid: 1, leagueid: 1, divisionname: "purple", divisionvalue: 1})) ;
         const [matches, setMatches] = useState<ScheduleProps[]>([]) ;
         const [warningMessage, setWarningMessage] = useState("") ;
-
-        var tempMatchId = 0 ; 
+        const [tempMatchId, setTempMatchId] = useState(-1) ;
 
         const divisionHandler = (e: React.ChangeEvent<HTMLSelectElement>) =>  {
           // console.log("--- Started divisionHandler ---") ; 
@@ -42,6 +42,20 @@ export default function MakeSchedule()
           console.log("Teams found: " + teams.length) ; 
         }
 
+        function countMatchesForTeam(teamid: number) : number {
+          const team1Count = matches.filter((match) => match.team1 === teamid).length ;
+          const team2Count = matches.filter((match) => match.team2 === teamid).length ;
+          return team1Count + team2Count ; 
+        }
+
+        function generateMatchName(scheduleId: number) : string {
+          let name = "none" ; 
+          const schedule = matches.find((match) => match.scheduleid === scheduleId )
+          const teamA = teams.find((team) => team.teamid === schedule?.team1) ; 
+          const teamB = teams.find((team) => team.teamid === schedule?.team2) ; 
+          name = teamA?.teamname + " vs " + teamB?.teamname ; 
+          return name ; 
+        }
 
         const updateTeamsCallback = useCallback(() => {
           updateTeams();
@@ -119,6 +133,28 @@ export default function MakeSchedule()
           findDistinctDivisionsSearch() ;
         }, [leagueCtx.league]) ; 
 
+        useEffect(() => {
+          async function findMatchesForLeagueDateAndDivision(leagueId: number, matchDate: string, matchDivision: number) {
+            const matches: ScheduleProps[] = await findMatchesForLeagueDateDivision(leagueId, matchDate, matchDivision) ;
+            return matches ; 
+          }
+         async function fetchData() {
+           if (isValidDate(scheduleDate) && selectedDivision.divisionid > 0) {
+              try {
+                  const existingMatches: ScheduleProps[] = await findMatchesForLeagueDateAndDivision(
+                      leagueCtx.league.leagueid !== undefined ? leagueCtx.league.leagueid : 0,
+                      scheduleDate,
+                      selectedDivision.divisionid
+                  );
+                  setMatches(existingMatches);
+              } catch (error) {
+                  console.error('Error fetching matches:', error);
+              }
+            }
+          }
+        fetchData();        
+        }, [selectedDivision, scheduleDate] ) ;
+
         function onPairTwoTeamsButtonClick() {
           console.log("--- onPairTwoTeamsButtonClick started") ;
             // Get the teamsSelect element
@@ -140,15 +176,15 @@ export default function MakeSchedule()
               const team2: TeamProps | undefined  = teams.find((team: TeamProps) => team.teamid === team2Id) ; 
               if(team1 && team2 && leagueCtx.league.leagueid && selectedDivision && isValidDate(scheduleDate)) {
                 const scheduledMatch: ScheduleProps | undefined = createMatch(tempMatchId, scheduleDate, team1, team2, leagueCtx.league.leagueid, selectedDivision.divisionid, 0, 0 ) ;
-                tempMatchId++ ; 
                 console.log("Selected Team 1 name ID:", team1?.teamname) ;
                 if(scheduledMatch) {
                   matches.push(scheduledMatch) ;
                   setMatches(matches) ; 
                   const newMatchOption = document.createElement("option") ;
                   newMatchOption.value = "" + scheduledMatch.scheduleid ; 
-                  newMatchOption.text = team1.teamname + " vs " + team2.teamname ; 
+                  newMatchOption.text = team1.teamname + " vs " + team2.teamname + " id: " + tempMatchId ; 
                   matchesSelect.add(newMatchOption) ; 
+                  setTempMatchId(tempMatchId - 1) ; 
                 }
               }
               console.log("Matches created: ", matches.length) ; 
@@ -243,10 +279,7 @@ export default function MakeSchedule()
           </div>
           <select id="teamsSelect" size={20} multiple={true} > 
           {teams.map((team) => (
-            <option key={team.teamid} value={team.teamid}>{team.teamname}</option> 
-          ))}
-          {teams.map((team) => (
-            <option key={team.teamid} value={team.teamid}>{team.teamname}</option> 
+            <option key={team.teamid} value={team.teamid}>{countMatchesForTeam(team.teamid)} {team.teamname}</option> 
           ))}
           </select>
         </div>
@@ -279,6 +312,9 @@ export default function MakeSchedule()
             <label>Matches scheduled so far</label>
           </div>
           <select id="matchesSelect" size={20} multiple={true}> 
+          {matches.map((match) => (
+									<option key={match.scheduleid} value={match.scheduleid}>{generateMatchName(match.scheduleid)} {match.scheduleid} </option>
+								))}
           </select>
         </div>
       </div>  

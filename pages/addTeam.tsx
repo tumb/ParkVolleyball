@@ -10,7 +10,7 @@ import { saveTeamsToDatabase } from "@/components/database/savesOrModifications"
 
 // import '@/styles/layouts.css' ; Not allowed to add a global style sheet. I put this into ./pages/_app.tsx but don't know that I'll use it. 
 
-let time = '4:29';
+let time = '11:43';
 
 export default function AddTeam() {
 	const [warningMessage, setWarningMessage] = useState("");
@@ -115,12 +115,12 @@ export default function AddTeam() {
 		console.log("divId: ", divId) ;
 
 		if(allDivisions) {
-		const selectedDiv = findSelectedDivision(divId, allDivisions) ;
-		 console.log("selectedDiv: ", selectedDiv) ;
-		if(selectedDiv) {
-		  setSelectedDivision(selectedDiv) ;
+			const selectedDiv = findSelectedDivision(divId, allDivisions) ;
+			console.log("selectedDiv: ", selectedDiv) ;
+			if(selectedDiv) {
+		  		setSelectedDivision(selectedDiv) ;
+			}
 		}
-	}
 	  } 
 
 	  async function onMakeTeamButtonClick() {
@@ -269,7 +269,8 @@ export default function AddTeam() {
 	  `}
 			</style>
 			<div id="debuggingInfoDiv">
-				Add a Team debugging
+				Add a Team debugging. Coded time: {time}
+				<br/>
 				League day: {leagueCtx.league?.day}, leagueid: {leagueCtx.league.leagueid}
 				<br/>
 				allDivisions length: {allDivisions.length} 
@@ -293,7 +294,8 @@ export default function AddTeam() {
 							<label className="inputLabel">Division:</label>
 							<div className="division-radio-group" id="division-radio-group">
 								{allDivisions.map((division) => (
-						            <label  key={division.divisionid} className="radio-button" htmlFor="two"><input type="radio"  key={division.divisionid} value={division.divisionid} onChange={divisionHandler}/> {division.divisionname}</label>
+						            <label  key={division.divisionid} className="radio-button"><input type="radio" name="division" key={division.divisionid} 
+									value={division.divisionid} onChange={divisionHandler}/> {division.divisionname}</label>
           						))}
 							</div>
 						</div>
