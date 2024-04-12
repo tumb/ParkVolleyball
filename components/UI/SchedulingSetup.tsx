@@ -52,7 +52,7 @@ export default function SchedulingSetup({divisionHandler, divisionid, allDivisio
                     onChange={(e) => dateHandler(e)}
                 >
                   {dateList.map((date:string)  => (
-                    <option value={date}>{date}</option> 
+                    <option key={date} value={date}>{date}</option> 
                   ))}
                 </select>
             </div>
