@@ -1,5 +1,5 @@
 import { supabase } from "@/lib/supabase";
-import { DivisionProps, TeamProps, ScheduleProps } from "@/lib/types";
+import { TeamProps, ScheduleProps } from "@/lib/types";
 
 export async function saveToSupabase(schedule: ScheduleProps) {
   console.log("--- saveToSupabase started. ", schedule.scheduleid) ;

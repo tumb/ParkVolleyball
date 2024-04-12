@@ -5,10 +5,11 @@ import { LeagueContext } from "@/context/LeagueContext";
 import SchedulingSetup from "@/components/UI/SchedulingSetup";
 import { toast } from "react-hot-toast";
 import { supabase } from "@/lib/supabase";
-import {DivisionProps, ScheduleProps, SchedulingSetupProps, TeamProps, ScheduleData } from "@/lib/types" ;
+import {DivisionProps, ScheduleProps, TeamProps } from "@/lib/types" ;
 import {findSelectedDivision, isValidDate, createMatch} from "@/components/admin/scheduling_functions/SchedulingUI" ;
 import { saveToSupabase } from "@/components/database/savesOrModifications";
-import { findMatchesForLeagueAndDate, findMatchesForLeagueDateDivision } from "@/components/database/fetches";
+import { findMatchesForLeagueDateDivision, findDatesForLeague } from "@/components/database/fetches";
+import { deleteFromSupabase } from "@/components/database/deletes";
 
 // import '@/styles/layouts.css' ; Not allowed to add a global style sheet. I put this into ./pages/_app.tsx but don't know that I'll use it. 
 
@@ -21,9 +22,33 @@ export default function MakeSchedule()
         const [divisions, setDivisions] = useState<DivisionProps[]>([]) ; 
         const [teams, setTeams] = useState<TeamProps[]>([]) ; 
         const [selectedDivision, setSelectedDivsion] = useState(({divisionid: 1, leagueid: 1, divisionname: "purple", divisionvalue: 1})) ;
+        const [allDates, setAllDates] = useState<string[]>([]) ; 
         const [matches, setMatches] = useState<ScheduleProps[]>([]) ;
         const [warningMessage, setWarningMessage] = useState("") ;
         const [tempMatchId, setTempMatchId] = useState(-1) ;
+
+        function addNextDate(dayOfWeek : string) {
+          const currentDate = new Date(); // apparenty a number of time since ??? in milliseconds
+          // Get the current day of the week (0 for Sunday, 1 for Monday, ..., 6 for Saturday)
+          const currentDay = currentDate.getDay();
+          // Get the day of the week as an integer (0 for Sunday, 1 for Monday, ..., 6 for Saturday)
+          let targetDay = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'].indexOf(dayOfWeek.toLowerCase());
+          if(targetDay == -1) {
+            targetDay = 3 ; // Using wednesday for testday or a missing day.
+          }
+          // Calculate the number of days until the next occurrence of the target day
+          let daysUntilNext = targetDay - currentDay;
+          if (daysUntilNext <= 0) {
+              // If the target day is earlier in the week than the current day, add 7 days to find the next occurrence
+            daysUntilNext += 7;
+          }
+          // Calculate the date of the next occurrence of the target day
+          const nextDate = new Date(currentDate.getTime() + daysUntilNext * 24 * 60 * 60 * 1000);
+          // Format the date as YYYY-MM-DD
+          const formattedDate = nextDate.toISOString().split('T')[0];
+          setAllDates(prevDates => [...prevDates, formattedDate]);
+          console.log("created date: " + formattedDate + " and now have allDates.length: " + allDates.length) ; 
+        }
 
         const divisionHandler = (e: React.ChangeEvent<HTMLSelectElement>) =>  {
           // console.log("--- Started divisionHandler ---") ; 
@@ -46,6 +71,22 @@ export default function MakeSchedule()
           const team1Count = matches.filter((match) => match.team1 === teamid).length ;
           const team2Count = matches.filter((match) => match.team2 === teamid).length ;
           return team1Count + team2Count ; 
+        }
+
+        function onDeleteFromDatabase() {
+          console.log('--- onDeleteFromDatabase called.') ;
+          const matchesSelect = document.getElementById("matchesSelect") as HTMLSelectElement;
+          const selectedOptions = Array.from(matchesSelect.selectedOptions);
+          const selectedMatchIds = selectedOptions.map(option => parseInt(option.value));
+          const selectedMatches = matches.filter(match => selectedMatchIds.includes(match.scheduleid));
+          selectedMatches.forEach((match: ScheduleProps) => {
+            if(match.scheduleid > 0) {
+              deleteFromSupabase(match) ;
+              const updatedMatches = matches.filter(match2 => match.scheduleid !== match2.scheduleid ) ; 
+              setMatches(updatedMatches) ;
+            }
+          });
+  
         }
 
         function generateMatchName(scheduleId: number) : string {
@@ -71,7 +112,7 @@ export default function MakeSchedule()
           // console.log("--- End divisionHandler ---") ;
         }, [selectedDivision, leagueCtx.league]) ;
 
-        const dateHandler = (e: React.ChangeEvent<HTMLInputElement>) =>  {
+        const dateHandler = (e: React.ChangeEvent<HTMLSelectElement>) =>  {
           console.log("-- Started dateHandler. scheduleDate: " + scheduleDate) ;
           console.log("e.target.value: " + e.target.value) ;
           if(isValidDate(e.target.value)) {
@@ -130,7 +171,16 @@ export default function MakeSchedule()
         };
 
         useEffect(() => {
+          console.log("changing league setting") ; 
           findDistinctDivisionsSearch() ;
+          		// Add in getting all the match dates currently in schedule for that league.
+		      async function fetchDates() {
+			      const allDates: string[] = await findDatesForLeague(leagueCtx.league.leagueid as number) ;
+            console.log("about to  setAllDates. allDates.length: " + allDates.length) ;
+      			setAllDates(allDates) ; 
+            addNextDate(leagueCtx.league.day != undefined ? leagueCtx.league.day : 'Testday') ; 
+		      }
+		      fetchDates() ; 
         }, [leagueCtx.league]) ; 
 
         useEffect(() => {
@@ -153,7 +203,7 @@ export default function MakeSchedule()
             }
           }
         fetchData();        
-        }, [selectedDivision, scheduleDate] ) ;
+      }, [selectedDivision, scheduleDate] ) ;
 
         function onPairTwoTeamsButtonClick() {
           console.log("--- onPairTwoTeamsButtonClick started") ;
@@ -198,8 +248,10 @@ export default function MakeSchedule()
         function onSaveSchedule() {
           console.log('--- onSaveSchedule called.') ;
           matches.forEach((match: ScheduleProps) => {
-            console.log(match.leagueid, match.scheduleid, match.matchdate, match.team1, match.team2 ) ;
-            saveToSupabase(match) ;
+            if(match.scheduleid < 0) {
+              console.log(match.leagueid, match.scheduleid, match.matchdate, match.team1, match.team2 ) ;
+              saveToSupabase(match) ;
+            }
           });
           console.log("--- onSaveSchedule ended") ;
       }
@@ -262,7 +314,7 @@ export default function MakeSchedule()
         <br/>
         League ID: {leagueCtx.league?.leagueid}, League day: {leagueCtx.league?.day}, League year: {leagueCtx.league?.year}
         <br/>
-        <SchedulingSetup divisionHandler={divisionHandler} divisionid={selectedDivision.divisionid} dateHandler={dateHandler} scheduleDate={scheduleDate} allDivisions={divisions} />
+        <SchedulingSetup divisionHandler={divisionHandler} divisionid={selectedDivision.divisionid} dateHandler={dateHandler} dateList={allDates} selectedDate={scheduleDate} allDivisions={divisions} />
         <br/>
         <p>
         League ID: {leagueCtx.league?.leagueid}, League day: {leagueCtx.league?.day} 
@@ -296,6 +348,11 @@ export default function MakeSchedule()
           </div>
           <button className="m-4 p-4 bg-blue-200 font-bold rounded-lg" onClick={onSaveSchedule} >
             Save
+	        </button>
+          <div>
+          </div>
+          <button className="m-4 p-4 bg-purple-200 font-bold rounded-lg" onClick={onDeleteFromDatabase} >
+            Delete Data
 	        </button>
           <div>
             <br/>

@@ -6,11 +6,10 @@ import { toast } from "react-hot-toast";
 import {DivisionProps, SchedulingSetupProps } from "@/lib/types" ;
 
 
-export default function SchedulingSetup({divisionHandler, divisionid, dateHandler, scheduleDate, allDivisions}:SchedulingSetupProps ) {
+export default function SchedulingSetup({divisionHandler, divisionid, allDivisions, dateHandler, dateList, selectedDate }:SchedulingSetupProps ) {
 
   const [divId, setDivId] = useState(divisionid );
   useEffect(() => {setDivId(divisionid);}, [divisionid]);
-
 
   return (
     <div className="mx-auto px-4 ">
@@ -40,13 +39,22 @@ export default function SchedulingSetup({divisionHandler, divisionid, dateHandle
                     <option key={division.divisionid} value={division.divisionid}>{division.divisionname}</option>
                   ) ) } 
                 </select>
+                </div>
               </div>
             </div>
             <div>
                 <label>Date (yyyy-mm-dd)</label>
-                <input type = "text" className="bg-gray-200 border-green-900" id="newMatchDate" 
+                <div className="relative">
+                <select
+                  className="bg-gray-100 sm:px-6 "
+                  placeholder="2024-01-01"
+                  value={selectedDate}  
                     onChange={(e) => dateHandler(e)}
-                />
+                >
+                  {dateList.map((date:string)  => (
+                    <option value={date}>{date}</option> 
+                  ))}
+                </select>
             </div>
             <div>
                 Time: 12:31

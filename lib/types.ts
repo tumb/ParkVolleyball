@@ -98,9 +98,10 @@ export type PlayerProps = {
 export type SchedulingSetupProps =   {
   divisionHandler: (e: ChangeEvent<HTMLSelectElement>) => void;
   divisionid: number;
-  dateHandler:  (e: ChangeEvent<HTMLInputElement>) => void;
-  scheduleDate: string ; 
   allDivisions: DivisionProps[] ; 
+  dateHandler:  (e: ChangeEvent<HTMLSelectElement>) => void;
+  selectedDate: string ;
+  dateList: string[] ; 
 }
 
 
