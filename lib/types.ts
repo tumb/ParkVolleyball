@@ -73,6 +73,15 @@ export type TeamProps = {
   divisionid: number ; 
 }
 
+export const emptyTeam: TeamProps = {
+  teamid: -1 ,
+  teamname: "no team" ,
+  maleid: -1,
+  femaleid: -1, 
+  leagueid: -1,
+  divisionid: -1
+}
+
 export type ScheduleProps = {
   scheduleid: number ; 
   matchdate: string ; 

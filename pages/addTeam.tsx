@@ -75,7 +75,7 @@ export default function AddTeam() {
 		console.log("allDivisions[0]: ", allDivisions[0]) ;
 		}
 		fetchDivisions()
-	},[leagueCtx]) ;
+	},[leagueCtx]) ; // eslint-disable-line react-hooks/exhaustive-deps
 
 	function manSelected(event: React.ChangeEvent<HTMLSelectElement>) {
 		const malePlayerId = parseInt(event.target.value, 10);

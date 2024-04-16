@@ -5,10 +5,10 @@ import { LeagueContext } from "@/context/LeagueContext";
 import SchedulingSetup from "@/components/UI/SchedulingSetup";
 import { toast } from "react-hot-toast";
 import { supabase } from "@/lib/supabase";
-import {DivisionProps, ScheduleProps, TeamProps } from "@/lib/types" ;
-import {findSelectedDivision, isValidDate, createMatch} from "@/components/admin/scheduling_functions/SchedulingUI" ;
+import {DivisionProps, ScheduleProps, TeamProps, emptyTeam } from "@/lib/types" ;
+import {findSelectedDivision, findSelectedTeam, isValidDate, createMatch} from "@/components/admin/scheduling_functions/SchedulingUI" ;
 import { saveToSupabase } from "@/components/database/savesOrModifications";
-import { findMatchesForLeagueDateDivision, findDatesForLeague } from "@/components/database/fetches";
+import { findMatchesForLeagueDateDivision, findDatesForLeague, fetchMatchesForTeam } from "@/components/database/fetches";
 import { deleteFromSupabase } from "@/components/database/deletes";
 
 // import '@/styles/layouts.css' ; Not allowed to add a global style sheet. I put this into ./pages/_app.tsx but don't know that I'll use it. 
@@ -24,6 +24,8 @@ export default function MakeSchedule()
         const [selectedDivision, setSelectedDivsion] = useState(({divisionid: 1, leagueid: 1, divisionname: "purple", divisionvalue: 1})) ;
         const [allDates, setAllDates] = useState<string[]>([]) ; 
         const [matches, setMatches] = useState<ScheduleProps[]>([]) ;
+        const [matchHistory, setMatchHistory] = useState<ScheduleProps[]>([]) ; // A list of previous matches against the selected team
+        const [selectedTeam, setSelectedTeam] = useState<TeamProps>(emptyTeam) ;
         const [warningMessage, setWarningMessage] = useState("") ;
         const [tempMatchId, setTempMatchId] = useState(-1) ;
 
@@ -50,6 +52,22 @@ export default function MakeSchedule()
           console.log("created date: " + formattedDate + " and now have allDates.length: " + allDates.length) ; 
         }
 
+        function buildMatchHistoryItem(match:ScheduleProps) {
+          const divisionColor = computeDivisionColor(match.divisionid) ;
+          // console.log("divisionColor: ", divisionColor) ;
+          const opponentName = findOpponentName(match, selectedTeam) ;
+          return (
+            <div className={divisionColor}>
+            {match.matchdate} {opponentName} <br/> 
+            </div>
+          )
+        }
+
+        function computeDivisionColor(divisionId : number) {
+          const thisDivision = findSelectedDivision(divisionId, divisions) ; 
+          return "division-"+thisDivision?.divisionname ; 
+        }
+      
         const divisionHandler = (e: React.ChangeEvent<HTMLSelectElement>) =>  {
           // console.log("--- Started divisionHandler ---") ; 
           // console.log("e.target.value: " + e.target.value) ;
@@ -59,6 +77,17 @@ export default function MakeSchedule()
           if(selectedDiv) {
             setSelectedDivsion(selectedDiv) ;
           }
+        }
+
+        function findOpponentName(match:ScheduleProps, selectedTeam: TeamProps) : string {
+          let opponentTeam = emptyTeam ; 
+          if(match.team1 == selectedTeam.teamid)  {
+            opponentTeam = findSelectedTeam(match.team2, teams) || emptyTeam ; 
+          }
+          else if (match.team2 == selectedTeam.teamid){
+            opponentTeam = findSelectedTeam(match.team1, teams) || emptyTeam ; 
+          }
+          return opponentTeam.teamname ; 
         }
 
 
@@ -89,7 +118,21 @@ export default function MakeSchedule()
   
         }
 
-        function generateMatchName(scheduleId: number) : string {
+        const onTeamSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+          const selectedTeamId = parseInt(e.target.value, 10);
+          const selectedTeam = teams.find(team => team.teamid === selectedTeamId);
+          setSelectedTeam(selectedTeam || emptyTeam);
+		      async function fetchMatchHistory() {
+            if(selectedTeam) {
+  			      const allMatches: ScheduleProps[] = await fetchMatchesForTeam(selectedTeam) ;
+              console.log("about to  setMatchHistory. allMatches.length: " + allMatches.length) ;
+        			setMatchHistory(allMatches) ; 
+            }
+		      }
+		      fetchMatchHistory() ; 
+        };
+        
+      function generateMatchName(scheduleId: number) : string {
           let name = "none" ; 
           const schedule = matches.find((match) => match.scheduleid === scheduleId )
           const teamA = teams.find((team) => team.teamid === schedule?.team1) ; 
@@ -277,7 +320,7 @@ export default function MakeSchedule()
           }  
           #teamsSelectionDiv {
             background-color: lightgray ; 
-            width: 40% ; 
+            width: 15% ; 
             float: left ; 
             margin-left: 10px ; 
             margin-right: 5px ; 
@@ -294,7 +337,12 @@ export default function MakeSchedule()
           }       
           #matchesSelectionDiv {
             background-color: lightgray ; 
-            width: 40% ; 
+            width: 30% ; 
+            float: left ; 
+          }     
+          #teamHistoryDiv {
+            background-color: lightgray ; 
+            width: 35% ; 
             float: left ; 
           }     
           #teamsSelect {
@@ -306,7 +354,17 @@ export default function MakeSchedule()
             background-color: #E0E8F0 ; 
             width: 100% ; 
             float: left ; 
-          }     
+          } 
+          .division-red {
+            color: red ; 
+          }
+          .division-green{
+            color: green ; 
+          }
+          .division-blue {
+            color: blue ; 
+          }
+          
         `}
       </style>
       <div id="debuggingInfoDiv">
@@ -329,7 +387,7 @@ export default function MakeSchedule()
           <div>
             <label>Select 2 teams to play each other</label>
           </div>
-          <select id="teamsSelect" size={20} multiple={true} > 
+          <select id="teamsSelect" size={20} multiple={true} onChange={onTeamSelectChange}> 
           {teams.map((team) => (
             <option key={team.teamid} value={team.teamid}>{countMatchesForTeam(team.teamid)} {team.teamname}</option> 
           ))}
@@ -374,8 +432,9 @@ export default function MakeSchedule()
 								))}
           </select>
         </div>
+        <div id="teamHistoryDiv">Team history: {selectedTeam && selectedTeam != undefined ? selectedTeam.teamname : 'No team selected'}</div>
+        {matchHistory.map((match:ScheduleProps) => buildMatchHistoryItem(match))} ;
       </div>  
-      <div>Empty</div>
       <div id="statusDiv">
         Status Div
       </div>

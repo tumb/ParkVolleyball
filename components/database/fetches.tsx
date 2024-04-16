@@ -138,3 +138,33 @@ export async function findMatchesForLeagueDateDivision(leagueId: number, date: s
     throw error ; 
   }
 }
+
+export async function fetchMatchesForTeam(team: TeamProps) : Promise<ScheduleProps[]> {
+  console.log("--- Started fetchMatchesForTeam. teamname:",  team.teamname) ;
+  try { 
+    const {data: scheduleData, error} = await supabase
+    .from("schedule")
+    .select() 
+    .eq("leagueid", team.leagueid)
+    .or(`team1.eq.${team.teamid},team2.eq.${team.teamid}`) ;
+    if(error) {
+      throw error ; 
+    }
+    const matches: ScheduleProps[] = scheduleData.map((match) => ({
+      scheduleid: match.scheduleid, 
+      matchdate: match.matchdate || "",
+      team1: match.team1 || -1,
+      team2: match.team2 || -1, 
+      leagueid: team.leagueid || -1, 
+      divisionid: match.divisionid || -1, 
+      team1wins: match.team1wins || 0 , 
+      team2wins: match.team2wins || 0, 
+    })) ;
+    console.log("--- Ending fetchMatchesForTeam. matches.length:",  matches.length) ;
+    return matches ; 
+  } 
+  catch (error: any) {
+    console.log("error in fetchMatchesForTeam", error.message) ;
+    throw error ; 
+  }
+}

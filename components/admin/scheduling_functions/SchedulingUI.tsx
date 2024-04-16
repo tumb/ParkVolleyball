@@ -7,7 +7,14 @@ export const findSelectedDivision = (divId: number, divisions:DivisionProps[]): 
   return selected;
 };
 
-
+export const findSelectedTeam = (teamId: number, teams:TeamProps[]): TeamProps | undefined => {
+  //   console.log("findSelectedTeam() teamId: ", teamId) ;
+    const selected = teams.find((team: TeamProps) => team.teamid === teamId);
+  //   console.log("returning team: ", selected?.teamid) ; 
+    return selected;
+  };
+  
+  
 export function isValidDate(dateString: string) {
   // Regular expression for "yyyy-mm-dd" format
   const dateFormat = /^\d{4}-\d{2}-\d{2}$/;
