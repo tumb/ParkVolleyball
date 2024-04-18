@@ -1,8 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import { useContext, useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
-import { ScheduleData, DivisionProps, emptyDivision, TeamProps, ScheduleProps } from "@/lib/types";
+import { DivisionProps, emptyDivision, TeamProps, ScheduleProps } from "@/lib/types";
 import { LeagueContext } from "@/context/LeagueContext";
 import { findSelectedDivision } from "@/components/admin/scheduling_functions/SchedulingUI" ; 
 import { findDivisionsForLeague, findDatesForLeague, findTeamsForLeague, findMatchesForLeagueAndDate } from "@/components/database/fetches";

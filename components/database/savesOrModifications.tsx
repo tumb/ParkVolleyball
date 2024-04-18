@@ -84,3 +84,17 @@ export async function submitResultsToDatabase(updatedMatches: ScheduleProps[]): 
     return "Update failed. " + error.message ; 
   }
 }
+
+export async function updateMatchDate(originalDate : string, newDate : string) {
+  try {
+      const { data, error } = await supabase
+        .from("schedule")
+        .update({matchdate : newDate}) 
+        .eq("matchdate", originalDate)
+    return "Update succeeded." ; 
+  }
+  catch (error: any) {
+    console.log(error.message) ; 
+    return "Update failed. " + error.message ; 
+  }
+}

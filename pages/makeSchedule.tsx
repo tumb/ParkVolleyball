@@ -18,7 +18,7 @@ let time = '10:17' ;
 export default function MakeSchedule() 
     {
       const leagueCtx = useContext(LeagueContext);
-        const [scheduleDate, setScheduleDate] = useState("yyyy-mm-dd") ;
+        const [scheduleDate, setScheduleDate] = useState<string>("yyyy-mm-dd") ;
         const [divisions, setDivisions] = useState<DivisionProps[]>([]) ; 
         const [teams, setTeams] = useState<TeamProps[]>([]) ; 
         const [selectedDivision, setSelectedDivsion] = useState(({divisionid: 1, leagueid: 1, divisionname: "purple", divisionvalue: 1})) ;
@@ -173,6 +173,7 @@ export default function MakeSchedule()
         useEffect(() => {
           // Put code to run when the date is changed.
           console.log("Made valid date: ", scheduleDate) ;
+          leagueCtx.league.matchDate = scheduleDate ; 
       }, [scheduleDate]) ; 
 
         const findDistinctDivisionsSearch = async () => {
@@ -395,27 +396,38 @@ export default function MakeSchedule()
         </div>
         <div id="buttonColumnDiv">
           <div>
-            <button className="m-4 p-4 bg-blue-200 font-bold rounded-lg" onClick={onPairTwoTeamsButtonClick} >
+            <button className="m-2 p-2 bg-blue-200 font-bold rounded-lg" onClick={onPairTwoTeamsButtonClick} >
 		          → 
 	          </button>
           </div>
           <div>
-            <button className="m-4 p-4 bg-blue-200 font-bold rounded-lg" onClick={onMakeASchedule} >
+            <button className="m-2 p-2 bg-blue-200 font-bold rounded-lg" onClick={onMakeASchedule} >
 		          ← 
 	          </button>
           </div>
-          <button className="m-4 p-4 bg-blue-200 font-bold rounded-lg" onClick={onSaveSchedule} >
+          <button className="m-2 p-2 bg-purple-200 font-bold rounded-lg" onClick={onSaveSchedule} >
             Save
 	        </button>
           <div>
           </div>
-          <button className="m-4 p-4 bg-purple-200 font-bold rounded-lg" onClick={onDeleteFromDatabase} >
+          <div>
+          <button className="m-2 p-2 bg-purple-200 font-bold rounded-lg" onClick={onDeleteFromDatabase} >
             Delete Data
 	        </button>
+          </div>
           <div>
             <br/>
             <Link
-                className=" m-4 p-4 bg-red-200 font-bold rounded-lg text-black-800 transition hover:text-blue-800/75"
+                className=" m-1 p-2 bg-purple-200 font-bold rounded-lg text-black-800 transition hover:text-blue-800/75"
+                href={`/changeScheduleDate?originalDate=${scheduleDate}`} 
+                        >
+                Change Date
+              </Link>
+          </div>
+          <div>
+            <br/>
+            <Link
+                className=" m-2 p-2 bg-red-200 font-bold rounded-lg text-black-800 transition hover:text-blue-800/75"
                 href="/admin"
               >
                 Cancel

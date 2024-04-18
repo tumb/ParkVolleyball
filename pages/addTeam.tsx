@@ -65,7 +65,7 @@ export default function AddTeam() {
 			setTeamsBuilt(teams) ;
 			}
 			fetchExistingTeams() ;
-	}, [leagueCtx])
+	}, [leagueCtx]) 
 
 	useEffect(() => {
 		console.log("--- started useEffect to set divisions after league changes. ") ;
