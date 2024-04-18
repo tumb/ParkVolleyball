@@ -1,14 +1,13 @@
 import React from "react";
 import Link from "next/link";
 import { useContext, useEffect, useState } from "react";
-import { ScheduleProps } from "@/lib/types";
 import { LeagueContext } from "@/context/LeagueContext";
 import { findDatesForLeague, findMatchesForLeagueAndDate } from "@/components/database/fetches";
 import { updateMatchDate} from "@/components/database/savesOrModifications" ;
 import { isValidDate } from "@/components/admin/scheduling_functions/SchedulingUI";
 
 
-export default function changeScheduleDate() {
+export default function ChangeScheduleDate() {
 	const [warningMessage, setWarningMessage] = useState("Warnings - none");
 	const [successMessage, setSuccessMessage] = useState("Success - none");
 	const [errorMessage, setErrorMessage] = useState("Errors - none");
