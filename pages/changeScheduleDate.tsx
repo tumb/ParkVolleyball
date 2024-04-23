@@ -91,8 +91,9 @@ export default function ChangeScheduleDate() {
 		return isValid ; 
 	  }
 
-	useEffect(() => { // For the newly selected league, fetch the dates that are in that league.
-		console.log("--- started useEffect after league changes. ") ;
+	// eslint-disable-next-line react-hooks/exhaustive-deps  
+	useEffect(() => { 
+		// console.log("--- started useEffect for list of dates in changeScheduleDate after league changes. ") ;
 		createListOfPossibleOriginalDates() ; 
 		createListOfPossibleNewDates() ; 
 	},[leagueCtx]) ;

@@ -21,7 +21,7 @@ export default function SchedulingSetup({divisionHandler, divisionid, allDivisio
           <div className="flex items-center justify-between sm:flex-row">
             <div className="w-full flex-col">
               <label className="text-sm font-semibold">
-                Select Division DivisionName: {divisionid} divName: {divId} 
+                Select Division 
               </label>
               <div className="relative">
                 <select
@@ -55,9 +55,6 @@ export default function SchedulingSetup({divisionHandler, divisionid, allDivisio
                     <option key={date} value={date}>{date}</option> 
                   ))}
                 </select>
-            </div>
-            <div>
-                Time: 12:31
             </div>
           </div>
         </form>

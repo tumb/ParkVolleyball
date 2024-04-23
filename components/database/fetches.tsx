@@ -116,7 +116,8 @@ export async function findMatchesForLeagueDateDivision(leagueId: number, date: s
     .select() 
     .eq("leagueid", leagueId)
     .eq("matchdate", date) 
-    .eq("divisionid", divisionId);
+    .eq("divisionid", divisionId)
+    .order("scheduleid", {ascending: true});
     if(error) {
       throw error ; 
     }
