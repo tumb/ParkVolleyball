@@ -42,6 +42,7 @@ export default function MakeSchedule()
           }
           // Calculate the number of days until the next occurrence of the target day
           let daysUntilNext = targetDay - currentDay;
+          console.log("daysUntilNext: " + daysUntilNext) ; 
           if (daysUntilNext <= 0) {
               // If the target day is earlier in the week than the current day, add 7 days to find the next occurrence
             daysUntilNext += 7;
@@ -53,6 +54,20 @@ export default function MakeSchedule()
           const index = allDates.indexOf(formattedDate) ; 
           if( index == -1) {
             setAllDates(prevDates => [...prevDates, formattedDate]);
+          }
+
+          // Add still one more day if today is the day of week for the league
+          if(daysUntilNext == 7) {
+            daysUntilNext += 7;
+            const nextDate = new Date(currentDate.getTime() + daysUntilNext * 24 * 60 * 60 * 1000);
+            // Format the date as YYYY-MM-DD
+            const formattedDate = nextDate.toISOString().split('T')[0];
+            const index = allDates.indexOf(formattedDate) ; 
+            if( index == -1) {
+              setAllDates(prevDates => [...prevDates, formattedDate]);
+            }
+            allDates.sort() ; 
+            setAllDates(allDates) ; 
           }
           console.log("created date: " + formattedDate + " and now have allDates.length: " + allDates.length) ; 
         }
