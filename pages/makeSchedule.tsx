@@ -108,8 +108,8 @@ export default function MakeSchedule()
         }
 
         function countMatchesForTeam(teamid: number) : number {
-          const team1Count = newMatches.filter((match) => match.team1 === teamid).length ;
-          const team2Count = newMatches.filter((match) => match.team2 === teamid).length ;
+          const team1Count = newMatches.filter((match) => match.team1 === teamid).length + savedMatches.filter((match) => match.team1 === teamid).length ;
+          const team2Count = newMatches.filter((match) => match.team2 === teamid).length + savedMatches.filter((match) => match.team2 === teamid).length ;
           return team1Count + team2Count ; 
         }
 
@@ -132,16 +132,6 @@ export default function MakeSchedule()
           const selectedMatches = matchesList.filter(match => selectedMatchIds.includes(match.scheduleid));
           return selectedMatches ;
         }
-
-        useEffect(() => {
-          if(selectedDivision) {
-            leagueCtx.league.divisionName = selectedDivision.divisionname ; 
-            // console.log("selectedDivision: " + selectedDivision.divisionname)  ;
-            // console.log("league context division name: " + leagueCtx.league?.divisionName) ;
-            updateTeams() ;
-          } 
-          // console.log("--- End divisionHandler ---") ;
-        }, [selectedDivision, leagueCtx.league]) ;
 
         const dateHandler = (e: React.ChangeEvent<HTMLSelectElement>) =>  {
           console.log("-- Started dateHandler. scheduleDate: " + scheduleDate) ;
@@ -309,6 +299,16 @@ export default function MakeSchedule()
       }
       
       useEffect(() => {
+        if(selectedDivision) {
+          leagueCtx.league.divisionName = selectedDivision.divisionname ; 
+          // console.log("selectedDivision: " + selectedDivision.divisionname)  ;
+          // console.log("league context division name: " + leagueCtx.league?.divisionName) ;
+          updateTeams() ;
+        } 
+        // console.log("--- End divisionHandler ---") ;
+      }, [selectedDivision, scheduleDate, leagueCtx.league]) ;
+
+    useEffect(() => {
         async function findMatchesForLeagueDateAndDivision(leagueId: number, matchDate: string, matchDivision: number) {
           const matches: ScheduleProps[] = await findMatchesForLeagueDateDivision(leagueId, matchDate, matchDivision) ;
           return matches ; 
