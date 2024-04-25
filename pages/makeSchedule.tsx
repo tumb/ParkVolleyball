@@ -72,6 +72,12 @@ export default function MakeSchedule()
           console.log("created date: " + formattedDate + " and now have allDates.length: " + allDates.length) ; 
         }
 
+        function areSameTeams(matchA: ScheduleProps, matchB: ScheduleProps) {
+          let areTheSame = matchA.team1 == matchB.team1 && matchA.team2 == matchB.team2 ; 
+          areTheSame = areTheSame || matchA.team1 == matchB.team2 && matchA.team2 == matchB.team1 ;
+          return areTheSame ; 
+        }
+
         function buildMatchHistoryItem(match:ScheduleProps) {
           const divisionColor = computeDivisionColor(match.divisionid) ;
           // console.log("divisionColor: ", divisionColor) ;
@@ -81,6 +87,35 @@ export default function MakeSchedule()
             {match.matchdate} {opponentName} <br/> 
             </div>
           )
+        }
+
+        function checkForCircles() {
+          let status = "No check of circles made."  ;
+          return status ; 
+        }
+
+        function checkForDuplicateMatches() {
+          let status = ""  ;
+          let skipId = 0 ; 
+          for(const match of newMatches) {
+            for(const savedMatch of savedMatches) {
+              if(areSameTeams(match, savedMatch)) {
+                status += "\n Duplicate found for " + generateMatchName(match.scheduleid) + " among saved matches." ;
+              }
+            }
+            for(const matchB of newMatches) {
+              if(match.scheduleid != matchB.scheduleid && match.scheduleid != skipId) {
+                if(areSameTeams(match, matchB)) {
+                  status += "\n Duplicate found for " + generateMatchName(match.scheduleid) + " among new matches." ;
+                  skipId = matchB.scheduleid ; 
+                }
+              }
+            }
+          }
+          if(status.length < 1) {
+            status = "No duplicate matches found."
+          }
+          return status ; 
         }
 
         function clearMessages() {
@@ -313,6 +348,19 @@ export default function MakeSchedule()
           console.log("--- onSaveSchedule ended") ;
       }
       
+      function onValidateSchedule() {
+        let status = "No problems found" ;
+        status = checkForDuplicateMatches() ; 
+        status += "\n" + reportRecentDuplicates() ; 
+        status += "\n" + checkForCircles() ; 
+        setWarningMessage(status) ; 
+      }
+
+      function reportRecentDuplicates() {
+        let status = "No check for recent matches." ;
+        return status ; 
+      }
+
       useEffect(() => {
         if(selectedDivision) {
           leagueCtx.league.divisionName = selectedDivision.divisionname ; 
@@ -379,6 +427,7 @@ export default function MakeSchedule()
             background-color: yellow ; 
             width: 100% ; 
             margin-top: 10px ;
+            whiteSpace: pre-line ;
           }  
           #errorDiv {
             background-color: red ; 
@@ -468,6 +517,11 @@ export default function MakeSchedule()
 		          ← 
 	          </button>
           </div>
+          <div>
+          <button className="m-2 p-2 bg-purple-200 font-bold rounded-lg" onClick={onValidateSchedule} >
+            Validate Schedule
+	        </button>
+          </div>
           <button className="m-2 p-2 bg-purple-200 font-bold rounded-lg" onClick={onSaveSchedule} >
             Save
 	        </button>
@@ -511,12 +565,13 @@ export default function MakeSchedule()
           </select>
         </div>
       <div id="teamHistoryDiv">Team history: {selectedTeam && selectedTeam != undefined ? selectedTeam.teamname : 'No team selected'}</div>
+        <br/>
         {matchHistory.map((match:ScheduleProps) => buildMatchHistoryItem(match))} ;
       </div>  
       <div id="successDiv">
         {successMessage}
       </div>
-      <div id="warningDiv">
+      <div id="warningDiv" style={{ whiteSpace: 'pre-line' }}>
         {warningMessage}
       </div>
       <div id="errorDiv">
