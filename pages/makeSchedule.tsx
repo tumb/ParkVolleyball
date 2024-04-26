@@ -9,6 +9,7 @@ import {findSelectedDivision, findSelectedTeam, isValidDate, createMatch} from "
 import { saveToSupabase } from "@/components/database/savesOrModifications";
 import { findMatchesForLeagueDateDivision, findDatesForLeague, fetchMatchesForTeam, findTeamsForLeague } from "@/components/database/fetches";
 import { deleteFromSupabase } from "@/components/database/deletes";
+import { match } from "assert";
 
 // import '@/styles/layouts.css' ; Not allowed to add a global style sheet. I put this into ./pages/_app.tsx but don't know that I'll use it. 
 
@@ -23,7 +24,7 @@ export default function MakeSchedule()
         const [allDates, setAllDates] = useState<string[]>([]) ; 
         const [newMatches, setNewMatches] = useState<ScheduleProps[]>([]) ;
         const [savedMatches, setSavedMatches] = useState<ScheduleProps[]>([]) ;
-        const [checkSavedMatches, setCheckSavedMatches] = useState(1) ; 
+        const [checkSavedMatches, setCheckSavedMatches] = useState(1) ; // This is a flag. It calls a useEffect to have savedMatches refetched from the database.
         const [matchHistory, setMatchHistory] = useState<ScheduleProps[]>([]) ; // A list of previous matches against the selected team
         const [selectedTeam, setSelectedTeam] = useState<TeamProps>(emptyTeam) ;
         const [warningMessage, setWarningMessage] = useState("") ;
@@ -89,8 +90,32 @@ export default function MakeSchedule()
           )
         }
 
+        // A circle is where we have x vs y, y vs z, then z vs x. All weeks will have circles. We would like to avoid ones that are 3 or less.
         function checkForCircles() {
-          let status = "No check of circles made."  ;
+          let status = "\n No circles found."  ;
+          let allTeams = teamsInDivision ;
+          let allMatches = newMatches.concat(savedMatches) ; 
+          let teamIndex = 0 ;
+          let circleFound = false ; 
+          console.log("allTeams.length: " + allTeams.length + ", allMatches.length: " + allMatches) ; 
+          while(allTeams.length > teamIndex && !circleFound) {
+            let startTeam = allTeams[teamIndex] ; 
+            console.log("startTeam: " + startTeam.teamname + " " + startTeam.teamid + ", teamIndex: " + teamIndex) ;
+            let opponents = findOpponents(startTeam.teamid) ; 
+            console.log("opponents.length: " + opponents.length) ;
+            console.log( " opponents: " + opponents[0].teamname + ", " + opponents[1]) ;
+            if(opponents.length == 2) {
+            for(const match of allMatches) {
+              if  ((match.team1 == opponents[0].teamid && match.team2 == opponents[1].teamid) 
+                || (match.team2 == opponents[0].teamid && match.team1 == opponents[1].teamid) )
+                {
+                status = "\n 3 way circle found of " + startTeam.teamname + ", " + opponents[0].teamname + ", " + opponents[1].teamname ; 
+                circleFound = true ; 
+              }
+            }
+          }
+          teamIndex++ ; 
+          }
           return status ; 
         }
 
@@ -151,6 +176,31 @@ export default function MakeSchedule()
           return opponentTeam.teamname ; 
         }
 
+        function findOpponents(teamid : number) {
+          console.log("teamid: " + teamid) ;
+          let opponents : TeamProps[] = [] ; 
+          const allMatchs = newMatches.concat(savedMatches) ;
+          console.log("allMatchs.length: " + allMatchs.length) ;
+          for(const match of allMatchs) {
+            if(match.team1 == teamid) {
+              console.log("match.team2: " + match.team2)
+              const opponent : TeamProps | undefined = teamsInDivision.find((team) => match.team2 == team.teamid) ; 
+              console.log("opponent: " + opponent) ;
+              if(opponent != undefined) {
+                console.log("adding opponent " + opponent.teamname +  " to opponents[]")
+                opponents = opponents.concat(opponent) ;
+              }
+              else if(match.team2 == teamid) {
+                const opponent : TeamProps | undefined = teamsInDivision.find((team) => match.team1 == team.teamid) ; 
+                console.log("opponent: " + opponent) ;
+                if(opponent != undefined) {
+                  opponents = opponents.concat(opponent) ;
+                }
+              }
+            }
+          }
+          return opponents ; 
+        }
 
         const updateTeams = () => {
           findTeamsSearch() ; 
