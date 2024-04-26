@@ -103,9 +103,9 @@ export default function MakeSchedule()
             console.log("startTeam: " + startTeam.teamname + " " + startTeam.teamid + ", teamIndex: " + teamIndex) ;
             let opponents = findOpponents(startTeam.teamid) ; 
             console.log("opponents.length: " + opponents.length) ;
-            console.log( " opponents: " + opponents[0].teamname + ", " + opponents[1]) ;
             if(opponents.length == 2) {
-            for(const match of allMatches) {
+              console.log( " opponents: " + opponents[0].teamname + ", " + opponents[1].teamname) ;
+              for(const match of allMatches) {
               if  ((match.team1 == opponents[0].teamid && match.team2 == opponents[1].teamid) 
                 || (match.team2 == opponents[0].teamid && match.team1 == opponents[1].teamid) )
                 {
@@ -233,6 +233,15 @@ export default function MakeSchedule()
           return selectedMatches ;
         }
 
+        function getLastTwoWeeks() : string[] {
+          let startingDate = new Date(scheduleDate) ; 
+          let previousWeek = new Date(startingDate.getTime() - (7 * 24 * 60 * 60 * 1000) ); 
+          const formattedWeek = previousWeek.toISOString().split('T')[0] ;
+          let twoPrevious = new Date(previousWeek.getTime()  - (7 * 24 * 60 * 60 * 1000) ); 
+          const formattedTwo = twoPrevious.toISOString().split('T')[0] ;
+          return [formattedWeek, formattedTwo] ; 
+        }
+
         const dateHandler = (e: React.ChangeEvent<HTMLSelectElement>) =>  {
           console.log("-- Started dateHandler. scheduleDate: " + scheduleDate) ;
           console.log("e.target.value: " + e.target.value) ;
@@ -318,7 +327,7 @@ export default function MakeSchedule()
           if(match.scheduleid > 0) {
             deleteFromSupabase(match) ;
             const updatedMatches = savedMatches.filter(match2 => match.scheduleid !== match2.scheduleid ) ; 
-            setNewMatches(updatedMatches) ;
+            setSavedMatches(updatedMatches) ;
             setCheckSavedMatches(checkSavedMatches + 1) ;
             clearMessages() ; 
             setSuccessMessage("Deleted one or more matches.")
@@ -398,24 +407,57 @@ export default function MakeSchedule()
           console.log("--- onSaveSchedule ended") ;
       }
       
-      function onValidateSchedule() {
+      async function onValidateSchedule() {
         let status = "No problems found" ;
         status = checkForDuplicateMatches() ; 
-        status += "\n" + reportRecentDuplicates() ; 
+        status += "\n" + await reportRecentDuplicates() ; 
         status += "\n" + checkForCircles() ; 
         setWarningMessage(status) ; 
       }
 
-      function reportRecentDuplicates() {
-        let status = "No check for recent matches." ;
+        /** For each team see if they've already played either of their two opponents within the last two weeks of play.  */ 
+        async function reportRecentDuplicates() {
+          async function fetchMatchHistory(team : TeamProps)  {
+             const teamMatches = await fetchMatchesForTeam(team) ;        
+             return teamMatches ; 
+          }
+        let status = "No recent matches found." ;
+        const matchdates= getLastTwoWeeks() ;
+        // for each team get matches. 
+        for(const team of teamsInDivision) {
+          const teamMatches  = await fetchMatchHistory(team) ; 
+          const opponents = findOpponents(team.teamid) ; 
+          for(const match of teamMatches) {
+            const testDate = match.matchdate ; 
+            if(matchdates.indexOf(testDate) > -1) {
+              if(match.team1 == team.teamid) {
+                if(match.team2 == opponents[0].teamid ) {
+                  status = "\n " + team.teamname + " played " + opponents[0].teamname + " on " + match.matchdate ; 
+                }
+                else if(match.team2 == opponents[1].teamid ) {
+                  status = "\n " + team.teamname + " played " + opponents[1].teamname + " on " + match.matchdate ; 
+                }
+              }
+              else {
+                if(match.team2 == opponents[0].teamid ) {
+                  status = "\n " + team.teamname + " played " + opponents[0].teamname + " on " + match.matchdate ; 
+                }
+                else if(match.team2 == opponents[1].teamid ) {
+                  status = "\n " + team.teamname + " played " + opponents[1].teamname + " on " + match.matchdate ; 
+                }
+              }
+            }
+          }
         return status ; 
       }
+    }
 
       useEffect(() => {
         if(selectedDivision) {
           leagueCtx.league.divisionName = selectedDivision.divisionname ; 
           // console.log("selectedDivision: " + selectedDivision.divisionname)  ;
           // console.log("league context division name: " + leagueCtx.league?.divisionName) ;
+          newMatches.length = 0 ; 
           updateTeams() ;
         } 
         // console.log("--- End divisionHandler ---") ;

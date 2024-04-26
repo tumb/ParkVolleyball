@@ -147,7 +147,8 @@ export async function fetchMatchesForTeam(team: TeamProps) : Promise<SchedulePro
     .from("schedule")
     .select() 
     .eq("leagueid", team.leagueid)
-    .or(`team1.eq.${team.teamid},team2.eq.${team.teamid}`) ;
+    .or(`team1.eq.${team.teamid},team2.eq.${team.teamid}`) 
+    .order("matchdate", {ascending: false});
     if(error) {
       throw error ; 
     }
