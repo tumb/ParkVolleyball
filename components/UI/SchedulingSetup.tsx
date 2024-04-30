@@ -1,8 +1,6 @@
 import { LeagueContext, LeagueProp} from "@/context/LeagueContext";
-import { supabase } from "@/lib/supabase";
 import React, { useContext, useEffect, useState } from "react";
 import { ChangeEvent } from "react";
-import { toast } from "react-hot-toast";
 import {DivisionProps, SchedulingSetupProps } from "@/lib/types" ;
 
 

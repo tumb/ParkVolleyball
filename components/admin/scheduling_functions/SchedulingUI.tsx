@@ -1,4 +1,4 @@
-import { DivisionProps, TeamProps, ScheduleProps } from "@/lib/types";
+import { DivisionProps, TeamProps, ScheduleProps, ExtraTeamProps } from "@/lib/types";
 
 export const findSelectedDivision = (divId: number, divisions:DivisionProps[]): DivisionProps | undefined => {
 //   console.log("findSelectedDivision() divId: ", divId) ;
@@ -14,7 +14,14 @@ export const findSelectedTeam = (teamId: number, teams:TeamProps[]): TeamProps |
     return selected;
   };
   
-  
+  export const findSelectedExtraTeam = (teamId: number, teams:ExtraTeamProps[]): ExtraTeamProps | undefined => {
+    //   console.log("findSelectedTeam() teamId: ", teamId) ;
+      const selected = teams.find((team: ExtraTeamProps) => team.teamid === teamId);
+    //   console.log("returning team: ", selected?.teamid) ; 
+      return selected;
+    };
+      
+
 export function isValidDate(dateString: string) {
   // Regular expression for "yyyy-mm-dd" format
   const dateFormat = /^\d{4}-\d{2}-\d{2}$/;

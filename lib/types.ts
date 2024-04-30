@@ -73,6 +73,12 @@ export type TeamProps = {
   divisionid: number ; 
 }
 
+export type ExtraTeamProps = TeamProps & {
+  newdivisionid: number ; // Needed at least temporarily during change of divisions. 
+  wins: number ; // Might eventually be used by standings but definitely used by setDivisions
+  losses: number ; // Might eventually be used by standings but definitely used by setDivisions
+}
+
 export const emptyTeam: TeamProps = {
   teamid: -1 ,
   teamname: "no team" ,
@@ -80,6 +86,22 @@ export const emptyTeam: TeamProps = {
   femaleid: -1, 
   leagueid: -1,
   divisionid: -1
+}
+
+export const extraEmptyTeam = (base:TeamProps):ExtraTeamProps => ({
+  ...base,
+  newdivisionid : base.divisionid ,
+  wins: 0 ,
+  losses: 0
+}) ;
+
+export function convertToExtraTeam(team: TeamProps): ExtraTeamProps {
+  return {
+    ...team, 
+    newdivisionid: team.divisionid, 
+    wins: 0,
+    losses: 0,
+  };
 }
 
 export type ScheduleProps = {

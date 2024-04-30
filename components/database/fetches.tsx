@@ -103,7 +103,8 @@ export async function findMatchesForLeagueAndDate(leagueId: number, date: string
     return matches ; 
   } 
   catch (error: any) {
-    console.log("error in findMatchesForLeagueAndDate", error.message) ;
+    console.log("error in findMatchesForLeagueAndDate", error.message, " date: ", date) ;
+    console.log("error.stack: ", error.stack) ; 
     throw error ; 
   }
 }

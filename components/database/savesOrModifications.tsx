@@ -1,5 +1,5 @@
 import { supabase } from "@/lib/supabase";
-import { TeamProps, ScheduleProps } from "@/lib/types";
+import { TeamProps, ScheduleProps, ExtraTeamProps } from "@/lib/types";
 
 export async function saveToSupabase(schedule: ScheduleProps) {
   console.log("--- saveToSupabase started. ", schedule.scheduleid) ;
@@ -83,6 +83,21 @@ export async function submitResultsToDatabase(updatedMatches: ScheduleProps[]): 
     console.log(error.message) ; 
     return "Update failed. " + error.message ; 
   }
+}
+
+export async function updateDivisionForATeam(extraTeam: ExtraTeamProps) {
+  try {
+    const { data, error } = await supabase
+      .from("team")
+      .update({divisionid : extraTeam.newdivisionid}) 
+      .eq("teamid", extraTeam.teamid)
+  return "Update succeeded." ; 
+}
+catch (error: any) {
+  console.log(error.message) ; 
+  return "Update failed. " + error.message ; 
+}
+
 }
 
 export async function updateMatchDate(originalDate : string, newDate : string) {
