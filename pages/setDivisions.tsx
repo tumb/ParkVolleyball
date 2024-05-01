@@ -367,6 +367,7 @@ export default function SetDivisions() {
 				</div>
 			</div>
 			<div id="Status">
+				<br/>
 				<div id="errorDiv">{errorMessage}</div>
 				<div id="warningDiv">{warningMessage}</div>
 				<div id="successDiv">{successMessage}</div>
