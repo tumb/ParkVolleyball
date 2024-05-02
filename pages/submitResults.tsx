@@ -77,6 +77,7 @@ export default function SubmitResults() {
 		async function fetchMatches() {
 			if(leagueCtx.league.leagueid != undefined) {
 				const existingMatches : ScheduleProps[] = await findMatchesForLeagueAndDate(leagueCtx.league.leagueid, selectedDate) ; 
+				existingMatches.sort((a,b) => (b.divisionid - a.divisionid)) ;
 				setAllMatches(existingMatches) ;
 			}
 		}
@@ -156,10 +157,6 @@ export default function SubmitResults() {
 		<div>
 			<style>
 				{`
-          #debuggingInfoDiv {
-            background-color: pink ; 
-            margin-bottom: 10px ;
-          }
           #infoPanelsDiv {
 			  flex; flex-direction: column;
 		  }
@@ -238,16 +235,6 @@ export default function SubmitResults() {
 		}
 	  `}
 			</style>
-			<div id="debuggingInfoDiv">
-				Submit results debugging
-				League day: {leagueCtx.league?.day}, leagueid: {leagueCtx.league.leagueid}
-				<br/>
-				allDivisions length: {allDivisions.length} 
-				<br/>
-				Selected division: name {selectedDivision?.divisionname}  id {selectedDivision.divisionid} 
-				<br />
-				Date: {selectedDate}
-			</div> {/* End of debuggingInfoDiv */}
 			<div id="infoPanelsDiv" >
 				<div id="extraInputsDiv">
 					<div>
@@ -263,21 +250,13 @@ export default function SubmitResults() {
 							</select>
 							<br />
 						</div>
-						<div className="inlineInputContainer">
-							<label className="inputLabel">Division:</label>
-							<div className="division-radio-group" id="division-radio-group">
-								{allDivisions.map((division) => (
-						            <label  key={division.divisionid} className="radio-button" htmlFor="two"><input type="radio"  key={division.divisionid} value={division.divisionid} onChange={divisionHandler}/> {division.divisionname}</label>
-          						))}
-							</div>
-						</div>
 					</div>
 				</div>
 				<div id="newTeamDiv">
 					<div id="selectionsDiv" >
 						<div id="matchTableDiv">
 							<div>
-								<label>Matches for date {selectedDate}</label>
+								<br/><label>Matches for date: {selectedDate}</label><br/>
 								<table>
 									<thead>
 						            <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">Match Date</th>
