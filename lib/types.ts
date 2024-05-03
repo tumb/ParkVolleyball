@@ -77,6 +77,7 @@ export type ExtraTeamProps = TeamProps & {
   newdivisionid: number ; // Needed at least temporarily during change of divisions. 
   wins: number ; // Might eventually be used by standings but definitely used by setDivisions
   losses: number ; // Might eventually be used by standings but definitely used by setDivisions
+  isSaved: boolean ; // Flag for coloring the screen 
 }
 
 export const emptyTeam: TeamProps = {
@@ -92,7 +93,8 @@ export const extraEmptyTeam = (base:TeamProps):ExtraTeamProps => ({
   ...base,
   newdivisionid : base.divisionid ,
   wins: 0 ,
-  losses: 0
+  losses: 0,
+  isSaved: false
 }) ;
 
 export function convertToExtraTeam(team: TeamProps): ExtraTeamProps {
@@ -101,6 +103,7 @@ export function convertToExtraTeam(team: TeamProps): ExtraTeamProps {
     newdivisionid: team.divisionid, 
     wins: 0,
     losses: 0,
+    isSaved: false
   };
 }
 

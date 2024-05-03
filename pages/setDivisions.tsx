@@ -51,8 +51,10 @@ export default function SetDivisions() {
 
 	  function buildTableRowOfTeamForDivisionSelection(team:ExtraTeamProps) {
 		const divisionColor = computeDivisionClassName(team.divisionid) ;
+		if(team.teamid == 560) {
 		console.log("divisionColor: ", divisionColor) ;
-		console.log("team: ", team.teamname, " team.teamid: ", team.teamid, " team.newdivisionid: ", team.newdivisionid) ; 
+		console.log("team: ", team.teamname, " team.teamid: ", team.teamid, " team.newdivisionid: ", team.newdivisionid, " team.isSaved: ", team.isSaved) ; 
+		}
 		return (
 			<>
 			<td>{team.teamname}</td>
@@ -66,7 +68,8 @@ export default function SetDivisions() {
 				</div></td>
       		<td> {team.wins}</td>
       		<td>{team.losses}</td>
-      		<td><button className="save-button" key={team.teamid + "-" + team.newdivisionid} name={team.teamid + "-" + team.maleid} 
+      		<td><button className={`save-button ${team.isSaved ? 'success' : ''}`}  
+				key={team.teamid + "-" + team.newdivisionid} name={team.teamid + "-" + team.maleid} 
 				value={team.teamid + "-" + team.newdivisionid} onClick={() => onSaveClick(team.teamid)} > Save </button></td>
 			</>
 		)
@@ -122,6 +125,9 @@ export default function SetDivisions() {
 			}
 			else {
 				setSuccessMessage(resultMessage) ;
+				extraTeam.isSaved = true ; 
+				setAllTeams([...allTeams]) ; // Force a rerender
+				console.log("extraTeam.isSaved: " + extraTeam.isSaved) ;
 			}
 		} 
 		catch (error: any) {
@@ -299,6 +305,9 @@ export default function SetDivisions() {
 			background-color: lightgreen ; 
 			border: solid ; 
 			padding: 5px 20px ; 
+		}
+		.save-button.success {
+			background-color: lightblue ; 
 		}
 	  `}
 			</style>
