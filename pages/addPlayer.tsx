@@ -9,13 +9,21 @@ import { getCurrentFormattedDate } from "@/components/admin/scheduling_functions
 
 export default function AddPlayer() 
     {
-        const [warningMessage, setWarningMessage] = useState("") ;
+        const [successMessage, setSuccessMessage] = useState("No message") ;
+        const [warningMessage, setWarningMessage] = useState("No message") ;
+        const [errorMessage, setErrorMessage] = useState("No message") ;
         const [players, setPlayers] = useState<PlayerProps[]>([]) ;
         const [firstname, setFirstname] = useState( "First Name") ;
         const [lastname, setLastname] = useState( "Last Name") ;
         const [gender, setGender] = useState( "F") ;
         const [email, setEmail] = useState( "email") ;
         const [phone, setPhone] = useState( "phone") ;
+
+    function clearMessages() {
+      setSuccessMessage("No success message.") ;
+      setWarningMessage("No warning message.") ; 
+      setErrorMessage("No error message.") ; 
+    }
 
     const findPlayersSearch = async () => {
           console.log("--- Started findPlayersSearch. ") ;
@@ -54,11 +62,19 @@ export default function AddPlayer()
             const { data, error } = await supabase
               .from("player")
               .insert([playerWithoutId]);
+              clearMessages() ; 
+              setSuccessMessage("Saved player: " + firstname + " " + lastname) ; 
               console.log("Saved player: ", firstname, " ", lastname) ;
             } 
             catch (error: any) {
-            console.error("Error saving schedule:", error.message);
+              clearMessages() ;
+              setErrorMessage("Failed to save player: " + firstname) ;
+              console.error("Error saving player:", error.message);
             }
+          }
+          else {
+            clearMessages() ;
+            setErrorMessage("Unable to save player: " + firstname + " Invalid inputs. Check all boxes.") ;
           }
           console.log("--- onSavePlayer ended") ;
       }
@@ -168,6 +184,15 @@ export default function AddPlayer()
             margin-right: 5px;
             width: 20px;
           }
+          #successDiv {
+            color: green ; 
+          }
+          #warningDiv {
+            color: purple ; 
+          }
+          #errorDiv {
+            color: red ; 
+          }
         `}
       </style>
       <div id="debuggingInfoDiv">
@@ -248,11 +273,9 @@ export default function AddPlayer()
           </select>
         </div>
       </div>  
-      <div>Empty</div>
-      <div id="statusDiv">
-        Status Div
-      </div>
-      <div>Empty</div>
+      <div id="successDiv">{successMessage}</div>
+      <div id="warningDiv">{warningMessage}</div>
+      <div id="errorDiv">{errorMessage}</div>
     </div>
   );
 
