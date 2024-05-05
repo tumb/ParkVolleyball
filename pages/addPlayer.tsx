@@ -67,31 +67,32 @@ export default function AddPlayer()
         var isValid : boolean = true ; 
         isValid = isValid && firstname.length > 1 ;
         isValid = isValid && lastname.length > 2 ; 
+        console.log("validating name: ", isValid) ; 
         // Email validation using a regular expression
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         isValid = isValid && (emailRegex.test(email)) ;
+        console.log("validating email: ", isValid) ; 
         return isValid ; 
       }
 
       const handleFirstnameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setFirstname(event.target.value);
+        setFirstname(event.target.value.trim());
       };
 
       const handleLastnameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setLastname(event.target.value);
+        setLastname(event.target.value.trim());
       };
 
       const handleEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setEmail(event.target.value);
+        setEmail(event.target.value.trim());
       };
 
       const handlePhoneChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setPhone(event.target.value);
+        setPhone(event.target.value.trim());
       };
 
       const handleGenderChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         console.log("--- handleGenderChange: ", event.target.value) ;
-        setGender(event.target.value);
       };
 
         return (
