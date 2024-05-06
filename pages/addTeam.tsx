@@ -27,7 +27,13 @@ export default function AddTeam() {
 	const leagueCtx = useContext(LeagueContext);
 	const [tempTeamId, setTempTeamId] = useState(-1) ; // This will start at -1 and go more negative so that each temp has a unique id. 
 
-	const findPlayersByGender = async (gender: string) => {
+    function clearMessages() {
+		setSuccessMessage("No success message.") ;
+		setWarningMessage("No warning message.") ; 
+		setErrorMessage("No error message.") ; 
+	  }
+  
+	  const findPlayersByGender = async (gender: string) => {
 		// console.log("--- Started findPlayersByGender for gender: ", gender);
 		try {
 			const { data: playerData, error } = await supabase
@@ -50,6 +56,13 @@ export default function AddTeam() {
 		}
 		// console.log("--- Ended findPlayersByGender. ");
 	};
+
+	function isValidTeam(team: TeamProps): boolean {
+		let isValid: boolean = true ; 
+		isValid = isValid && team.divisionid > 0 ; 
+		isValid = isValid && team.teamid < 0 ; // Already saved in database don't resave.
+		return isValid ; 
+	}
 
 	// Get a list of all players when the page first loads.
 	useEffect(() => {
@@ -94,7 +107,7 @@ export default function AddTeam() {
 	};
 
 	function updateTeamName() {
-		var newTeamName = femalePlayer?.firstname + " - " + malePlayer?.firstname ; 
+		var newTeamName = femalePlayer?.firstname + "/" + malePlayer?.firstname ; 
 		setTeamName(newTeamName) ; 
 		const teamNameField = document.getElementById('teamNameInput') ;
 		teamNameField?.setAttribute("value", newTeamName) ; 
@@ -142,6 +155,29 @@ export default function AddTeam() {
 	    console.log("--- onMakeTeamButtonClick ended") ;
 	}
 
+	function onSaveClick() {
+		console.log("--- onSaveClick started") ; 
+		const validTeams: TeamProps[] = [] ; 
+		for(const team of teamsBuilt) {
+			if(isValidTeam(team)) {
+				validTeams.push(team)
+			}
+		}
+		try {
+			saveTeamsToDatabase(validTeams) ;
+			setSuccessMessage("Saved teams to database: " + validTeams.length) ;
+		} catch(error:any) {
+			setErrorMessage(error.message) ; 
+		}
+
+		console.log("--- onSaveClick ended") ; 
+	} ;
+
+	function onTypedTeamName(event: React.ChangeEvent<HTMLInputElement>) {
+			const { name, value } = event.target;
+			setTeamName(value) ; 
+	}
+
 	function removeTeamButtonClick() {
 		console.log("--- started removeTeamButtonClick") ; 
 		const teamsSelect = document.getElementById("teamsSelect") as HTMLSelectElement;
@@ -163,31 +199,6 @@ export default function AddTeam() {
 	useEffect(() => {
 		// teamsSelect
 	}, [teamsBuilt]);
-
-	function onSaveClick() {
-		console.log("--- onSaveClick started") ; 
-		const validTeams: TeamProps[] = [] ; 
-		for(const team of teamsBuilt) {
-			if(isValidTeam(team)) {
-				validTeams.push(team)
-			}
-		}
-		try {
-			saveTeamsToDatabase(validTeams) ;
-			setSuccessMessage("Saved teams to database: " + validTeams.length) ;
-		} catch(error:any) {
-			setErrorMessage(error.message) ; 
-		}
-
-		console.log("--- onSaveClick ended") ; 
-	} ;
-
-	function isValidTeam(team: TeamProps): boolean {
-		let isValid: boolean = true ; 
-		isValid = isValid && team.divisionid > 0 ; 
-		isValid = isValid && team.teamid < 0 ; // Already saved in database don't resave.
-		return isValid ; 
-	}
 
 	return (
 		<div>
@@ -287,7 +298,7 @@ export default function AddTeam() {
 						</div>
 						<div id="teamNameDiv"  className="columnDiv">
 							<label className="inputLabel">Team Name:</label>
-							<input id="teamNameInput"></input>
+							<input id="teamNameInput" onChange={onTypedTeamName}></input>
 							<br />
 						</div>
 						<div className="inlineInputContainer">
@@ -298,6 +309,7 @@ export default function AddTeam() {
 									value={division.divisionid} onChange={divisionHandler}/> {division.divisionname}</label>
           						))}
 							</div>
+							<div  style={{ marginLeft: '20px' }}> Name saved: {teamName}</div>
 						</div>
 					</div>
 				</div>

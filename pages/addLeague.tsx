@@ -1,6 +1,6 @@
 import React from "react";
 import Link from "next/link";
-import { useContext, useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { toast } from "react-hot-toast";
 import { supabase } from "@/lib/supabase";
 import {LeagueProps, DivisionProps } from "@/lib/types" ;
@@ -11,14 +11,22 @@ let time = '10:17' ;
 
 export default function AddLeague() 
     {
-        const [warningMessage, setWarningMessage] = useState("") ;
-        const [leagues, setLeagues] = useState<LeagueProps[]>([]) ;
-        const [formData, setFormData] = useState({day: 'TestDay', year: 2024}) ; 
-        const [day, setDay] = useState( "Testday") ;
-        const [year, setYear] = useState(2024) ;
-        const [divisionCount, setDivisionCount] = useState(3) ;
+      const [warningMessage, setWarningMessage] = useState("Warnings - none");
+      const [successMessage, setSuccessMessage] = useState("Success - none");
+      const [errorMessage, setErrorMessage] = useState("Errors - none");
+      const [leagues, setLeagues] = useState<LeagueProps[]>([]) ;
+      const [formData, setFormData] = useState({day: 'TestDay', year: 2024}) ; 
+      const [day, setDay] = useState( "Testday") ;
+      const [year, setYear] = useState(2024) ;
+      const [divisionCount, setDivisionCount] = useState(3) ;
 
-    const findLeaguesSearch = async () => {
+        function clearMessages() {
+          setSuccessMessage("No success message.") ;
+          setWarningMessage("No warning message.") ; 
+          setErrorMessage("No error message.") ; 
+          }
+        
+        const findLeaguesSearch = async () => {
           console.log("--- Started findLeaguesSearch. ") ;
           try {
             const { data: leagueData, error } = await supabase
@@ -34,14 +42,49 @@ export default function AddLeague()
           }
         };
 
-        // Get a list of all players when the page first loads.
-        useEffect(() => {
-          if(leagues == null || leagues.length == 0) {
-            findLeaguesSearch() ; 
+        async function getLeagueId(day: string, year: number): Promise<number>   {
+          try {
+            const { data: leagueData, error } = await supabase
+              .from("league").select()
+              .eq("day", day).eq("year",year)
+              .order("year", {ascending: false})
+        
+            if (error) {
+              throw error;
+            }
+            if(leagueData.length == 1) {
+              return (leagueData[0] as LeagueProps).leagueid ; 
+            }
+            else {
+              console.log("Did not find the new league made", day, " for year ", year) ; 
+              return -1 ; 
+            }
+          } catch (error: any) {
+            console.error("Error fetching league list: " + error);
+            return -1 ; 
           }
         }
-        ) ;
+  
+          const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+          const { name, value } = event.target;
+          setFormData((prevData) => ({
+            ...prevData,
+            [name]: value,
+          }));
 
+          if(name == "day") {
+            setDay(value) ; 
+          }
+          if(name == "year") {
+            setYear(Number(value)) ; 
+          }
+        };
+  
+        const handleDivisionCountChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+          console.log("--- handleDivisionCountChange: ", event.target.value) ;
+          setDivisionCount(parseInt( event.target.value, 10));
+        };
+  
         async function onSaveLeague() {
           console.log('--- onSaveLeague called.') ;
           if(validateLeagueData()) {
@@ -53,9 +96,13 @@ export default function AddLeague()
               .from("league")
               .insert([leagueWithoutId]);
               console.log("Saved league: ", day, " ", year) ;
+              clearMessages() ; 
+              setSuccessMessage("Saved league: " + day + " " + year) ;
             } 
             catch (error: any) {
-            console.error("Error saving schedule:", error.message);
+              console.error("Error saving schedule:", error.message);
+              clearMessages() ; 
+              setErrorMessage("Database failed to save league. " + error.message) ;
             }
             let value = 1 ; 
             let divisionNames: string[] = ["blue", "green", "red"] ; 
@@ -65,6 +112,10 @@ export default function AddLeague()
               saveDivision(0, newLeagueId, divisionNames[i], value) ;
               value = value * 2 ; 
             }
+          }
+          else {
+            clearMessages() ;
+            setErrorMessage("League did not pass validation.") ; 
           }
           console.log("--- onSaveLeague ended") ;
       }
@@ -79,55 +130,31 @@ export default function AddLeague()
             .from("division")
             .insert([divisionWithoutId]);
             console.log("Saved division: ", divisionName, " ", newLeagueId) ;
+            setSuccessMessage(successMessage + " Saved division: "+ divisionName + " " + newLeagueId) ;
           } 
           catch (error: any) {
           console.error("Error saving division:", error.message);
+          clearMessages() ;
+          setErrorMessage("Database failed to save. " + error.message) ; 
           }
         console.log("--- saveDivision ended") ;
     }
 
-      async function getLeagueId(day: string, year: number): Promise<number>   {
-        try {
-          const { data: leagueData, error } = await supabase
-            .from("league").select()
-            .eq("day", day).eq("year",year)
-            .order("year", {ascending: false})
-      
-          if (error) {
-            throw error;
-          }
-          if(leagueData.length == 1) {
-            return (leagueData[0] as LeagueProps).leagueid ; 
-          }
-          else {
-            console.log("Did not find the new league made", day, " for year ", year) ; 
-            return -1 ; 
-          }
-        } catch (error: any) {
-          console.error("Error fetching league list: " + error);
-          return -1 ; 
-        }
-      }
-
       function validateLeagueData() {
         var isValid : boolean = true ; 
         isValid = isValid && year > 1970 ;
-        isValid = isValid && day.length > 3 ; 
+        isValid = isValid && day.length > 3 && day.endsWith("day") ; 
+        isValid = isValid && divisionCount > 1 && divisionCount < 4 ; 
         return isValid ; 
       }
 
-      const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = event.target;
-        setFormData((prevData) => ({
-          ...prevData,
-          [name]: value,
-        }));
-      };
-
-      const handleDivisionCountChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        console.log("--- handleDivisionCountChange: ", event.target.value) ;
-        setDivisionCount(parseInt( event.target.value, 10));
-      };
+        // Get a list of all players when the page first loads.
+        useEffect(() => {
+          if(leagues == null || leagues.length == 0) {
+            findLeaguesSearch() ; 
+          }
+        }
+        ) ;
 
         return (
     <div>
@@ -197,13 +224,25 @@ export default function AddLeague()
             padding: 5px ; 
             margin-right: 10px ;
           }
+          #successDiv {
+            color: green ; 
+            }
+            #warningDiv {
+            color: purple ; 
+            }
+            #errorDiv {
+            color: red ; 
+            }
         `}
       </style>
       <div id="debuggingInfoDiv">
         Add a League notifications
         <br/>
+        Day: {day} 
         <br/>
+        Year: {year}
         <br/>
+        Division Count: {divisionCount}
         <p>
         <br/>
         <br/>
@@ -274,10 +313,12 @@ export default function AddLeague()
         </div>
       </div>  
       <div>Empty</div>
-      <div id="statusDiv">
-        Status Div
-      </div>
-      <div>Empty</div>
+			<div id="Status">
+				<br/>
+				<div id="errorDiv">{errorMessage}</div>
+				<div id="warningDiv">{warningMessage}</div>
+				<div id="successDiv">{successMessage}</div>
+			</div>
     </div>
   );
 

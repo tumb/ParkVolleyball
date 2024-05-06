@@ -74,7 +74,7 @@ export default function AddPlayer()
           }
           else {
             clearMessages() ;
-            setErrorMessage("Unable to save player: " + firstname + " Invalid inputs. Check all boxes.") ;
+            setErrorMessage("Unable to save " + firstname + ". Invalid inputs.") ;
           }
           console.log("--- onSavePlayer ended") ;
       }
