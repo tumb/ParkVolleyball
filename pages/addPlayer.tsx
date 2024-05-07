@@ -3,8 +3,9 @@ import Link from "next/link";
 import { useContext, useEffect, useState, useCallback } from "react";
 import { toast } from "react-hot-toast";
 import { supabase } from "@/lib/supabase";
-import {PlayerProps } from "@/lib/types" ;
-import { getCurrentFormattedDate } from "@/components/admin/scheduling_functions/SchedulingUI";
+import {PlayerProps, emptyPlayer } from "@/lib/types" ;
+import { getCurrentFormattedDate, findSelectedPlayer } from "@/components/admin/scheduling_functions/SchedulingUI";
+import { deletePlayerFromSupabase } from "@/components/database/deletes";
 // import '@/styles/layouts.css' ; Not allowed to add a global style sheet. I put this into ./pages/_app.tsx but don't know that I'll use it. 
 
 export default function AddPlayer() 
@@ -13,6 +14,7 @@ export default function AddPlayer()
         const [warningMessage, setWarningMessage] = useState("No message") ;
         const [errorMessage, setErrorMessage] = useState("No message") ;
         const [players, setPlayers] = useState<PlayerProps[]>([]) ;
+        const [existingPlayer, setExistingPlayer] = useState<PlayerProps>(emptyPlayer) ; 
         const [firstname, setFirstname] = useState( "First Name") ;
         const [lastname, setLastname] = useState( "Last Name") ;
         const [gender, setGender] = useState( "F") ;
@@ -51,6 +53,17 @@ export default function AddPlayer()
             console.error("Error fetching players:" + error);
           }
         };
+
+        function deletePlayerFromDatabase() {
+            console.log('--- deletePlayerFromDatabase called.') ;
+                deletePlayerFromSupabase(existingPlayer) ;
+                let playerName = existingPlayer.firstname + " " + existingPlayer.lastname ; 
+                const remainingPlayers = players.filter(player2 => existingPlayer.playerid !== player2.playerid ) ; 
+                setPlayers(remainingPlayers) ;
+                // setCheckSavedMatches(checkSavedMatches + 1) ; This may be wanted to rerender the list
+                clearMessages() ; 
+                setSuccessMessage("Deleted " + playerName) ;
+        }
 
         // Get a list of all players when the page first loads.
         useEffect(() => {
@@ -94,6 +107,22 @@ export default function AddPlayer()
           console.log("--- onSavePlayer ended") ;
       }
       
+      function onSelectExistingPlayer(value: string) {
+        console.log("player id as string: ", value) ;
+        const playerId = Number(value) ; 
+        const player = findSelectedPlayer(playerId, players) ; 
+        console.log("player: ", player?.firstname) ;
+
+        if(player) {
+          setExistingPlayer(player) ; 
+        }
+        console.log("player (existing)", player) ;
+      }
+
+      function updatePlayerInDatabase() {
+
+      }
+
       function validatePlayerData() {
         var isValid : boolean = true ; 
         isValid = isValid && firstname.length > 1 ;
@@ -123,6 +152,7 @@ export default function AddPlayer()
       };
 
       const handleGenderChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setGender(event.target.value) ; 
         console.log("--- handleGenderChange: ", event.target.value) ;
       };
 
@@ -211,11 +241,10 @@ export default function AddPlayer()
         `}
       </style>
       <div id="debuggingInfoDiv">
-        Add a Player
-        <p>
+        Add a Player: Firstname {firstname}, Last name {lastname}, Gender {gender}, Email {email}, phone {phone}
         <br/>
+        Modify or remove a player: {existingPlayer.firstname} {existingPlayer.lastname}
         <br/>
-        </p>
       </div> {/* End of debuggingInfoDiv */}
       <div id="infoPanelsDiv" >
         <div id="newPlayerDiv">
@@ -258,15 +287,17 @@ export default function AddPlayer()
             Save
 	        </button>
           <div>
-            <br/>
-            <Link
-                className=" m-4 p-4 bg-blue-200 font-bold rounded-lg text-black-800 transition hover:text-blue-800/75"
-                href="/addTeam"
-              >
-                AddTeam
-              </Link>
+            <button className=" m-4 p-4 bg-blue-200 font-bold rounded-lg text-black-800 transition hover:text-blue-800/75"
+               onClick={updatePlayerInDatabase} >
+                Save Change
+              </button>
           </div>
-          <br/>
+          <div>
+            <button className=" m-4 p-4 bg-blue-200 font-bold rounded-lg text-black-800 transition hover:text-blue-800/75"
+               onClick={deletePlayerFromDatabase} >
+                Delete Player
+              </button>
+          </div>
           <div>
             <br/>
             <Link
@@ -281,9 +312,9 @@ export default function AddPlayer()
           <div>
             <label>Players already in database</label>
           </div>
-          <select id="existingPlayerList" size={20} multiple={true}> 
+          <select id="existingPlayerList" size={20} multiple={false} onChange={(event) => onSelectExistingPlayer(event.target.value)}> 
           {players.map((player) => (
-            <option key={player.playerid} value={player.playerid}>{player.firstname} {player.lastname}</option> 
+            <option key={player.playerid} value={player.playerid} >{player.firstname} {player.lastname}</option> 
           ))}
           </select>
         </div>

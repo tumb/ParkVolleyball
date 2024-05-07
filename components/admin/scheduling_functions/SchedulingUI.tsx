@@ -1,4 +1,6 @@
-import { DivisionProps, TeamProps, ScheduleProps, ExtraTeamProps } from "@/lib/types";
+import { DivisionProps, TeamProps, ScheduleProps, ExtraTeamProps, PlayerProps } from "@/lib/types";
+
+
 
 export const findSelectedDivision = (divId: number, divisions:DivisionProps[]): DivisionProps | undefined => {
 //   console.log("findSelectedDivision() divId: ", divId) ;
@@ -14,7 +16,14 @@ export const findSelectedTeam = (teamId: number, teams:TeamProps[]): TeamProps |
     return selected;
   };
   
-  export const findSelectedExtraTeam = (teamId: number, teams:ExtraTeamProps[]): ExtraTeamProps | undefined => {
+  export function findSelectedPlayer(playerId: number, players:PlayerProps[]): PlayerProps | undefined {
+    //   console.log("findSelectedTeam() teamId: ", teamId) ;
+      const selected = players.find((player: PlayerProps) => player.playerid === playerId);
+    //   console.log("returning team: ", selected?.teamid) ; 
+      return selected;
+    };
+
+    export const findSelectedExtraTeam = (teamId: number, teams:ExtraTeamProps[]): ExtraTeamProps | undefined => {
     //   console.log("findSelectedTeam() teamId: ", teamId) ;
       const selected = teams.find((team: ExtraTeamProps) => team.teamid === teamId);
     //   console.log("returning team: ", selected?.teamid) ; 

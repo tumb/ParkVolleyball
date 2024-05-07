@@ -129,6 +129,17 @@ export type PlayerProps = {
   entrydate: string ; 
 }
 
+export const emptyPlayer: PlayerProps = {
+  playerid: -1 ,
+  firstname: "Clark" ,
+  lastname: "Kent" ,
+  gender: "X",
+  email: "getLost@gmail.com", 
+  elo: -1,
+  phone: "123 345 7899",
+  entrydate: "1900-01-31"
+}
+
 export type SchedulingSetupProps =   {
   divisionHandler: (e: ChangeEvent<HTMLSelectElement>) => void;
   divisionid: number;
