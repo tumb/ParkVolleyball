@@ -25,6 +25,17 @@ export default function AddPlayer()
       setErrorMessage("No error message.") ; 
     }
 
+    function checkIsADuplicate() {
+      const dupes = players.filter(player => player.firstname === firstname) ; 
+      if(dupes.length == 0) {
+        return false ; 
+      }
+      else {
+        const lasts = dupes.filter(player => player.lastname === lastname) ;
+        return lasts.length > 0 ;  
+      }
+    }
+
     const findPlayersSearch = async () => {
           console.log("--- Started findPlayersSearch. ") ;
           try {
@@ -52,6 +63,10 @@ export default function AddPlayer()
         async function onSavePlayer() {
           console.log('--- onSavePlayer called.') ;
           console.log("firstname: ", firstname) ;
+          if(checkIsADuplicate()) {
+            setWarningMessage("Player " + firstname + " " + lastname + " is already in the database")  ; 
+            return 
+          }
           if(validatePlayerData()) {
             const date = getCurrentFormattedDate() ; 
             const elo = 1500 ; 
