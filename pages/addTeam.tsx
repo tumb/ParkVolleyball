@@ -61,6 +61,7 @@ export default function AddTeam() {
 		let isValid: boolean = true ; 
 		isValid = isValid && team.divisionid > 0 ; 
 		isValid = isValid && team.teamid < 0 ; // Already saved in database don't resave.
+		console.log("team is valid: ", isValid) ;
 		return isValid ; 
 	}
 
@@ -159,6 +160,7 @@ export default function AddTeam() {
 		console.log("--- onSaveClick started") ; 
 		const validTeams: TeamProps[] = [] ; 
 		for(const team of teamsBuilt) {
+			console.log("team: ", team.teamname, "team.divisionid: ", team.divisionid) ;
 			if(isValidTeam(team)) {
 				validTeams.push(team)
 			}
@@ -370,7 +372,6 @@ export default function AddTeam() {
 
 				</div>
 			</div>
-			<div>Empty - might supply information about selected people ... someday</div> 
 			<div id="Status">
 				<div id="errorDiv">{errorMessage}</div>
 				<div id="warningDiv">{warningMessage}</div>

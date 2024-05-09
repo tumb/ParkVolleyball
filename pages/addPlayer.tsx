@@ -70,8 +70,7 @@ export default function AddPlayer()
           if(players == null || players.length == 0) {
             findPlayersSearch() ; 
           }
-        }
-        ) ;
+        } ) ;
 
         async function onSavePlayer() {
           console.log('--- onSavePlayer called.') ;

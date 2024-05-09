@@ -52,7 +52,7 @@ export async function findDatesForLeague(leagueId: number) : Promise<string[]> {
 }
 
 export async function findTeamsForLeague(leagueId: number) : Promise<TeamProps[]> {
-  console.log("--- Started findTeamsForLeague. leagueId:",  leagueId) ;
+  // console.log("--- Started findTeamsForLeague. leagueId:",  leagueId) ;
   try { 
     const {data: teamData, error} = await supabase
     .from("team")
@@ -69,7 +69,7 @@ export async function findTeamsForLeague(leagueId: number) : Promise<TeamProps[]
       leagueid: team.leagueid,
       divisionid: team.divisionid || 0, 
     })) ;
-    console.log("--- Ending findTeamsForLeague. teams.length:",  teams.length) ;
+    // console.log("--- Ending findTeamsForLeague. teams.length:",  teams.length) ;
     return teams ; 
   } 
   catch (error: any) {

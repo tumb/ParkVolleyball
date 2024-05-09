@@ -31,6 +31,8 @@ export default function MakeSchedule()
         const [successMessage, setSuccessMessage] = useState("") ;
         const [errorMessage, setErrorMessage] = useState("") ;
         const [tempMatchId, setTempMatchId] = useState(-1) ;
+      let tempDates : string[] = [] ; 
+
 
         function addNextDate(dayOfWeek : string) {
           const currentDate = new Date(); // apparenty a number of time since ??? in milliseconds
@@ -43,7 +45,7 @@ export default function MakeSchedule()
           }
           // Calculate the number of days until the next occurrence of the target day
           let daysUntilNext = targetDay - currentDay;
-          console.log("daysUntilNext: " + daysUntilNext) ; 
+          // console.log("daysUntilNext: " + daysUntilNext) ; 
           if (daysUntilNext <= 0) {
               // If the target day is earlier in the week than the current day, add 7 days to find the next occurrence
             daysUntilNext += 7;
@@ -53,8 +55,10 @@ export default function MakeSchedule()
           // Format the date as YYYY-MM-DD
           const formattedDate = nextDate.toISOString().split('T')[0];
           const index = allDates.indexOf(formattedDate) ; 
-          if( index == -1) {
-            setAllDates(prevDates => [...prevDates, formattedDate]);
+          // console.log("Adding first date: length ", allDates.length) ; 
+          if( index == -1) { // If it's not already in the list then add it.
+            tempDates.push(formattedDate) ; 
+            // console.log("Added first date: length ", tempDates.length) ; 
           }
 
           // Add still one more day if today is the day of week for the league
@@ -64,12 +68,31 @@ export default function MakeSchedule()
             // Format the date as YYYY-MM-DD
             const formattedDate = nextDate.toISOString().split('T')[0];
             const index = allDates.indexOf(formattedDate) ; 
+            // console.log("Adding 2nd date: length ", allDates.length) ; 
             if( index == -1) {
-              setAllDates(prevDates => [...prevDates, formattedDate]);
+              tempDates.push(formattedDate) ; 
+              console.log("Added 2nd date: length ", allDates.length) ; 
             }
-            allDates.sort() ; 
-            setAllDates(allDates) ; 
+            // console.log("After sorting dates: length ", allDates.length) ; 
           }
+
+          while(daysUntilNext < 21) {
+            daysUntilNext += 7;
+            const nextDate = new Date(currentDate.getTime() + daysUntilNext * 24 * 60 * 60 * 1000);
+            // Format the date as YYYY-MM-DD
+            const formattedDate = nextDate.toISOString().split('T')[0];
+            const index = allDates.indexOf(formattedDate) ; 
+            // console.log("Adding date:  ", formattedDate) ; 
+            if( index == -1) {
+              tempDates.push(formattedDate) ; 
+              console.log("Added 2nd date: length ", allDates.length) ; 
+            }
+            tempDates.sort() ; 
+            // console.log("After sorting dates: length ", allDates.length) ; 
+          }
+
+          tempDates.sort() ; 
+          setAllDates(tempDates) ; 
           console.log("created date: " + formattedDate + " and now have allDates.length: " + allDates.length) ; 
         }
 
@@ -272,7 +295,7 @@ export default function MakeSchedule()
       }
 
         const findDistinctDivisionsSearch = async () => {
-          console.log("--- Started findDistinctDivisionsSearch league: ", leagueCtx.league?.leagueid) ;
+          // console.log("--- Started findDistinctDivisionsSearch league: ", leagueCtx.league?.leagueid) ;
           try {
             const { data: divisionsData, error } = await supabase
               .from("division")
@@ -283,9 +306,10 @@ export default function MakeSchedule()
               throw error;
             }
             setDivisions(divisionsData as DivisionProps[] || []); // Ensure that divisionsData is an array
-            console.log("---  findDistinctDivisionsSearch found data:", divisionsData);
+            // console.log("---  findDistinctDivisionsSearch found data:", divisionsData);
           } catch (error: any) {
             console.error("Error fetching divisions:" + error);
+            setErrorMessage("Error fetching divisions:" + error) ; 
           }
         };
 
@@ -303,7 +327,7 @@ export default function MakeSchedule()
             }
         
             setTeamsInDivision(teamData as TeamProps[] || []); 
-            console.log("findTeamsSearch found data:", teamData);
+            // console.log("findTeamsSearch found data:", teamData);
           } catch (error: any) {
             console.error("Error fetching divisions:" + error);
           }
@@ -490,15 +514,21 @@ export default function MakeSchedule()
         findDistinctDivisionsSearch() ;
             // Add in getting all the match dates currently in schedule for that league.
         async function fetchDates() {
-          const allDates: string[] = await findDatesForLeague(leagueCtx.league.leagueid as number) ;
-          console.log("about to  setAllDates. allDates.length: " + allDates.length) ;
-          setAllDates(allDates) ; 
+          tempDates = await findDatesForLeague(leagueCtx.league.leagueid as number) ;
+          console.log("about to  setAllDates found in database. allDates.length: " + allDates.length) ;
+          console.log("After  setAllDates found in database. allDates.length: " + allDates.length) ;
           addNextDate(leagueCtx.league.day != undefined ? leagueCtx.league.day : 'Testday') ; 
+          console.log("after  addNextDate found in database. allDates.length: " + allDates.length) ;
         }
         fetchDates() ; 
+        console.log("after  fetchDates(). allDates.length: " + allDates.length) ;
         fetchAllTeamsForLeague() ;
+        console.log("after  fetchAllTeamsForLeague() found in database. allDates.length: " + allDates.length) ;
       }, [leagueCtx.league]) ; 
 
+      useEffect(() => {
+        console.log("useEffect ... allDates.length: ", allDates.length) ;
+      }, [allDates] ) ; 
 
         return (
     <div>
@@ -575,7 +605,7 @@ export default function MakeSchedule()
       <div id="debuggingInfoDiv">
         Make or Edit Schedule
         <br/>
-        League ID: {leagueCtx.league?.leagueid}, League day: {leagueCtx.league?.day}, League year: {leagueCtx.league?.year}
+        League ID: {leagueCtx.league?.leagueid}, League day: {leagueCtx.league?.day}, League year: {leagueCtx.league?.year}, dates length, {allDates.length}
         <br/>
         <SchedulingSetup divisionHandler={divisionHandler} divisionid={selectedDivision.divisionid} dateHandler={dateHandler} dateList={allDates} selectedDate={scheduleDate} allDivisions={divisions} />
         <br/>
