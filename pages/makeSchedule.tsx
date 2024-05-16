@@ -225,11 +225,6 @@ export default function MakeSchedule()
           return opponents ; 
         }
 
-        const updateTeams = () => {
-          findTeamsSearch() ; 
-          console.log("Teams found: " + teamsInDivision.length) ; 
-        }
-
         function countMatchesForTeam(teamid: number) : number {
           const team1Count = newMatches.filter((match) => match.team1 === teamid).length + savedMatches.filter((match) => match.team1 === teamid).length ;
           const team2Count = newMatches.filter((match) => match.team2 === teamid).length + savedMatches.filter((match) => match.team2 === teamid).length ;
@@ -310,26 +305,6 @@ export default function MakeSchedule()
           } catch (error: any) {
             console.error("Error fetching divisions:" + error);
             setErrorMessage("Error fetching divisions:" + error) ; 
-          }
-        };
-
-    const findTeamsSearch = async () => {
-          // console.log("Started findTeamsSearch. division is: ", selectedDivision.divisionid) ;
-          try {
-            const { data: teamData, error } = await supabase
-              .from("team")
-              .select()
-              .eq("leagueid", leagueCtx.league?.leagueid)
-              .eq("divisionid", selectedDivision.divisionid);
-        
-            if (error) {
-              throw error;
-            }
-        
-            setTeamsInDivision(teamData as TeamProps[] || []); 
-            // console.log("findTeamsSearch found data:", teamData);
-          } catch (error: any) {
-            console.error("Error fetching divisions:" + error);
           }
         };
 
@@ -417,17 +392,21 @@ export default function MakeSchedule()
           console.log("--- onPairTwoTeamsButtonClick ended") ;
         }
 
-        function onSaveSchedule() {
+        async function onSaveSchedule() {
           console.log('--- onSaveSchedule called.') ;
-          newMatches.forEach((match: ScheduleProps) => {
-            if(match.scheduleid < 0) {
-              console.log(match.leagueid, match.scheduleid, match.matchdate, match.team1, match.team2 ) ;
-              saveToSupabase(match) ;
+          try {
+          await Promise.all(newMatches.map(async (match: ScheduleProps) => {
+            if (match.scheduleid < 0) {
+              console.log(match.leagueid, match.scheduleid, match.matchdate, match.team1, match.team2);
+              await saveToSupabase(match);
             }
-          });
+          }));
           setSuccessMessage("Saved " + newMatches.length + " matches for " + scheduleDate) ;
           setNewMatches([]) ; 
           setCheckSavedMatches(checkSavedMatches+1) ;
+        } catch (error) {
+          setErrorMessage("Problem occurred while saving. " + error)
+        }
           console.log("--- onSaveSchedule ended") ;
       }
       
@@ -439,7 +418,27 @@ export default function MakeSchedule()
         setWarningMessage(status) ; 
       }
 
-        /** For each team see if they've already played either of their two opponents within the last two weeks of play.  */ 
+      const refreshTeamsFromDatabase = async () => {
+        // console.log("Started findTeamsSearch. division is: ", selectedDivision.divisionid) ;
+        try {
+          const { data: teamData, error } = await supabase
+            .from("team")
+            .select()
+            .eq("leagueid", leagueCtx.league?.leagueid)
+            .eq("divisionid", selectedDivision.divisionid);
+      
+          if (error) {
+            throw error;
+          }
+      
+          setTeamsInDivision(teamData as TeamProps[] || []); 
+          // console.log("findTeamsSearch found data:", teamData);
+        } catch (error: any) {
+          console.error("Error fetching divisions:" + error);
+        }
+      };
+
+      /** For each team see if they've already played either of their two opponents within the last two weeks of play.  */ 
         async function reportRecentDuplicates() {
           async function fetchMatchHistory(team : TeamProps)  {
              const teamMatches = await fetchMatchesForTeam(team) ;        
@@ -476,7 +475,12 @@ export default function MakeSchedule()
       }
     }
 
-      useEffect(() => {
+    const updateTeams = () => {
+      refreshTeamsFromDatabase() ; 
+      console.log("Teams found: " + teamsInDivision.length) ; 
+    }
+
+  useEffect(() => {
         if(selectedDivision) {
           leagueCtx.league.divisionName = selectedDivision.divisionname ; 
           // console.log("selectedDivision: " + selectedDivision.divisionname)  ;

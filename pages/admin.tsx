@@ -40,6 +40,12 @@ export default function admin()
       </div>
       <div>
         <Link className="link-button"
+              href="/teamOut" >
+                    Team Out
+        </Link>
+      </div>
+      <div>
+        <Link className="link-button"
               href="/setDivisions" >
                     Set Divisions
         </Link>

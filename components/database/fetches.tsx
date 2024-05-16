@@ -29,6 +29,15 @@ export async function findDivisionsForLeague (leagueId: number) : Promise<Divisi
   }
 };
 
+export function fetchLeagueDates (leagueId: number) { 
+  async function innerFetch() {
+    const dates = await findDatesForLeague(leagueId ) ; 
+    return dates ; 
+  }
+  innerFetch() ; 
+}
+
+
 export async function findDatesForLeague(leagueId: number) : Promise<string[]> {
   let dates: string[] = [] ; 
   try {
@@ -50,6 +59,15 @@ export async function findDatesForLeague(leagueId: number) : Promise<string[]> {
     }
     return dates ; 
 }
+
+export function fetchAllTeamsForLeague (leagueId: number) { 
+  async function innerFetch() {
+    const allTeams = await findTeamsForLeague(leagueId ) ; 
+    return allTeams ; 
+  }
+  innerFetch() ; 
+}
+
 
 export async function findTeamsForLeague(leagueId: number) : Promise<TeamProps[]> {
   // console.log("--- Started findTeamsForLeague. leagueId:",  leagueId) ;

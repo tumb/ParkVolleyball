@@ -155,3 +155,10 @@ export type LeagueProps =   {
   year: number ;
   day: string ; 
 }
+
+export type TeamOutProps = {
+  team_out_id: number ;
+  date_out: string ; 
+  teamid: number ;
+  leagueid: number ; 
+}

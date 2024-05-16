@@ -11,3 +11,12 @@ leagueid int
 );
 
 
+select * 
+from player 
+where playerid > 180
+order by lastname asc
+; 
+
+delete from player
+where playerid in (220)
+;
