@@ -1,5 +1,5 @@
 import { supabase } from "@/lib/supabase";
-import { DivisionProps, TeamProps, ScheduleProps } from "@/lib/types";
+import { DivisionProps, TeamProps, ScheduleProps, TeamOutProps } from "@/lib/types";
 
 export async function findDivisionsForLeague (leagueId: number) : Promise<DivisionProps[]> {
   console.log("--- Started findDivisionsForLeague league: ", leagueId) ;
@@ -29,14 +29,6 @@ export async function findDivisionsForLeague (leagueId: number) : Promise<Divisi
   }
 };
 
-export function fetchLeagueDates (leagueId: number) { 
-  async function innerFetch() {
-    const dates = await findDatesForLeague(leagueId ) ; 
-    return dates ; 
-  }
-  innerFetch() ; 
-}
-
 
 export async function findDatesForLeague(leagueId: number) : Promise<string[]> {
   let dates: string[] = [] ; 
@@ -60,12 +52,24 @@ export async function findDatesForLeague(leagueId: number) : Promise<string[]> {
     return dates ; 
 }
 
-export function fetchAllTeamsForLeague (leagueId: number) { 
-  async function innerFetch() {
-    const allTeams = await findTeamsForLeague(leagueId ) ; 
-    return allTeams ; 
+export async function findOutTeamsForLeagueAndDate(leagueId: number, date: string) : Promise<number[]> {
+  // console.log("--- Started findTeamsForLeague. leagueId:",  leagueId) ;
+  try { 
+    const {data: teamData, error} = await supabase
+    .from("team_out")
+    .select("teamid") 
+    .eq("leagueid", leagueId).eq("date_out", date) ;
+    if(error) {
+      throw error ; 
+    }
+    const teamIds: number[] = teamData.map((team) => ( team.teamid)) ;
+    // console.log("--- Ending findTeamsForLeague. teams.length:",  teams.length) ;
+    return teamIds ; 
+  } 
+  catch (error: any) {
+    console.log("error in findTeamsForLeague", error.message) ;
+    throw error ; 
   }
-  innerFetch() ; 
 }
 
 

@@ -43,6 +43,24 @@ export async function saveToSupabase(schedule: ScheduleProps) {
   }
 }
 
+export async function saveOutTeamsToDatabase(newTeams: TeamProps[], date: string): Promise<void>  {
+  let tempId = 0 ;
+  for(const team of newTeams) {
+  try {
+    // Omit the teamid property from the team object
+    const { data, error } = await supabase
+      .from("team_out")
+      .insert({"teamid" : team.teamid, "date_out" : date, "leagueid" : team.leagueid});
+    if (error) {
+      throw error;
+    }
+      console.log("Teamout saved successfully with new team_out_id: ", tempId);
+    } catch (error: any) {
+      console.error("Error saving schedule:", error.message);
+    }
+  }
+}
+
 export async function saveTeamsToDatabase(newTeams: TeamProps[]): Promise<void>  {
   let tempId = 0 ;
   for(const team of newTeams) {

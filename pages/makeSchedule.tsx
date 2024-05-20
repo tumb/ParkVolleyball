@@ -7,7 +7,7 @@ import { supabase } from "@/lib/supabase";
 import {DivisionProps, ScheduleProps, TeamProps, emptyTeam } from "@/lib/types" ;
 import {findSelectedDivision, findSelectedTeam, isValidDate, createMatch} from "@/components/admin/scheduling_functions/SchedulingUI" ;
 import { saveToSupabase } from "@/components/database/savesOrModifications";
-import { findMatchesForLeagueDateDivision, findDatesForLeague, fetchMatchesForTeam, findTeamsForLeague } from "@/components/database/fetches";
+import { findMatchesForLeagueDateDivision, findDatesForLeague, fetchMatchesForTeam, findTeamsForLeague, findOutTeamsForLeagueAndDate } from "@/components/database/fetches";
 import { deleteFromSupabase } from "@/components/database/deletes";
 import { match } from "assert";
 
@@ -20,6 +20,7 @@ export default function MakeSchedule()
         const [divisions, setDivisions] = useState<DivisionProps[]>([]) ; 
         const [teamsInDivision, setTeamsInDivision] = useState<TeamProps[]>([]) ; 
         const [teamsInLeague, setTeamsInLeague] = useState<TeamProps[]>([]) ; 
+        const [teamsOut, setTeamsOut] = useState<TeamProps[]>([]) ;
         const [selectedDivision, setSelectedDivsion] = useState(({divisionid: 1, leagueid: 1, divisionname: "purple", divisionvalue: 1})) ;
         const [allDates, setAllDates] = useState<string[]>([]) ; 
         const [newMatches, setNewMatches] = useState<ScheduleProps[]>([]) ;
@@ -187,6 +188,15 @@ export default function MakeSchedule()
             setSelectedDivsion(selectedDiv) ;
           }
         }
+  
+        function fetchOutTeamsForLeagueAndDate() { 
+          async function innerFetch() {
+            const databaseOutTeamIds = await findOutTeamsForLeagueAndDate(leagueCtx.league.leagueid != undefined ? leagueCtx.league.leagueid : -1, scheduleDate ) ; 
+            const databaseOutTeams = teamsInLeague.filter(team => databaseOutTeamIds.includes(team.teamid)) ;
+            setTeamsOut(databaseOutTeams) ;
+          }
+          innerFetch() ; 
+        }
 
         function findOpponentName(match:ScheduleProps, selectedTeam: TeamProps) : string {
           let opponentTeam = emptyTeam ; 
@@ -273,13 +283,6 @@ export default function MakeSchedule()
           }
           console.log("--- end of dateHandler.") ; 
         } ;
-
-        // When scheduleDate changes to something valid
-        useEffect(() => {
-          // Put code to run when the date is changed.
-          console.log("Made valid date: ", scheduleDate) ;
-          leagueCtx.league.matchDate = scheduleDate ; 
-      }, [scheduleDate]) ; 
 
       function fetchAllTeamsForLeague () { 
         async function innerFetch() {
@@ -480,6 +483,14 @@ export default function MakeSchedule()
       console.log("Teams found: " + teamsInDivision.length) ; 
     }
 
+  // When scheduleDate changes to something valid
+  useEffect(() => {
+    // Put code to run when the date is changed.
+    console.log("Made valid date: ", scheduleDate) ;
+    leagueCtx.league.matchDate = scheduleDate ; 
+    fetchOutTeamsForLeagueAndDate() ;
+  }, [scheduleDate]) ; 
+
   useEffect(() => {
         if(selectedDivision) {
           leagueCtx.league.divisionName = selectedDivision.divisionname ; 
@@ -589,6 +600,9 @@ export default function MakeSchedule()
             width: 100% ; 
             float: left ; 
           }     
+          #teamsOutDiv {
+            background-color: #E0E8F0 ; 
+          }     
           #matchesSelect {
             background-color: #E0E8A0 ; 
             width: 100% ; 
@@ -603,7 +617,46 @@ export default function MakeSchedule()
           .division-blue {
             color: blue ; 
           }
-          
+          .column-button {
+            display: inline-block;
+            padding: 10px 20px; /* Adjust padding as needed */
+            margin: 5px ;
+            background-color: #BDF;
+            border: none;
+            text-decoration: none;
+            font-weight: bold;
+            color: #000;
+            border-radius: 5px;
+            width: 100px; /* Set the width as desired */
+            text-align: center;  
+          }
+          .data-button {
+            display: inline-block;
+            padding: 10px 20px; /* Adjust padding as needed */
+            margin: 5px ;
+            background-color: #FAF;
+            border: none;
+            text-decoration: none;
+            font-weight: bold;
+            color: #000;
+            border-radius: 5px;
+            width: 100px; /* Set the width as desired */
+            text-align: center;          
+          }
+          .dangerous-button {
+            display: inline-block;
+            padding: 10px 20px; /* Adjust padding as needed */
+            margin: 5px ;
+            background-color: #FAB;
+            border: none;
+            text-decoration: none;
+            font-weight: bold;
+            color: #000;
+            border-radius: 5px;
+            width: 100px; /* Set the width as desired */
+            text-align: center;          
+          }
+
         `}
       </style>
       <div id="debuggingInfoDiv">
@@ -634,43 +687,41 @@ export default function MakeSchedule()
         </div>
         <div id="buttonColumnDiv">
           <div>
-            <button className="m-2 p-2 bg-blue-200 font-bold rounded-lg" onClick={onPairTwoTeamsButtonClick} >
+            <button className="column-button" onClick={onPairTwoTeamsButtonClick} >
 		          → 
 	          </button>
           </div>
           <div>
-            <button className="m-2 p-2 bg-blue-200 font-bold rounded-lg" onClick={onBackArrowClick} >
+            <button className="column-button" onClick={onBackArrowClick} >
 		          ← 
 	          </button>
           </div>
           <div>
-          <button className="m-2 p-2 bg-purple-200 font-bold rounded-lg" onClick={onValidateSchedule} >
+          <button className="column-button" onClick={onValidateSchedule} >
             Validate Schedule
 	        </button>
           </div>
-          <button className="m-2 p-2 bg-purple-200 font-bold rounded-lg" onClick={onSaveSchedule} >
+          <button className="data-button" onClick={onSaveSchedule} >
             Save
 	        </button>
           <div>
           </div>
           <div>
-          <button className="m-2 p-2 bg-purple-200 font-bold rounded-lg" onClick={onDeleteFromDatabase} >
-            Delete Data
+          <button className="data-button" onClick={onDeleteFromDatabase} >
+            Delete
 	        </button>
           </div>
           <div>
-            <br/>
             <Link
-                className=" m-1 p-2 bg-purple-200 font-bold rounded-lg text-black-800 transition hover:text-blue-800/75"
+                className="data-button"
                 href={`/changeScheduleDate?originalDate=${scheduleDate}`} 
                         >
                 Change Date
               </Link>
           </div>
           <div>
-            <br/>
             <Link
-                className=" m-2 p-2 bg-red-200 font-bold rounded-lg text-black-800 transition hover:text-blue-800/75"
+                className="dangerous-button"
                 href="/admin"
               >
                 Cancel
@@ -690,6 +741,15 @@ export default function MakeSchedule()
 								))}
           </select>
         </div>
+      <div id="teamsOutDiv">
+        Teams out {scheduleDate} :
+        <br/>
+        {teamsOut.map((team, index) => (
+          <React.Fragment key={index}>
+            {team.teamname}      <br/>
+          </React.Fragment>
+        ))}
+      </div>
       <div id="teamHistoryDiv">Team history: {selectedTeam && selectedTeam != undefined ? selectedTeam.teamname : 'No team selected'}</div>
         <br/>
         {matchHistory.map((match:ScheduleProps) => buildMatchHistoryItem(match))} ;
