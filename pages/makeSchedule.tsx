@@ -35,7 +35,7 @@ export default function MakeSchedule()
       let tempDates : string[] = [] ; 
 
 
-        function addNextDate(dayOfWeek : string) {
+        function computeListOfDates(dayOfWeek : string) {
           const currentDate = new Date(); // apparenty a number of time since ??? in milliseconds
           // Get the current day of the week (0 for Sunday, 1 for Monday, ..., 6 for Saturday)
           const currentDay = currentDate.getDay();
@@ -47,7 +47,7 @@ export default function MakeSchedule()
           // Calculate the number of days until the next occurrence of the target day
           let daysUntilNext = targetDay - currentDay;
           // console.log("daysUntilNext: " + daysUntilNext) ; 
-          if (daysUntilNext <= 0) {
+          if (daysUntilNext < 0) {
               // If the target day is earlier in the week than the current day, add 7 days to find the next occurrence
             daysUntilNext += 7;
           }
@@ -72,7 +72,6 @@ export default function MakeSchedule()
             // console.log("Adding 2nd date: length ", allDates.length) ; 
             if( index == -1) {
               tempDates.push(formattedDate) ; 
-              console.log("Added 2nd date: length ", allDates.length) ; 
             }
             // console.log("After sorting dates: length ", allDates.length) ; 
           }
@@ -94,7 +93,6 @@ export default function MakeSchedule()
 
           tempDates.sort() ; 
           setAllDates(tempDates) ; 
-          console.log("created date: " + formattedDate + " and now have allDates.length: " + allDates.length) ; 
         }
 
         function areSameTeams(matchA: ScheduleProps, matchB: ScheduleProps) {
@@ -178,6 +176,12 @@ export default function MakeSchedule()
           return "division-"+thisDivision?.divisionname ; 
         }
       
+        function countMatchesForTeam(teamid: number) : number {
+          const team1Count = newMatches.filter((match) => match.team1 === teamid).length + savedMatches.filter((match) => match.team1 === teamid).length ;
+          const team2Count = newMatches.filter((match) => match.team2 === teamid).length + savedMatches.filter((match) => match.team2 === teamid).length ;
+          return team1Count + team2Count ; 
+        }
+
         const divisionHandler = (e: React.ChangeEvent<HTMLSelectElement>) =>  {
           // console.log("--- Started divisionHandler ---") ; 
           // console.log("e.target.value: " + e.target.value) ;
@@ -235,12 +239,6 @@ export default function MakeSchedule()
           return opponents ; 
         }
 
-        function countMatchesForTeam(teamid: number) : number {
-          const team1Count = newMatches.filter((match) => match.team1 === teamid).length + savedMatches.filter((match) => match.team1 === teamid).length ;
-          const team2Count = newMatches.filter((match) => match.team2 === teamid).length + savedMatches.filter((match) => match.team2 === teamid).length ;
-          return team1Count + team2Count ; 
-        }
-
       function generateMatchName(scheduleId: number) : string {
           let name = "none" ; 
           let schedule = newMatches.find((match) => match.scheduleid === scheduleId )
@@ -270,9 +268,17 @@ export default function MakeSchedule()
           return [formattedWeek, formattedTwo] ; 
         }
 
+        function init() {
+          if(leagueCtx) {
+            getDivisionsForLeague() ; 
+            setNextDate() ; 
+            updateTeams() ; 
+          }
+        }
+
         const dateHandler = (e: React.ChangeEvent<HTMLSelectElement>) =>  {
-          console.log("-- Started dateHandler. scheduleDate: " + scheduleDate) ;
-          console.log("e.target.value: " + e.target.value) ;
+          // console.log("-- Started dateHandler. scheduleDate: " + scheduleDate) ;
+          // console.log("e.target.value: " + e.target.value) ;
           if(isValidDate(e.target.value)) {
             setScheduleDate(e.target.value) ; 
             // findDistinctDivisionsSearch() ;
@@ -292,23 +298,28 @@ export default function MakeSchedule()
         innerFetch() ; 
       }
 
-        const findDistinctDivisionsSearch = async () => {
-          // console.log("--- Started findDistinctDivisionsSearch league: ", leagueCtx.league?.leagueid) ;
+      const getDivisionsForLeague = async () => {
+          console.log("--- Started getDivisionsForLeague league: ", leagueCtx.league?.leagueid) ;
+          const leagueId = leagueCtx.league?.leagueid ; 
+          if(leagueId != undefined) {
           try {
             const { data: divisionsData, error } = await supabase
               .from("division")
               .select()
-              .eq("leagueid", leagueCtx.league?.leagueid);
-        
+              .eq("leagueid", leagueId);
             if (error) {
               throw error;
             }
             setDivisions(divisionsData as DivisionProps[] || []); // Ensure that divisionsData is an array
-            // console.log("---  findDistinctDivisionsSearch found data:", divisionsData);
+            console.log("---  getDivisionsForLeague found data:", divisionsData);
           } catch (error: any) {
-            console.error("Error fetching divisions:" + error);
-            setErrorMessage("Error fetching divisions:" + error) ; 
+            console.error("Error fetching divisions: " + error.message);
+            setErrorMessage("Error fetching divisions: " + error.message) ; 
           }
+        } 
+        else {
+          setErrorMessage("leagueId is undefined.") ; 
+        }
         };
 
       function onBackArrowClick() {
@@ -422,7 +433,10 @@ export default function MakeSchedule()
       }
 
       const refreshTeamsFromDatabase = async () => {
-        // console.log("Started findTeamsSearch. division is: ", selectedDivision.divisionid) ;
+        console.log("Started findTeamsSearch. league, division is: ", leagueCtx.league.leagueid, selectedDivision.divisionid) ;
+        const leagueId = leagueCtx.league.leagueid ; 
+        const divisionId = selectedDivision.divisionid ; 
+        if(leagueId != undefined && divisionId != undefined) {
         try {
           const { data: teamData, error } = await supabase
             .from("team")
@@ -437,8 +451,19 @@ export default function MakeSchedule()
           setTeamsInDivision(teamData as TeamProps[] || []); 
           // console.log("findTeamsSearch found data:", teamData);
         } catch (error: any) {
-          console.error("Error fetching divisions:" + error);
+          console.error("Error fetching teams:" + error.message);
         }
+      }
+      else {
+        let message = "An undefined id found. " ; 
+        if(leagueId == undefined) {
+          message += " leagueId " ; 
+        }
+        if(divisionId == undefined) {
+          message += " divisionId " ; 
+        }
+        setErrorMessage(message) ;
+      }
       };
 
       /** For each team see if they've already played either of their two opponents within the last two weeks of play.  */ 
@@ -478,12 +503,32 @@ export default function MakeSchedule()
       }
     }
 
+    function setNextDate() {
+      const dayName = leagueCtx.league.day ? leagueCtx.league.day : "monday"; 
+      const currentDate = new Date(); // apparenty a number of time since ??? in milliseconds
+      const currentDay = currentDate.getDay();
+      let targetDayIndex = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'].indexOf(dayName.toLowerCase());
+      let daysUntilNext = targetDayIndex - currentDay;
+      if (daysUntilNext < 0) {
+        daysUntilNext += 7;
+      } 
+      const nextDate = new Date(currentDate.getTime() + daysUntilNext * 24 * 60 * 60 * 1000);
+      const formattedDate = nextDate.toISOString().split('T')[0];
+      setScheduleDate(formattedDate) ; 
+    }
+
     const updateTeams = () => {
       refreshTeamsFromDatabase() ; 
       console.log("Teams found: " + teamsInDivision.length) ; 
     }
 
-  // When scheduleDate changes to something valid
+    useEffect(() => {
+      // Put code to run when the date is changed.
+      console.log("Initializing page") ;
+      init() ; 
+    }, []) ; 
+  
+    // When scheduleDate changes to something valid
   useEffect(() => {
     // Put code to run when the date is changed.
     console.log("Made valid date: ", scheduleDate) ;
@@ -491,16 +536,23 @@ export default function MakeSchedule()
     fetchOutTeamsForLeagueAndDate() ;
   }, [scheduleDate]) ; 
 
-  useEffect(() => {
+      useEffect(() => {
         if(selectedDivision) {
           leagueCtx.league.divisionName = selectedDivision.divisionname ; 
-          // console.log("selectedDivision: " + selectedDivision.divisionname)  ;
-          // console.log("league context division name: " + leagueCtx.league?.divisionName) ;
           newMatches.length = 0 ; 
           updateTeams() ;
         } 
-        // console.log("--- End divisionHandler ---") ;
-      }, [selectedDivision, scheduleDate, leagueCtx.league]) ;
+      }, [selectedDivision, scheduleDate]) ;
+
+      useEffect(() => {
+        for(const division of divisions) {
+        console.log("divisionname: " + division.divisionname) ; 
+        if(division.divisionname === 'blue') {
+          setSelectedDivsion(division) ; 
+        }
+      }
+    }, [divisions]) ;
+
 
     useEffect(() => {
         async function findMatchesForLeagueDateAndDivision(leagueId: number, matchDate: string, matchDivision: number) {
@@ -526,19 +578,19 @@ export default function MakeSchedule()
 
       useEffect(() => {
         console.log("changing league setting") ; 
-        findDistinctDivisionsSearch() ;
+        getDivisionsForLeague() ;
             // Add in getting all the match dates currently in schedule for that league.
         async function fetchDates() {
           tempDates = await findDatesForLeague(leagueCtx.league.leagueid as number) ;
-          console.log("about to  setAllDates found in database. allDates.length: " + allDates.length) ;
-          console.log("After  setAllDates found in database. allDates.length: " + allDates.length) ;
-          addNextDate(leagueCtx.league.day != undefined ? leagueCtx.league.day : 'Testday') ; 
-          console.log("after  addNextDate found in database. allDates.length: " + allDates.length) ;
+          // console.log("about to  setAllDates found in database. allDates.length: " + allDates.length) ;
+          // console.log("After  setAllDates found in database. allDates.length: " + allDates.length) ;
+          computeListOfDates(leagueCtx.league.day != undefined ? leagueCtx.league.day : 'Testday') ; 
+          // console.log("after  addNextDate found in database. allDates.length: " + allDates.length) ;
         }
         fetchDates() ; 
-        console.log("after  fetchDates(). allDates.length: " + allDates.length) ;
+        // console.log("after  fetchDates(). allDates.length: " + allDates.length) ;
         fetchAllTeamsForLeague() ;
-        console.log("after  fetchAllTeamsForLeague() found in database. allDates.length: " + allDates.length) ;
+        // console.log("after  fetchAllTeamsForLeague() found in database. allDates.length: " + allDates.length) ;
       }, [leagueCtx.league]) ; 
 
       useEffect(() => {

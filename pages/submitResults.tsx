@@ -4,7 +4,7 @@ import { useContext, useEffect, useState } from "react";
 import { DivisionProps, emptyDivision, TeamProps, ScheduleProps } from "@/lib/types";
 import { LeagueContext } from "@/context/LeagueContext";
 import { findSelectedDivision } from "@/components/admin/scheduling_functions/SchedulingUI" ; 
-import { findDivisionsForLeague, findDatesForLeague, findTeamsForLeague, findMatchesForLeagueAndDate } from "@/components/database/fetches";
+import { fetchDivisionsForLeague, findDatesForLeague, findTeamsForLeague, findMatchesForLeagueAndDate } from "@/components/database/fetches";
 import { submitResultsToDatabase} from "@/components/database/savesOrModifications" ;
 
 // import '@/styles/layouts.css' ; Not allowed to add a global style sheet. I put this into ./pages/_app.tsx but don't know that I'll use it. 
@@ -26,7 +26,7 @@ export default function SubmitResults() {
 	useEffect(() => { // For the new league, fetch the divisions, dates, and teams that are in that league.
 		console.log("--- started useEffect to set divisions after league changes. ") ;
 		async function fetchDivisions() {
-		const divisions: DivisionProps[] = await findDivisionsForLeague(leagueCtx.league?.leagueid as number) ; 
+		const divisions: DivisionProps[] = await fetchDivisionsForLeague(leagueCtx.league?.leagueid as number) ; 
 		setAllDivisions(divisions) ;
 		console.log("allDivisions[0]: ", allDivisions[0]) ;
 		}

@@ -1,7 +1,7 @@
 import { supabase } from "@/lib/supabase";
 import { DivisionProps, TeamProps, ScheduleProps, TeamOutProps } from "@/lib/types";
 
-export async function findDivisionsForLeague (leagueId: number) : Promise<DivisionProps[]> {
+export async function fetchDivisionsForLeague (leagueId: number) : Promise<DivisionProps[]> {
   console.log("--- Started findDivisionsForLeague league: ", leagueId) ;
   try {
     const { data: divisionsData, error } = await supabase

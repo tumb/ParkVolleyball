@@ -5,7 +5,7 @@ import { supabase } from "@/lib/supabase";
 import { PlayerProps, TeamProps, DivisionProps, emptyDivision } from "@/lib/types";
 import { LeagueContext } from "@/context/LeagueContext";
 import { findSelectedDivision } from "@/components/admin/scheduling_functions/SchedulingUI" ; 
-import { findDivisionsForLeague, findTeamsForLeague } from "@/components/database/fetches";
+import { fetchDivisionsForLeague, findTeamsForLeague } from "@/components/database/fetches";
 import { saveTeamsToDatabase } from "@/components/database/savesOrModifications";
 
 // import '@/styles/layouts.css' ; Not allowed to add a global style sheet. I put this into ./pages/_app.tsx but don't know that I'll use it. 
@@ -84,7 +84,7 @@ export default function AddTeam() {
 	useEffect(() => {
 		console.log("--- started useEffect to set divisions after league changes. ") ;
 		async function fetchDivisions() {
-		const divisions: DivisionProps[] = await findDivisionsForLeague(leagueCtx.league?.leagueid as number) ; 
+		const divisions: DivisionProps[] = await fetchDivisionsForLeague(leagueCtx.league?.leagueid as number) ; 
 		setAllDivisions(divisions) ;
 		console.log("allDivisions[0]: ", allDivisions[0]) ;
 		}

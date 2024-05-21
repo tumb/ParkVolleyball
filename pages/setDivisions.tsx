@@ -4,7 +4,7 @@ import { useContext, useEffect, useState } from "react";
 import { DivisionProps, ExtraTeamProps, TeamProps, ScheduleProps, convertToExtraTeam } from "@/lib/types";
 import { LeagueContext } from "@/context/LeagueContext";
 import { findSelectedDivision, findSelectedTeam, findSelectedExtraTeam } from "@/components/admin/scheduling_functions/SchedulingUI" ; 
-import { findDivisionsForLeague, findDatesForLeague, findTeamsForLeague, findMatchesForLeagueAndDate } from "@/components/database/fetches";
+import { fetchDivisionsForLeague, findDatesForLeague, findTeamsForLeague, findMatchesForLeagueAndDate } from "@/components/database/fetches";
 import { submitResultsToDatabase, updateDivisionForATeam} from "@/components/database/savesOrModifications" ;
 
 export default function SetDivisions() {
@@ -183,7 +183,7 @@ export default function SetDivisions() {
 	useEffect(() => { // For the new league, fetch the divisions, dates, and teams that are in that league.
 		console.log("--- started useEffect to set divisions after league changes. ") ;
 		async function fetchDivisions() {
-		const divisions: DivisionProps[] = await findDivisionsForLeague(leagueCtx.league?.leagueid as number) ; 
+		const divisions: DivisionProps[] = await fetchDivisionsForLeague(leagueCtx.league?.leagueid as number) ; 
 		setAllDivisions(divisions) ;
 		console.log("allDivisions[0]: ", allDivisions[0]) ;
 		}
