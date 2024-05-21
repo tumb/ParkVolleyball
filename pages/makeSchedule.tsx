@@ -85,12 +85,10 @@ export default function MakeSchedule()
             // console.log("Adding date:  ", formattedDate) ; 
             if( index == -1) {
               tempDates.push(formattedDate) ; 
-              console.log("Added 2nd date: length ", allDates.length) ; 
+              // console.log("Added 2nd date: length ", tempDates.length) ; 
             }
-            tempDates.sort() ; 
-            // console.log("After sorting dates: length ", allDates.length) ; 
           }
-
+          console.log("After sorting temp dates: length ", tempDates.length) ; 
           tempDates.sort() ; 
           setAllDates(tempDates) ; 
         }
@@ -299,7 +297,7 @@ export default function MakeSchedule()
       }
 
       const getDivisionsForLeague = async () => {
-          console.log("--- Started getDivisionsForLeague league: ", leagueCtx.league?.leagueid) ;
+          // console.log("--- Started getDivisionsForLeague league: ", leagueCtx.league?.leagueid) ;
           const leagueId = leagueCtx.league?.leagueid ; 
           if(leagueId != undefined) {
           try {
@@ -311,7 +309,7 @@ export default function MakeSchedule()
               throw error;
             }
             setDivisions(divisionsData as DivisionProps[] || []); // Ensure that divisionsData is an array
-            console.log("---  getDivisionsForLeague found data:", divisionsData);
+            // console.log("---  getDivisionsForLeague found data:", divisionsData);
           } catch (error: any) {
             console.error("Error fetching divisions: " + error.message);
             setErrorMessage("Error fetching divisions: " + error.message) ; 
@@ -363,7 +361,7 @@ export default function MakeSchedule()
       };
 
       function onPairTwoTeamsButtonClick() {
-          console.log("--- onPairTwoTeamsButtonClick started") ;
+          // console.log("--- onPairTwoTeamsButtonClick started") ;
             // Get the teamsSelect element
             const teamsSelect = document.getElementById("teamsSelect") as HTMLSelectElement;
             const matchesSelect = document.getElementById("matchesSelect") as HTMLSelectElement;
@@ -378,13 +376,13 @@ export default function MakeSchedule()
               const team2Id = parseInt(selectedOptions[1].value, 10);
           
               // Log or perform actions with the selected team IDs
-              console.log("Selected Team 1 ID:", team1Id);
+             // console.log("Selected Team 1 ID:", team1Id);
               const team1: TeamProps | undefined = teamsInDivision.find((team: TeamProps) => team.teamid === team1Id) ; 
               const team2: TeamProps | undefined  = teamsInDivision.find((team: TeamProps) => team.teamid === team2Id) ; 
-              console.log("Selected Team 2 name:" + team2?.teamname + ", matchdate: " + scheduleDate);
+              // console.log("Selected Team 2 name:" + team2?.teamname + ", matchdate: " + scheduleDate);
               if(team1 && team2 && leagueCtx.league.leagueid && selectedDivision && isValidDate(scheduleDate)) {
                 const scheduledMatch: ScheduleProps | undefined = createMatch(tempMatchId, scheduleDate, team1, team2, leagueCtx.league.leagueid, selectedDivision.divisionid, 0, 0 ) ;
-                console.log("Selected Team 1 name: ", team1?.teamname) ;
+                // console.log("Selected Team 1 name: ", team1?.teamname) ;
                 if(scheduledMatch) {
                   newMatches.push(scheduledMatch) ;
                   setNewMatches(newMatches) ; 
@@ -398,7 +396,7 @@ export default function MakeSchedule()
               else {
                 setWarningMessage("Validation failed! Check that you set the league, matchdate, division, and both teams.")
               }
-              console.log("Matches created: ", newMatches.length) ; 
+              // console.log("Matches created: ", newMatches.length) ; 
             } else {
               // Inform the user that they need to select exactly two teams
               console.error("Please select exactly two teams.");
@@ -433,7 +431,7 @@ export default function MakeSchedule()
       }
 
       const refreshTeamsFromDatabase = async () => {
-        console.log("Started findTeamsSearch. league, division is: ", leagueCtx.league.leagueid, selectedDivision.divisionid) ;
+        // console.log("Started findTeamsSearch. league, division is: ", leagueCtx.league.leagueid, selectedDivision.divisionid) ;
         const leagueId = leagueCtx.league.leagueid ; 
         const divisionId = selectedDivision.divisionid ; 
         if(leagueId != undefined && divisionId != undefined) {
@@ -530,8 +528,9 @@ export default function MakeSchedule()
   
     // When scheduleDate changes to something valid
   useEffect(() => {
+    console.log("useEffect: scheduleDate") ; 
     // Put code to run when the date is changed.
-    console.log("Made valid date: ", scheduleDate) ;
+    // console.log("Made valid date: ", scheduleDate) ;
     leagueCtx.league.matchDate = scheduleDate ; 
     fetchOutTeamsForLeagueAndDate() ;
   }, [scheduleDate]) ; 
@@ -542,11 +541,12 @@ export default function MakeSchedule()
           newMatches.length = 0 ; 
           updateTeams() ;
         } 
-      }, [selectedDivision, scheduleDate]) ;
+      }, [selectedDivision]) ;
 
       useEffect(() => {
+        console.log("useEffect: divisions") ; 
         for(const division of divisions) {
-        console.log("divisionname: " + division.divisionname) ; 
+        // console.log("divisionname: " + division.divisionname) ; 
         if(division.divisionname === 'blue') {
           setSelectedDivsion(division) ; 
         }
@@ -555,7 +555,8 @@ export default function MakeSchedule()
 
 
     useEffect(() => {
-        async function findMatchesForLeagueDateAndDivision(leagueId: number, matchDate: string, matchDivision: number) {
+      console.log("useEffect: selectedDivision, scheduleDate, checkSavedMatches") ; 
+      async function findMatchesForLeagueDateAndDivision(leagueId: number, matchDate: string, matchDivision: number) {
           const matches: ScheduleProps[] = await findMatchesForLeagueDateDivision(leagueId, matchDate, matchDivision) ;
           return matches ; 
         }
@@ -574,28 +575,19 @@ export default function MakeSchedule()
           }
         }
       fetchData();        
-    }, [selectedDivision, scheduleDate, checkSavedMatches] ) ;
+    }, [selectedDivision, scheduleDate] ) ;
 
       useEffect(() => {
-        console.log("changing league setting") ; 
+        console.log("useEffect leagueCtx") ; 
         getDivisionsForLeague() ;
             // Add in getting all the match dates currently in schedule for that league.
         async function fetchDates() {
           tempDates = await findDatesForLeague(leagueCtx.league.leagueid as number) ;
-          // console.log("about to  setAllDates found in database. allDates.length: " + allDates.length) ;
-          // console.log("After  setAllDates found in database. allDates.length: " + allDates.length) ;
           computeListOfDates(leagueCtx.league.day != undefined ? leagueCtx.league.day : 'Testday') ; 
-          // console.log("after  addNextDate found in database. allDates.length: " + allDates.length) ;
         }
         fetchDates() ; 
-        // console.log("after  fetchDates(). allDates.length: " + allDates.length) ;
         fetchAllTeamsForLeague() ;
-        // console.log("after  fetchAllTeamsForLeague() found in database. allDates.length: " + allDates.length) ;
-      }, [leagueCtx.league]) ; 
-
-      useEffect(() => {
-        console.log("useEffect ... allDates.length: ", allDates.length) ;
-      }, [allDates] ) ; 
+      }, [leagueCtx.league.leagueid]) ; 
 
         return (
     <div>

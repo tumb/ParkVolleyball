@@ -9,7 +9,7 @@ import { Toaster } from "react-hot-toast";
 export default function App({ Component, pageProps }: AppProps) {
   const [league, setLeague] = useState<LeagueProp>({
     day: "Monday",
-    year: 2023,
+    year: 2024,
   });
 
   return (

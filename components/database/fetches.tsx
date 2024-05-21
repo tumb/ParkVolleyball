@@ -24,7 +24,7 @@ export async function fetchDivisionsForLeague (leagueId: number) : Promise<Divis
     console.log("---  findDivisionsForLeague found data:", divisionsData);
     return divisions ; // Ensure that divisionsData is an array
   } catch (error: any) {
-    console.error("Error fetching divisions:" + error);
+      console.error("Error fetching divisions:" + error.message);
     throw error ;
   }
 };
@@ -101,7 +101,7 @@ export async function findTeamsForLeague(leagueId: number) : Promise<TeamProps[]
 }
 
 export async function findMatchesForLeagueAndDate(leagueId: number, date: string) : Promise<ScheduleProps[]> {
-  console.log("--- Started findMatchesForLeagueAndDate. leagueId:",  leagueId) ;
+  // console.log("--- Started findMatchesForLeagueAndDate. leagueId:",  leagueId) ;
   try { 
     const {data: scheduleData, error} = await supabase
     .from("schedule")
@@ -121,7 +121,7 @@ export async function findMatchesForLeagueAndDate(leagueId: number, date: string
       team1wins: match.team1wins || 0 , 
       team2wins: match.team2wins || 0, 
     })) ;
-    console.log("--- Ending findMatchesForLeagueAndDate. matches.length:",  matches.length) ;
+    // console.log("--- Ending findMatchesForLeagueAndDate. matches.length:",  matches.length) ;
     return matches ; 
   } 
   catch (error: any) {
@@ -132,7 +132,7 @@ export async function findMatchesForLeagueAndDate(leagueId: number, date: string
 }
 
 export async function findMatchesForLeagueDateDivision(leagueId: number, date: string, divisionId: number) : Promise<ScheduleProps[]> {
-  console.log("--- Started findMatchesForLeagueAndDate. leagueId:",  leagueId) ;
+  // console.log("--- Started findMatchesForLeagueAndDate. leagueId:",  leagueId) ;
   try { 
     const {data: scheduleData, error} = await supabase
     .from("schedule")
@@ -154,7 +154,7 @@ export async function findMatchesForLeagueDateDivision(leagueId: number, date: s
       team1wins: match.team1wins || 0 , 
       team2wins: match.team2wins || 0, 
     })) ;
-    console.log("--- Ending findMatchesForLeagueAndDate. matches.length:",  matches.length) ;
+    // console.log("--- Ending findMatchesForLeagueAndDate. matches.length:",  matches.length) ;
     return matches ; 
   } 
   catch (error: any) {
