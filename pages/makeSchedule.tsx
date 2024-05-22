@@ -37,6 +37,7 @@ export default function MakeSchedule()
 
         function computeListOfDates(dayOfWeek : string) {
           const currentDate = new Date(); // apparenty a number of time since ??? in milliseconds
+          currentDate.setHours(0,0, 0, 0) ; 
           // Get the current day of the week (0 for Sunday, 1 for Monday, ..., 6 for Saturday)
           const currentDay = currentDate.getDay();
           // Get the day of the week as an integer (0 for Sunday, 1 for Monday, ..., 6 for Saturday)
