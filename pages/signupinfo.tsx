@@ -13,13 +13,13 @@ export default function signupinfo() {
           </li>
           <li>We start the first week of June weather permitting.</li>
           <li>We end in late August</li>
-          <li>Cost is $20 per person ($40 per team)</li>
           <li>
             Teams play 2 matches per night. Plan to be there from 6 til 8:30ish.
             Unlike other leagues where you play one match and then leave.
           </li>
           <li>Teams are one man and one woman</li>
           <li>Courts are on grass. We cancel when they are wet/slippery</li>
+          <li>Cost is $20 per person ($40 per team)</li>
         </ul>
       </div>
       <div className="text-sm space-y-4">
@@ -32,6 +32,9 @@ export default function signupinfo() {
           <li> Returning teams who want to play must confirm by mid-April. New teams are considered after that. </li>
           <li> To be a team (not just interested) on any list, you must give your name, email address, and your partner's name. </li>
           <li> Until you've named a partner you are not a team.           </li>
+          <li>Currently Thursdays pay goes to Jonathan Hall. Venmo is @JonathanHallAuburn Phone last 4 is 6678</li>
+          <li>Currently Mondays pay goes to Angela Omilian. Venmo is @angelaomilian Last 4 digits are 7497</li>
+
         </ul>
       </div>
 
