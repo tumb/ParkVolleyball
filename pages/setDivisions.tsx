@@ -191,7 +191,6 @@ export default function SetDivisions() {
 
 		// Add in getting all the match dates currently in schedule for that league.
 		async function fetchDates() {
-			console.log("Looking for dates.") ; 
 			const allDates: string[] = await findDatesForLeague(leagueCtx.league.leagueid as number) ;
 			setAllDates(allDates) ; 
 		}
@@ -199,7 +198,7 @@ export default function SetDivisions() {
 
 		// get all the teams for that league
 		async function fetchTeams() {
-			console.log("Looking for teams.") ; 
+			// console.log("Looking for teams.") ; 
 			const allTeams: TeamProps[] = await findTeamsForLeague(leagueCtx.league.leagueid as number) ; 
 			let allExtraTeams: ExtraTeamProps[] = [] ; // create empty array
 			for(const team of allTeams) {

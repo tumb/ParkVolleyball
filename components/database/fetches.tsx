@@ -16,7 +16,12 @@ export async function fetchAllYears () : Promise<number[]> {
     return[] ; 
    }
    // Extract the years and remove duplicates
-   const yearsSet = new Set<number>(yearsData.map((item: { year: number }) => item.year));
+      // Filter out null values and extract the years
+      const yearsSet = new Set<number>(
+        yearsData
+          .filter((item: { year: number | null }) => item.year !== null)
+          .map((item: { year: number | null }) => item.year as number)
+      );
    const years = Array.from(yearsSet).sort((a, b) => a - b); // Ensure the years are sorted
    return years ; 
   } catch (error: any) {
