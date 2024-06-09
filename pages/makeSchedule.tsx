@@ -5,7 +5,7 @@ import { LeagueContext } from "@/context/LeagueContext";
 import SchedulingSetup from "@/components/UI/SchedulingSetup";
 import { supabase } from "@/lib/supabase";
 import {DivisionProps, ScheduleProps, TeamProps, emptyTeam } from "@/lib/types" ;
-import {findSelectedDivision, findSelectedTeam, isValidDate, createMatch} from "@/components/admin/scheduling_functions/SchedulingUI" ;
+import {findSelectedDivision, findSelectedTeam, isValidDate, createMatch, computeListOfDates} from "@/components/admin/scheduling_functions/SchedulingUI" ;
 import { saveToSupabase } from "@/components/database/savesOrModifications";
 import { findMatchesForLeagueDateDivision, findDatesForLeague, fetchMatchesForTeam, findTeamsForLeague, findOutTeamsForLeagueAndDate } from "@/components/database/fetches";
 import { deleteFromSupabase } from "@/components/database/deletes";
@@ -35,61 +35,8 @@ export default function MakeSchedule()
       let tempDates : string[] = [] ; 
 
 
-        function computeListOfDates(dayOfWeek : string) {
-          const currentDate = new Date(); // apparenty a number of time since ??? in milliseconds
-          currentDate.setHours(0,0, 0, 0) ; 
-          // Get the current day of the week (0 for Sunday, 1 for Monday, ..., 6 for Saturday)
-          const currentDay = currentDate.getDay();
-          // Get the day of the week as an integer (0 for Sunday, 1 for Monday, ..., 6 for Saturday)
-          let targetDay = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'].indexOf(dayOfWeek.toLowerCase());
-          if(targetDay == -1) {
-            targetDay = 3 ; // Using wednesday for testday or a missing day.
-          }
-          // Calculate the number of days until the next occurrence of the target day
-          let daysUntilNext = targetDay - currentDay;
-          // console.log("daysUntilNext: " + daysUntilNext) ; 
-          if (daysUntilNext < 0) {
-              // If the target day is earlier in the week than the current day, add 7 days to find the next occurrence
-            daysUntilNext += 7;
-          }
-          // Calculate the date of the next occurrence of the target day
-          const nextDate = new Date(currentDate.getTime() + daysUntilNext * 24 * 60 * 60 * 1000);
-          // Format the date as YYYY-MM-DD
-          const formattedDate = nextDate.toISOString().split('T')[0];
-          const index = allDates.indexOf(formattedDate) ; 
-          // console.log("Adding first date: length ", allDates.length) ; 
-          if( index == -1) { // If it's not already in the list then add it.
-            tempDates.push(formattedDate) ; 
-            // console.log("Added first date: length ", tempDates.length) ; 
-          }
-
-          // Add still one more day if today is the day of week for the league
-          if(daysUntilNext == 7) {
-            daysUntilNext += 7;
-            const nextDate = new Date(currentDate.getTime() + daysUntilNext * 24 * 60 * 60 * 1000);
-            // Format the date as YYYY-MM-DD
-            const formattedDate = nextDate.toISOString().split('T')[0];
-            const index = allDates.indexOf(formattedDate) ; 
-            // console.log("Adding 2nd date: length ", allDates.length) ; 
-            if( index == -1) {
-              tempDates.push(formattedDate) ; 
-            }
-            // console.log("After sorting dates: length ", allDates.length) ; 
-          }
-
-          while(daysUntilNext < 21) {
-            daysUntilNext += 7;
-            const nextDate = new Date(currentDate.getTime() + daysUntilNext * 24 * 60 * 60 * 1000);
-            // Format the date as YYYY-MM-DD
-            const formattedDate = nextDate.toISOString().split('T')[0];
-            const index = allDates.indexOf(formattedDate) ; 
-            // console.log("Adding date:  ", formattedDate) ; 
-            if( index == -1) {
-              tempDates.push(formattedDate) ; 
-              // console.log("Added 2nd date: length ", tempDates.length) ; 
-            }
-          }
-          console.log("After sorting temp dates: length ", tempDates.length) ; 
+        function createListOfDates(dayOfWeek : string) {
+          let tempDates = computeListOfDates(dayOfWeek, 3, 8) ; 
           tempDates.sort() ; 
           setAllDates(tempDates) ; 
         }
@@ -584,7 +531,7 @@ export default function MakeSchedule()
             // Add in getting all the match dates currently in schedule for that league.
         async function fetchDates() {
           tempDates = await findDatesForLeague(leagueCtx.league.leagueid as number) ;
-          computeListOfDates(leagueCtx.league.day != undefined ? leagueCtx.league.day : 'Testday') ; 
+          createListOfDates(leagueCtx.league.day != undefined ? leagueCtx.league.day : 'Testday') ; 
         }
         fetchDates() ; 
         fetchAllTeamsForLeague() ;

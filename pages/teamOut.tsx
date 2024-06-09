@@ -4,7 +4,7 @@ import { useContext, useEffect, useState, useCallback } from "react";
 import { LeagueContext } from "@/context/LeagueContext";
 import { supabase } from "@/lib/supabase";
 import { TeamOutProps, TeamProps} from "@/lib/types" ;
-import { findSelectedTeam, isValidDate } from "@/components/admin/scheduling_functions/SchedulingUI" ;
+import { findSelectedTeam, isValidDate, computeListOfDates } from "@/components/admin/scheduling_functions/SchedulingUI" ;
 import { saveOutTeamsToDatabase, saveToSupabase } from "@/components/database/savesOrModifications";
 import { findDatesForLeague, findOutTeamsForLeagueAndDate, findTeamsForLeague } from "@/components/database/fetches";
 import { deleteTeamOutFromSupabase } from "@/components/database/deletes";
@@ -27,62 +27,10 @@ export default function TeamOut()
 
 
         function addNextDate(dayOfWeek : string) {
-          const currentDate = new Date(); // apparenty a number of time since ??? in milliseconds
-          // Get the current day of the week (0 for Sunday, 1 for Monday, ..., 6 for Saturday)
-          const currentDay = currentDate.getDay();
-          // Get the day of the week as an integer (0 for Sunday, 1 for Monday, ..., 6 for Saturday)
-          let targetDay = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'].indexOf(dayOfWeek.toLowerCase());
-          if(targetDay == -1) {
-            targetDay = 3 ; // Using wednesday for testday or a missing day.
-          }
-          // Calculate the number of days until the next occurrence of the target day
-          let daysUntilNext = targetDay - currentDay;
-          // console.log("daysUntilNext: " + daysUntilNext) ; 
-          if (daysUntilNext <= 0) {
-              // If the target day is earlier in the week than the current day, add 7 days to find the next occurrence
-            daysUntilNext += 7;
-          }
-          // Calculate the date of the next occurrence of the target day
-          const nextDate = new Date(currentDate.getTime() + daysUntilNext * 24 * 60 * 60 * 1000);
-          // Format the date as YYYY-MM-DD
-          const formattedDate = nextDate.toISOString().split('T')[0];
-          // console.log("Adding first date: length ", allDates.length) ; 
-          if( ! dateExists(formattedDate)) { // If it's not already in the list then add it.
-            tempDates.push(formattedDate) ; 
-            // console.log("Added first date: length ", tempDates.length) ; 
-          }
 
-          // Add still one more day if today is the day of week for the league
-          if(daysUntilNext == 7) {
-            daysUntilNext += 7;
-            const nextDate = new Date(currentDate.getTime() + daysUntilNext * 24 * 60 * 60 * 1000);
-            // Format the date as YYYY-MM-DD
-            const formattedDate = nextDate.toISOString().split('T')[0];
-            // console.log("Adding 2nd date: length ", allDates.length) ; 
-            if( ! dateExists(formattedDate)) {
-              tempDates.push(formattedDate) ; 
-              console.log("Added another date: length ", tempDates.length) ; 
-            }
-            // console.log("After sorting dates: length ", allDates.length) ; 
-          }
-
-          while(daysUntilNext < 90) {
-            daysUntilNext += 7;
-            const nextDate = new Date(currentDate.getTime() + daysUntilNext * 24 * 60 * 60 * 1000);
-            // Format the date as YYYY-MM-DD
-            const formattedDate = nextDate.toISOString().split('T')[0];
-            // console.log("Adding date:  ", formattedDate) ; 
-            if( ! dateExists(formattedDate)) {
-              tempDates.push(formattedDate) ; 
-              console.log("In loop of future dates, added date:  ", formattedDate) ; 
-            }
-            tempDates.sort() ; 
-            // console.log("After sorting dates: length ", allDates.length) ; 
-          }
-
+          let tempDates = computeListOfDates(dayOfWeek, 0, 10) ; 
           tempDates.sort() ; 
           setAllDates(tempDates) ; 
-          console.log("created date: " + formattedDate + " and now have allDates.length: " + allDates.length + " and tempDates.length: " + tempDates.length) ; 
         }
 
         function buildTeamOutItem(team: TeamProps) {
