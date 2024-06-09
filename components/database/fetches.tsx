@@ -1,6 +1,30 @@
 import { supabase } from "@/lib/supabase";
 import { DivisionProps, TeamProps, ScheduleProps, TeamOutProps } from "@/lib/types";
 
+export async function fetchAllYears () : Promise<number[]> {
+  try {
+    const { data: yearsData, error } = await supabase
+      .from("league")
+      .select("year")
+      .order("year");
+
+    if (error) {
+      throw error;
+    }
+
+   if( !yearsData)  {
+    return[] ; 
+   }
+   // Extract the years and remove duplicates
+   const yearsSet = new Set<number>(yearsData.map((item: { year: number }) => item.year));
+   const years = Array.from(yearsSet).sort((a, b) => a - b); // Ensure the years are sorted
+   return years ; 
+  } catch (error: any) {
+      console.error("Error fetching divisions:" + error.message);
+    throw error ;
+  }
+};
+
 export async function fetchDivisionsForLeague (leagueId: number) : Promise<DivisionProps[]> {
   console.log("--- Started findDivisionsForLeague league: ", leagueId) ;
   try {

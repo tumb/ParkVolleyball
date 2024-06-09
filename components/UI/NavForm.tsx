@@ -2,6 +2,7 @@ import { LeagueContext } from "@/context/LeagueContext";
 import { TeamRecordContext } from "@/context/TeamRecordContext";
 import { supabase } from "@/lib/supabase";
 import { useContext, useEffect, useState } from "react";
+import { fetchAllYears } from "@/components/database/fetches" ; 
 import { toast } from "react-hot-toast";
 
 export default function NavForm() {
@@ -10,6 +11,15 @@ export default function NavForm() {
   const [day, setDay] = useState(leagueCtx.league?.day);
   const [year, setYear] = useState(leagueCtx.league?.year);
   const [allYears, setAllYears] = useState<number[]>([]) ; 
+
+  async function getAllYears() {
+    const years = await fetchAllYears() ; 
+    setAllYears(years) ; 
+    if (years.length > 0) {
+      const maxYear = Math.max(...years);
+      setYear(maxYear);
+    }
+  }
 
   const handleLeagueSearch = async () => {
   //  const notification = toast.loading("Searching for a league 22...");
@@ -36,6 +46,11 @@ export default function NavForm() {
     //  toast.error("No league found! Please try again", { id: notification });
     }
   };
+
+
+  useEffect(() => {
+    getAllYears() ;
+  }, [])
 
   useEffect(() => {
     handleLeagueSearch();
@@ -76,10 +91,9 @@ export default function NavForm() {
                 value={year!}
                 onChange={(e) => setYear(parseInt(e.target.value))}
               >
-                <option value="2021">2021</option>
-                <option value="2022">2022</option>
-                <option value="2023">2023</option>
-                <option value="2024">2024</option>
+               {allYears.map((yearOption) => (
+                <option key={yearOption} value={yearOption}>{yearOption}</option>
+               ))}
               </select>
             </div>
           </div>

@@ -21,7 +21,7 @@ export default function ScheduleTable({
   schedules: ScheduleData[] | null | undefined;
 }) {
   const leagueCtx = useContext(LeagueContext);
-  console.log("👉️ ~ file: ScheduleTable.tsx:35 ~ schedules:\n", schedules);
+  // console.log("👉️ ~ file: ScheduleTable.tsx:35 ~ schedules:\n", schedules);
 
   if (schedules === null) {
     return (
