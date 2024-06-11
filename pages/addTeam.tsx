@@ -6,11 +6,12 @@ import { PlayerProps, TeamProps, DivisionProps, emptyDivision } from "@/lib/type
 import { LeagueContext } from "@/context/LeagueContext";
 import { findSelectedDivision } from "@/components/admin/scheduling_functions/SchedulingUI" ; 
 import { fetchDivisionsForLeague, findTeamsForLeague } from "@/components/database/fetches";
+import { deleteTeamFromSupabase } from "@/components/database/deletes";
 import { saveTeamsToDatabase } from "@/components/database/savesOrModifications";
 
 // import '@/styles/layouts.css' ; Not allowed to add a global style sheet. I put this into ./pages/_app.tsx but don't know that I'll use it. 
 
-let time = '11:43';
+
 
 export default function AddTeam() {
 	const [warningMessage, setWarningMessage] = useState("");
@@ -64,32 +65,6 @@ export default function AddTeam() {
 		console.log("team is valid: ", isValid) ;
 		return isValid ; 
 	}
-
-	// Get a list of all players when the page first loads.
-	useEffect(() => {
-		if (men == null || men.length == 0 || women == null || women.length == 0) {
-			findPlayersByGender("M");
-			findPlayersByGender("F");
-		}
-	}, [men, women]);
-
-	useEffect(() => {
-		async function fetchExistingTeams() {
-			const teams: TeamProps[] = await findTeamsForLeague(leagueCtx.league.leagueid || 0) ;
-			setTeamsBuilt(teams) ;
-			}
-			fetchExistingTeams() ;
-	}, [leagueCtx]) 
-
-	useEffect(() => {
-		console.log("--- started useEffect to set divisions after league changes. ") ;
-		async function fetchDivisions() {
-		const divisions: DivisionProps[] = await fetchDivisionsForLeague(leagueCtx.league?.leagueid as number) ; 
-		setAllDivisions(divisions) ;
-		console.log("allDivisions[0]: ", allDivisions[0]) ;
-		}
-		fetchDivisions()
-	},[leagueCtx]) ; // eslint-disable-line react-hooks/exhaustive-deps
 
 	function manSelected(event: React.ChangeEvent<HTMLSelectElement>) {
 		const malePlayerId = parseInt(event.target.value, 10);
@@ -156,6 +131,25 @@ export default function AddTeam() {
 	    console.log("--- onMakeTeamButtonClick ended") ;
 	}
 
+	function onDeleteClick() {
+		const teamsSelect = document.getElementById("teamsSelect") as HTMLSelectElement;
+		const selectedIndex = teamsSelect.selectedIndex;
+		const removeValue = teamsSelect.options[selectedIndex].value;
+		if(removeValue) {
+			const deleteTeamId = parseInt(removeValue, 10);
+			deleteTeam(deleteTeamId) ;
+			// Filter out the team to remove
+  			const updatedTeams = teamsBuilt.filter((team: TeamProps) => team.teamid !== deleteTeamId);
+
+			// Update the state with the new array of teams
+  			setTeamsBuilt(updatedTeams);
+		}
+	}
+
+	async function deleteTeam(teamid: number) {
+		await deleteTeamFromSupabase(teamid) ;
+	}
+
 	function onSaveClick() {
 		console.log("--- onSaveClick started") ; 
 		const validTeams: TeamProps[] = [] ; 
@@ -187,13 +181,13 @@ export default function AddTeam() {
 		const removeValue = teamsSelect.options[selectedIndex].value;
 		console.log("removeValue: ", removeValue) ;
 		if(removeValue) {
-		const removeTeamId = parseInt(removeValue, 10);
-		console.log("removeTeamId: ", removeTeamId)
-		// Filter out the team to remove
-  		const updatedTeams = teamsBuilt.filter((team: TeamProps) => team.teamid !== removeTeamId);
+			const removeTeamId = parseInt(removeValue, 10);
+			console.log("removeTeamId: ", removeTeamId)
+			// Filter out the team to remove
+  			const updatedTeams = teamsBuilt.filter((team: TeamProps) => team.teamid !== removeTeamId);
 
-		// Update the state with the new array of teams
-  		setTeamsBuilt(updatedTeams);
+			// Update the state with the new array of teams
+  			setTeamsBuilt(updatedTeams);
 		}
     	console.log("--- ended removeTeamButtonClick") ; 
 		}
@@ -201,6 +195,33 @@ export default function AddTeam() {
 	useEffect(() => {
 		// teamsSelect
 	}, [teamsBuilt]);
+
+	// Get a list of all players when the page first loads.
+	useEffect(() => {
+		if (men == null || men.length == 0 || women == null || women.length == 0) {
+			findPlayersByGender("M");
+			findPlayersByGender("F");
+		}
+	}, [men, women]);
+
+	useEffect(() => {
+		async function fetchExistingTeams() {
+			const teams: TeamProps[] = await findTeamsForLeague(leagueCtx.league.leagueid || 0) ;
+			setTeamsBuilt(teams) ;
+			}
+			fetchExistingTeams() ;
+	}, [leagueCtx]) 
+
+	useEffect(() => {
+		console.log("--- started useEffect to set divisions after league changes. ") ;
+		async function fetchDivisions() {
+		const divisions: DivisionProps[] = await fetchDivisionsForLeague(leagueCtx.league?.leagueid as number) ; 
+		setAllDivisions(divisions) ;
+		console.log("allDivisions[0]: ", allDivisions[0]) ;
+		}
+		fetchDivisions()
+	},[leagueCtx]) ; // eslint-disable-line react-hooks/exhaustive-deps
+
 
 	return (
 		<div>
@@ -282,7 +303,6 @@ export default function AddTeam() {
 	  `}
 			</style>
 			<div id="debuggingInfoDiv">
-				Add a Team debugging. Coded time: {time}
 				<br/>
 				League day: {leagueCtx.league?.day}, leagueid: {leagueCtx.league.leagueid}
 				<br/>
@@ -346,6 +366,11 @@ export default function AddTeam() {
 							<button className="m-4 p-4 bg-blue-200 font-bold rounded-lg" onClick={onSaveClick} >
 								Save
 							</button>
+							<div>
+							<button className="m-4 p-4 bg-purple-200 font-bold rounded-lg" onClick={onDeleteClick} >
+								Delete
+							</button>
+							</div>
 							<div>
 								<br />
 								<Link

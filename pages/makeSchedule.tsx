@@ -160,28 +160,29 @@ export default function MakeSchedule()
         }
 
         function findOpponents(teamid : number) {
-          console.log("teamid: " + teamid) ;
+          console.log("findOpponents:teamid: " + teamid) ;
           let opponents : TeamProps[] = [] ; 
-          const allMatchs = newMatches.concat(savedMatches) ;
-          console.log("allMatchs.length: " + allMatchs.length) ;
-          for(const match of allMatchs) {
+          const allMatches = newMatches.concat(savedMatches) ;
+          console.log("allMatches.length: " + allMatches.length) ;
+          for(const match of allMatches) {
             if(match.team1 == teamid) {
               console.log("match.team2: " + match.team2)
               const opponent : TeamProps | undefined = teamsInDivision.find((team) => match.team2 == team.teamid) ; 
-              console.log("opponent: " + opponent) ;
+              console.log("opponent: " + opponent?.teamname) ;
               if(opponent != undefined) {
                 console.log("adding opponent " + opponent.teamname +  " to opponents[]")
                 opponents = opponents.concat(opponent) ;
               }
-              else if(match.team2 == teamid) {
-                const opponent : TeamProps | undefined = teamsInDivision.find((team) => match.team1 == team.teamid) ; 
-                console.log("opponent: " + opponent) ;
-                if(opponent != undefined) {
-                  opponents = opponents.concat(opponent) ;
-                }
+            }
+            else if(match.team2 == teamid) {
+              const opponent : TeamProps | undefined = teamsInDivision.find((team) => match.team1 == team.teamid) ; 
+              console.log("opponent: " + opponent) ;
+              if(opponent != undefined) {
+                opponents = opponents.concat(opponent) ;
               }
             }
           }
+          console.log("findOpponents is returning opponents.length: " + opponents.length) ;
           return opponents ; 
         }
 
@@ -414,6 +415,7 @@ export default function MakeSchedule()
 
       /** For each team see if they've already played either of their two opponents within the last two weeks of play.  */ 
         async function reportRecentDuplicates() {
+          console.log("starting reportRecentDuplicates") ;
           async function fetchMatchHistory(team : TeamProps)  {
              const teamMatches = await fetchMatchesForTeam(team) ;        
              return teamMatches ; 
@@ -445,6 +447,7 @@ export default function MakeSchedule()
               }
             }
           }
+          console.log("ending reportRecentDuplicates") ;
         return status ; 
       }
     }

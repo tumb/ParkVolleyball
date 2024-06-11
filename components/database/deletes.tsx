@@ -31,6 +31,21 @@ export async function deletePlayerFromSupabase(player: PlayerProps)  {
     }
 }
 
+export async function deleteTeamFromSupabase(teamid: number)  {
+  try {
+    const { data, error } = await supabase
+      .from("team")
+      .delete()
+      .eq("teamid", teamid) ;
+      if(error) {
+        throw error ; 
+      }
+      } 
+    catch (error: any) {
+      console.log("Failed to delete match") ;
+    }
+}
+
 export async function deleteTeamOutFromSupabase(team: TeamProps, date: string)  {
   try {
     const { data, error } = await supabase
