@@ -18,18 +18,15 @@ export default function ScheduleWrapper() {
     const { data: schedules, error } = await supabase
       .from("schedule")
       .select(
-        `*, scheduleid, matchdate, team1: team1(*), team2: team2(*), divisionid: division("divisionname")`
+        `*, scheduleid, matchdate, leagueid, team1: team1(*), team2: team2(*), division: division("divisionid, divisionname")`
       )
       .eq("leagueid", leagueCtx.league?.leagueid)
       .eq("matchdate", leagueCtx.league.matchDate)
-      .order("matchdate", { ascending: false })
-      .order("divisionid");
+      .order("matchdate", { ascending: false }) 
+      ;
 
-    if (schedules?.length) {
-      console.log(
-        "🚀 ~ file: ScheduleWrapper.tsx:27 ~ getScheduleWithMatchDate ~ schedules:\n",
-        schedules
-      );
+    if (schedules && schedules?.length) {
+      console.log("file: ScheduleWrapper.tsx: getScheduleWithMatchDate schedules:\n", schedules );
       setLoading(false);
       setSchedules(schedules as ScheduleData[]);
     } else if (schedules?.length === 0) {
@@ -48,13 +45,13 @@ export default function ScheduleWrapper() {
     const { data: schedules, error } = await supabase
       .from("schedule")
       .select(
-        `*, scheduleid, matchdate, team1: team1(*), team2: team2(*), divisionid: division("divisionname")`
+        `*, scheduleid, matchdate, team1: team1(*), team2: team2(*), division: division!inner("divisionname")`
       )
       .eq("leagueid", leagueCtx.league?.leagueid)
-      .order("matchdate")
-      .order("divisionid");
+      .order("matchdate");
 
-    if (schedules?.length) {
+    if (schedules && schedules?.length) {
+      console.log("getAllSchedule: ", schedules) ;
       setLoading(false);
       //Set only the schedules with the first matchDate. I don't need the rest.
 
@@ -62,13 +59,29 @@ export default function ScheduleWrapper() {
       const filteredSchedules = schedules.filter(
         (schedule) => schedule.matchdate === firstMatchDate
       );
+      filteredSchedules.sort((a, b) => {
+        if(a.division && b.division) {
+          const divisionA = a.division as {divisionname: string | null} ; 
+          const divisionB = b.division as {divisionname: string | null} ; 
+          if (divisionA.divisionname && divisionB.divisionname) {
+            return divisionA.divisionname.localeCompare(divisionB.divisionname);
+          } else if (!divisionA.divisionname && divisionB.divisionname) {
+            return -1; // Consider null as less than any string
+          } else if (divisionA.divisionname && !divisionB.divisionname) {
+            return 1; // Consider any string greater than null
+          } else {
+            return 0; // Both are null, consider them equal
+          }
+        } else {
+          return 0; // Either a.division or b.division is null
+        }
+      });
       setSchedules(filteredSchedules as ScheduleData[]);
     } else if (schedules?.length === 0) {
       setLoading(false);
       setSchedules(null);
     } else {
-      console.error(error);
-    }
+      console.error(error);    }
   }
 
   useEffect(() => {

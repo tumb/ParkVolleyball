@@ -9,9 +9,9 @@ export type ScheduleFormData = {
 };
 
 export type ScheduleData = {
-  divisionid: {
+  division: {
     divisionname: string | null;
-  };
+  } | null;
   leagueid: number | null;
   matchdate: string | null;
   scheduleid: number;

@@ -4,6 +4,7 @@ import Link from "next/link";
 import React, { useContext } from "react";
 
 const textColor = (divisionName: string) => {
+  console.log("divisionName: ", divisionName) ; 
   if (divisionName === "Red" || divisionName === "red") {
     return "text-red-600";
   } else if (divisionName === "Green" || divisionName === "green") {
@@ -90,7 +91,7 @@ export default function ScheduleTable({
                   day: "numeric",
                 })}
               </td>
-              <td className={`whitespace-nowrap px-4 py-2 ${textColor(schedule?.divisionid?.divisionname!)} hover:text-blue-500 hover:underline `}>
+              <td className={`whitespace-nowrap px-4 py-2 ${textColor(schedule?.division?.divisionname!)} hover:text-blue-500 hover:underline `}>
                 <Link
                   href={{
                     pathname: `/teams/${schedule?.team1?.teamname}`,
@@ -103,9 +104,9 @@ export default function ScheduleTable({
               <td className="whitespace-nowrap py-2 ">
                 {schedule?.team1wins}
               </td>
-              <td className={`whitespace-nowrap px-4 py-2 ${textColor(schedule?.divisionid?.divisionname!)}`}>vs
+              <td className={`whitespace-nowrap px-4 py-2 ${textColor(schedule?.division?.divisionname!)}`}>vs
 			  </td>
-              <td className={`whitespace-nowrap px-4 py-2 ${textColor(schedule?.divisionid?.divisionname!)} hover:text-blue-500 hover:underline`}>
+              <td className={`whitespace-nowrap px-4 py-2 ${textColor(schedule?.division?.divisionname!)} hover:text-blue-500 hover:underline`}>
                 <Link
                   href={{
                     pathname: `/teams/${schedule?.team2?.teamname}`,

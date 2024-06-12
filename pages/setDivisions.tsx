@@ -168,12 +168,12 @@ export default function SetDivisions() {
 			extraTeam.losses = addUpLosses(extraTeam) ; 
 			allTeams.sort((a,b) => {
 				if(a.divisionid != b.divisionid) {
-					return b.divisionid - a.divisionid ; 
+					return getDivisionValue(b) - getDivisionValue(a) ; 
 				}
 				else {
 					return b.wins - a.wins; 
 				}
-				(b.divisionid - a.divisionid)
+				(getDivisionValue(b) - getDivisionValue(a))
 			}) ; 
 			// console.log("team: ", extraTeam.teamname, " wins: ", extraTeam.wins) ; 
 		}
@@ -205,7 +205,7 @@ export default function SetDivisions() {
 				let extraTeam = convertToExtraTeam(team) ; 
 				allExtraTeams.push(extraTeam) ; 
 			}
-			allExtraTeams.sort((a,b) => (b.divisionid - a.divisionid)) ; // Will need a more accurate sort based on matches.
+			allExtraTeams.sort((a,b) => (getDivisionValue(b) - getDivisionValue(a))) ; // Will need a more accurate sort based on matches.
 			setAllTeams(allExtraTeams) ; 
 		}
 		fetchTeams() ; 
@@ -213,6 +213,10 @@ export default function SetDivisions() {
 		setSuccessMessage("Found " + allDivisions.length + " divisions, " + allDates.length + " dates, and " + allTeams.length + " matches for this league") ; 
 	},[leagueCtx]) ;
 
+	function getDivisionValue(team: TeamProps) : number {
+		const division = allDivisions.find(division =>  division.divisionid === team.divisionid ) ; 
+		return division != null ? division?.divisionvalue : 0 ; 
+	}
 
 	return (
 		<div>
