@@ -42,7 +42,8 @@ export default function MakeSchedule()
         }
 
         function areSameTeams(matchA: ScheduleProps, matchB: ScheduleProps) {
-          let areTheSame = matchA.team1 == matchB.team1 && matchA.team2 == matchB.team2 ; 
+          let areTheSame = matchA.scheduleid != matchB.scheduleid ; 
+          areTheSame = areTheSame && (matchA.team1 == matchB.team1 && matchA.team2 == matchB.team2) ; 
           areTheSame = areTheSame || matchA.team1 == matchB.team2 && matchA.team2 == matchB.team1 ;
           return areTheSame ; 
         }
@@ -91,6 +92,21 @@ export default function MakeSchedule()
           let status = ""  ;
           let skipId = 0 ; 
           for(const match of newMatches) {
+            for(const savedMatch of savedMatches) {
+              if(areSameTeams(match, savedMatch)) {
+                status += "\n Duplicate found for " + generateMatchName(match.scheduleid) + " among saved matches." ;
+              }
+            }
+            for(const matchB of newMatches) {
+              if(match.scheduleid != matchB.scheduleid && match.scheduleid != skipId) {
+                if(areSameTeams(match, matchB)) {
+                  status += "\n Duplicate found for " + generateMatchName(match.scheduleid) + " among new matches." ;
+                  skipId = matchB.scheduleid ; 
+                }
+              }
+            }
+          }
+          for(const match of savedMatches) {
             for(const savedMatch of savedMatches) {
               if(areSameTeams(match, savedMatch)) {
                 status += "\n Duplicate found for " + generateMatchName(match.scheduleid) + " among saved matches." ;
