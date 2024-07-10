@@ -129,6 +129,36 @@ export async function findTeamsForLeague(leagueId: number) : Promise<TeamProps[]
   }
 }
 
+export async function findMatchesForLeague(leagueId: number) : Promise<ScheduleProps[]> {
+  // console.log("--- Started findMatchesForLeagueAndDate. leagueId:",  leagueId) ;
+  try { 
+    const {data: scheduleData, error} = await supabase
+    .from("schedule")
+    .select() 
+    .eq("leagueid", leagueId)     ;
+    if(error) {
+      throw error ; 
+    }
+    const matches: ScheduleProps[] = scheduleData.map((match) => ({
+      scheduleid: match.scheduleid, 
+      matchdate: match.matchdate || "",
+      team1: match.team1 || -1,
+      team2: match.team2 || -1, 
+      leagueid: match.leagueid || -1 , 
+      divisionid: match.divisionid || -1, 
+      team1wins: match.team1wins || 0 , 
+      team2wins: match.team2wins || 0, 
+    })) ;
+    // console.log("--- Ending findMatchesForLeagueAndDate. matches.length:",  matches.length) ;
+    return matches ; 
+  } 
+  catch (error: any) {
+    console.log("error in findMatchesForLeague", error.message, " leagueId: ", leagueId) ;
+    console.log("error.stack: ", error.stack) ; 
+    throw error ; 
+  }
+}
+
 export async function findMatchesForLeagueAndDate(leagueId: number, date: string) : Promise<ScheduleProps[]> {
   // console.log("--- Started findMatchesForLeagueAndDate. leagueId:",  leagueId) ;
   try { 

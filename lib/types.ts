@@ -80,6 +80,15 @@ export type ExtraTeamProps = TeamProps & {
   isSaved: boolean ; // Flag for coloring the screen 
 }
 
+export type TeamStandingsProps = {
+  teamId: number ; 
+  teamName: string ; 
+  redWins: number ; 
+  greenWins: number ; 
+  blueWins: number ; 
+  totalPoints: number ; 
+}
+
 export const emptyTeam: TeamProps = {
   teamid: -1 ,
   teamname: "no team" ,

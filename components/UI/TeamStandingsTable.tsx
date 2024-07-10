@@ -1,13 +1,13 @@
 import React, { useContext } from "react";
 import standings from "../../pages/standings";
 import { LeagueContext } from "@/context/LeagueContext";
-import { StandingProp } from "@/lib/types";
+import { TeamStandingsProps } from "@/lib/types";
 
-export default function StandingsTable({  standings,}: {  standings: StandingProp[] | null;}) 
+export default function TeamStandingsTable({  teamStandings}: {  teamStandings: TeamStandingsProps[] | null;}) 
   {
   const leagueCtx = useContext(LeagueContext);
 
-  if (standings === null) {
+  if (teamStandings === null) {
     return (
       <div className="mx-auto max-w-screen-xl px-4 py-16 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-lg">
@@ -35,17 +35,35 @@ export default function StandingsTable({  standings,}: {  standings: StandingPro
             <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
               Total Points
             </th>
+            <th className="whitespace-nowrap px-4 py-2 font-medium text-red-900">
+              Red Wins
+            </th>
+            <th className="whitespace-nowrap px-4 py-2 font-medium text-green-900">
+              Green Wins
+            </th>
+            <th className="whitespace-nowrap px-4 py-2 font-medium text-blue-900">
+              Blue Wins
+            </th>
           </tr>
         </thead>
 
         <tbody className="divide-y divide-gray-200 text-center">
-          {standings?.map((standing: StandingProp, index: number) => (
+          {teamStandings?.map((teamStanding: TeamStandingsProps, index: number) => (
             <tr className="odd:bg-gray-50" key={index}>
               <td className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                {standing.teamname}
+                {teamStanding.teamName}
               </td>
               <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                {standing.total}
+                {teamStanding.totalPoints}
+              </td>
+              <td className="whitespace-nowrap px-4 py-2 text-red-700">
+                {teamStanding.redWins}
+              </td>
+              <td className="whitespace-nowrap px-4 py-2 text-green-700">
+                {teamStanding.greenWins}
+              </td>
+              <td className="whitespace-nowrap px-4 py-2 text-blue-700">
+                {teamStanding.blueWins}
               </td>
             </tr>
           ))}

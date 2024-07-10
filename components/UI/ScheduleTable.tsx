@@ -4,7 +4,7 @@ import Link from "next/link";
 import React, { useContext } from "react";
 
 const textColor = (divisionName: string) => {
-  console.log("divisionName: ", divisionName) ; 
+//   console.log("divisionName: ", divisionName) ; 
   if (divisionName === "Red" || divisionName === "red") {
     return "text-red-600";
   } else if (divisionName === "Green" || divisionName === "green") {
