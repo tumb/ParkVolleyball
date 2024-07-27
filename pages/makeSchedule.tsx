@@ -66,14 +66,14 @@ export default function MakeSchedule()
           let allMatches = newMatches.concat(savedMatches) ; 
           let teamIndex = 0 ;
           let circleFound = false ; 
-          console.log("allTeams.length: " + allTeams.length + ", allMatches.length: " + allMatches) ; 
+          console.log("checkForCircles: allTeams.length: " + allTeams.length + ", allMatches.length: " + allMatches) ; 
           while(allTeams.length > teamIndex && !circleFound) {
             let startTeam = allTeams[teamIndex] ; 
-            console.log("startTeam: " + startTeam.teamname + " " + startTeam.teamid + ", teamIndex: " + teamIndex) ;
+            // console.log("checkForCircles: startTeam: " + startTeam.teamname + " " + startTeam.teamid + ", teamIndex: " + teamIndex) ;
             let opponents = findOpponents(startTeam.teamid) ; 
-            console.log("opponents.length: " + opponents.length) ;
+            // console.log("checkForCircles: opponents.length: " + opponents.length) ;
             if(opponents.length == 2) {
-              console.log( " opponents: " + opponents[0].teamname + ", " + opponents[1].teamname) ;
+              // console.log( "checkForCircles:  opponents: " + opponents[0].teamname + ", " + opponents[1].teamname) ;
               for(const match of allMatches) {
               if  ((match.team1 == opponents[0].teamid && match.team2 == opponents[1].teamid) 
                 || (match.team2 == opponents[0].teamid && match.team1 == opponents[1].teamid) )
@@ -179,26 +179,26 @@ export default function MakeSchedule()
           console.log("findOpponents:teamid: " + teamid) ;
           let opponents : TeamProps[] = [] ; 
           const allMatches = newMatches.concat(savedMatches) ;
-          console.log("allMatches.length: " + allMatches.length) ;
+          // console.log("allMatches.length: " + allMatches.length) ;
           for(const match of allMatches) {
             if(match.team1 == teamid) {
-              console.log("match.team2: " + match.team2)
+              // console.log("match.team2: " + match.team2)
               const opponent : TeamProps | undefined = teamsInDivision.find((team) => match.team2 == team.teamid) ; 
               console.log("opponent: " + opponent?.teamname) ;
               if(opponent != undefined) {
-                console.log("adding opponent " + opponent.teamname +  " to opponents[]")
+                // console.log("adding opponent " + opponent.teamname +  " to opponents[]")
                 opponents = opponents.concat(opponent) ;
               }
             }
             else if(match.team2 == teamid) {
               const opponent : TeamProps | undefined = teamsInDivision.find((team) => match.team1 == team.teamid) ; 
-              console.log("opponent: " + opponent) ;
+              // console.log("opponent: " + opponent) ;
               if(opponent != undefined) {
                 opponents = opponents.concat(opponent) ;
               }
             }
           }
-          console.log("findOpponents is returning opponents.length: " + opponents.length) ;
+          // console.log("findOpponents is returning opponents.length: " + opponents.length) ;
           return opponents ; 
         }
 
@@ -229,6 +229,17 @@ export default function MakeSchedule()
           let twoPrevious = new Date(previousWeek.getTime()  - (7 * 24 * 60 * 60 * 1000) ); 
           const formattedTwo = twoPrevious.toISOString().split('T')[0] ;
           return [formattedWeek, formattedTwo] ; 
+        }
+
+        function getPreviousWeeks(howMany : number) : string[] {
+          let startingDate = new Date(scheduleDate) ; 
+          let previousWeeks = new Array(howMany) ; 
+          for(let i = 0 ; i < howMany ; i++) {
+            let previousWeek = new Date(startingDate.getTime() - (i+1)*(7 * 24 * 60 * 60 * 1000) ); 
+            const formattedWeek = previousWeek.toISOString().split('T')[0] ;
+            previousWeeks[i] = formattedWeek ;
+          }
+          return previousWeeks ; 
         }
 
         function init() {
@@ -390,8 +401,8 @@ export default function MakeSchedule()
       async function onValidateSchedule() {
         let status = "No problems found" ;
         status = checkForDuplicateMatches() ; 
-        status += "\n" + await reportRecentDuplicates() ; 
         status += "\n" + checkForCircles() ; 
+        status += "\n" + await reportRecentDuplicates() ; 
         setWarningMessage(status) ; 
       }
 
@@ -437,36 +448,55 @@ export default function MakeSchedule()
              return teamMatches ; 
           }
         let status = "No recent matches found." ;
-        const matchdates= getLastTwoWeeks() ;
+        let nothingFound = true ; 
+        const matchdates= getPreviousWeeks(4) ;
+        console.log("reportRecentDuplicates: ", matchdates[0], " and ", matchdates[3]) ;
         // for each team get matches. 
         for(const team of teamsInDivision) {
           const teamMatches  = await fetchMatchHistory(team) ; 
+          console.log("reportRecentDuplicates: ", team.teamname, "teamMatches.length: ", teamMatches.length) ;
           const opponents = findOpponents(team.teamid) ; 
           for(const match of teamMatches) {
             const testDate = match.matchdate ; 
             if(matchdates.indexOf(testDate) > -1) {
               if(match.team1 == team.teamid) {
                 if(match.team2 == opponents[0].teamid ) {
-                  status = "\n " + team.teamname + " played " + opponents[0].teamname + " on " + match.matchdate ; 
+                  if(nothingFound) {
+                    status = "" ; 
+                    nothingFound = false ; 
+                  }
+                  status += "\n " + team.teamname + " played " + opponents[0].teamname + " on " + match.matchdate ; 
                 }
                 else if(match.team2 == opponents[1].teamid ) {
-                  status = "\n " + team.teamname + " played " + opponents[1].teamname + " on " + match.matchdate ; 
+                  if(nothingFound) {
+                    status = "" ; 
+                    nothingFound = false ; 
+                  }
+                  status += "\n " + team.teamname + " played " + opponents[1].teamname + " on " + match.matchdate ; 
                 }
               }
               else {
                 if(match.team2 == opponents[0].teamid ) {
-                  status = "\n " + team.teamname + " played " + opponents[0].teamname + " on " + match.matchdate ; 
+                  if(nothingFound) {
+                    status = "" ; 
+                    nothingFound = false ; 
+                  }
+                  status += "\n " + team.teamname + " played " + opponents[0].teamname + " on " + match.matchdate ; 
                 }
                 else if(match.team2 == opponents[1].teamid ) {
-                  status = "\n " + team.teamname + " played " + opponents[1].teamname + " on " + match.matchdate ; 
+                  if(nothingFound) {
+                    status = "" ; 
+                    nothingFound = false ; 
+                  }
+                  status += "\n " + team.teamname + " played " + opponents[1].teamname + " on " + match.matchdate ; 
                 }
               }
             }
           }
-          console.log("ending reportRecentDuplicates") ;
-        return status ; 
       }
-    }
+      console.log("ending reportRecentDuplicates") ;
+      return status ; 
+  }
 
     function setNextDate() {
       const dayName = leagueCtx.league.day ? leagueCtx.league.day : "monday"; 
