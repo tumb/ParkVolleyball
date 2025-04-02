@@ -1,5 +1,7 @@
 import { supabase } from "@/lib/supabase";
-import { TeamProps, ScheduleProps, ExtraTeamProps } from "@/lib/types";
+import { TeamProps, ScheduleProps, ExtraTeamProps, PlayerProps } from "@/lib/types";
+import { getCurrentFormattedDate } from "@/components/admin/scheduling_functions/SchedulingUI";
+
 
 export async function saveToSupabase(schedule: ScheduleProps) {
   console.log("--- saveToSupabase started. ", schedule.scheduleid) ;
@@ -116,6 +118,29 @@ catch (error: any) {
   return "Update failed. " + error.message ; 
 }
 
+}
+
+export async function updatePlayerInfo(playerInfo: PlayerProps) {
+  let message = " for player: " + playerInfo.firstname + " " + playerInfo.lastname ; 
+  const date = getCurrentFormattedDate() ; 
+  try {
+    const { data, error } = await supabase
+      .from("player")
+      .update({firstname : playerInfo.firstname, lastname: playerInfo.lastname, 
+        phone: playerInfo.phone, email: playerInfo.email, 
+        gender: playerInfo.gender, entrydate: date }) 
+      .eq("playerid", playerInfo.playerid)
+    if(error) {
+      throw error ;
+    }
+    else {
+      return "Update successful. " + message ;  
+    }
+}
+catch (error: any) {
+  console.log(error.message) ; 
+  return "Update failed. " + message + " Error message: " + error.message ; 
+}  
 }
 
 export async function updateMatchDate(originalDate : string, newDate : string) {

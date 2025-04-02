@@ -6,6 +6,7 @@ import { supabase } from "@/lib/supabase";
 import {PlayerProps, emptyPlayer } from "@/lib/types" ;
 import { getCurrentFormattedDate, findSelectedPlayer } from "@/components/admin/scheduling_functions/SchedulingUI";
 import { deletePlayerFromSupabase } from "@/components/database/deletes";
+import { updatePlayerInfo } from "@/components/database/savesOrModifications";
 // import '@/styles/layouts.css' ; Not allowed to add a global style sheet. I put this into ./pages/_app.tsx but don't know that I'll use it. 
 
 export default function AddPlayer() 
@@ -15,6 +16,7 @@ export default function AddPlayer()
         const [errorMessage, setErrorMessage] = useState("No message") ;
         const [players, setPlayers] = useState<PlayerProps[]>([]) ;
         const [existingPlayer, setExistingPlayer] = useState<PlayerProps>(emptyPlayer) ; 
+        const [playerid, setPlayerid] = useState( 0) ;
         const [firstname, setFirstname] = useState( "First Name") ;
         const [lastname, setLastname] = useState( "Last Name") ;
         const [gender, setGender] = useState( "F") ;
@@ -110,16 +112,46 @@ export default function AddPlayer()
         console.log("player id as string: ", value) ;
         const playerId = Number(value) ; 
         const player = findSelectedPlayer(playerId, players) ; 
-        console.log("player: ", player?.firstname) ;
+        console.log("player: ", player) ;
 
         if(player) {
           setExistingPlayer(player) ; 
+          setPlayerid(player.playerid) ; 
+          setFirstname(player.firstname) ; 
+          setLastname(player.lastname) ; 
+          setGender(player.gender) ; 
+          setPhone(player.phone) ; 
+          setEmail(player.email) ; 
         }
         console.log("player (existing)", player) ;
       }
 
-      function updatePlayerInDatabase() {
-
+      async function updatePlayerInDatabase() {
+        clearMessages() ; 
+        if(! validatePlayerData()) {
+          setErrorMessage("Invalid player data. Check all fields") ; 
+          return ; 
+        }
+        else {
+          const date = getCurrentFormattedDate() ; 
+          const elo = 1500 ; 
+          const player: PlayerProps = {
+              firstname: firstname, lastname: lastname, gender: gender, email: email, phone: phone, 
+              elo: elo, entrydate: date, playerid: playerid } ;
+          // Omit the scheduleid property from the schedule object
+        try {
+          const resultMessage = await updatePlayerInfo(player) ; 
+          if(resultMessage.includes("failed")) {
+            setErrorMessage(resultMessage) ; 
+          }
+          else {
+            setSuccessMessage(resultMessage) ;
+          }
+      } 
+      catch (error: any) {
+        // Do nothing. Error already passed in.
+      }
+        }
       }
 
       function validatePlayerData() {
@@ -136,6 +168,7 @@ export default function AddPlayer()
 
       const handleFirstnameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setFirstname(event.target.value.trim());
+
       };
 
       const handleLastnameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -240,9 +273,9 @@ export default function AddPlayer()
         `}
       </style>
       <div id="debuggingInfoDiv">
-        Add a Player: Firstname {firstname}, Last name {lastname}, Gender {gender}, Email {email}, phone {phone}
+        Add or Edit a Player: Firstname {firstname}, Last name {lastname}, Gender {gender}, Email {email}, phone {phone}
         <br/>
-        Modify or remove a player: {existingPlayer.firstname} {existingPlayer.lastname}
+        Modify or remove a player: {existingPlayer.firstname} {existingPlayer.lastname} {existingPlayer.email}
         <br/>
       </div> {/* End of debuggingInfoDiv */}
       <div id="infoPanelsDiv" >
@@ -252,33 +285,33 @@ export default function AddPlayer()
           </div><br/>
           <div className="form-group">
             <label>First Name</label>
-            <input type="text" name="firstname" id="firstname" placeholder = "First Name" onChange={handleFirstnameChange}/>
+            <input type="text" name="firstname" id="firstname" placeholder = "First Name" value={firstname} onChange={handleFirstnameChange}/>
           </div>
           <br/>
           <div className="form-group">
-            <label>Last Name</label><input type="text" id="lastname" name="lastname" placeholder = "Last Name" onChange={handleLastnameChange}/>
+            <label>Last Name</label><input type="text" id="lastname" name="lastname" placeholder = "Last Name" value={lastname} onChange={handleLastnameChange}/>
             <br/>
           </div>
           <div className="form-group">
             <label htmlFor="gender">Gender</label>
           <div className="gender-radio-group" id="gender-radio-group" onChange={handleGenderChange}> 
           <div className="gender-radio-buttons">
-          <input  type="radio" name="gender" value="M"/> 
+          <input  type="radio" name="gender" checked = {gender === 'M'} value="M" /> 
           <label htmlFor="male" >  Male   </label>
           <br/>
-          <input  type="radio" name="gender" value="F"/>
+          <input  type="radio" name="gender" checked = {gender === 'F'} value="F"/>
           <label htmlFor="female"> Female </label>
           </div>
           </div>
           </div>
           <div className="form-group">
           <label>Email</label>
-          <input type="text" id = "email" name="email" placeholder = "me@company.com" onChange={handleEmailChange}/>
+          <input type="text" id = "email" name="email" placeholder = "me@company.com" value={email} onChange={handleEmailChange}/>
           </div>
           <br/>
           <div className="form-group">
           <label>Phone</label>
-          <input type="text" id="phone" name="phone" placeholder = "716 555 1234" onChange={handlePhoneChange}/>
+          <input type="text" id="phone" name="phone" placeholder = "716 555 1234" value={phone} onChange={handlePhoneChange}/>
           </div>
         </div>
         <div id="buttonColumnDiv">
