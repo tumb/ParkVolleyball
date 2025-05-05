@@ -61,7 +61,7 @@ export default function ChangeScheduleDate() {
 		const currentDay = currentDate.getDay();
 		let startingIndex = dayIndex - currentDay ; // This gets us the next or previous day that's a 'Monday'
 		console.log("startingIndex: " + startingIndex + ", dayOfWeek: " + dayOfWeek + ", dayIndex: " + dayIndex + ", currentDay: " + currentDay) ;
-		for(let i = -1 ; i < 3 ; i++ ) {
+		for(let i = -1 ; i < 8 ; i++ ) {
 			let timeFromNow = (startingIndex + i * 7)  *  24 * 60 * 60 * 1000 ;
 			const nextDate = new Date(currentDate.getTime() + timeFromNow)  ; 
 			const formattedDate = nextDate.toISOString().split('T')[0];
