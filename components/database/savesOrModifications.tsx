@@ -143,6 +143,26 @@ catch (error: any) {
 }  
 }
 
+export async function updateTeamInfo(teamInfo: TeamProps) {
+  let message = " for team: " + teamInfo.teamname ; 
+  const date = getCurrentFormattedDate() ; 
+  try {
+    const {data, error } = await supabase.from("team")
+      .update({teamname : teamInfo.teamname, divisionid : teamInfo.divisionid, })
+      .eq("teamid", teamInfo.teamid) 
+    if(error) {
+      throw error ; 
+    }
+    else {
+      return "Update successful " + message ; 
+    }
+  }
+  catch (error: any) {
+    console.log(error.message) ;
+    return "Update failed " + message + ". Error message: " + error.message ; 
+  }
+}
+
 export async function updateMatchDate(originalDate : string, newDate : string) {
   try {
       const { data, error } = await supabase

@@ -7,7 +7,7 @@ import { LeagueContext } from "@/context/LeagueContext";
 import { findSelectedDivision } from "@/components/admin/scheduling_functions/SchedulingUI" ; 
 import { fetchDivisionsForLeague, findTeamsForLeague } from "@/components/database/fetches";
 import { deleteTeamFromSupabase } from "@/components/database/deletes";
-import { saveTeamsToDatabase } from "@/components/database/savesOrModifications";
+import { saveTeamsToDatabase, updateTeamInfo } from "@/components/database/savesOrModifications";
 
 // import '@/styles/layouts.css' ; Not allowed to add a global style sheet. I put this into ./pages/_app.tsx but don't know that I'll use it. 
 
@@ -82,7 +82,23 @@ export default function AddTeam() {
 		}
 	};
 
+	function teamSelected(event: React.ChangeEvent<HTMLSelectElement>) {
+		const teamId = parseInt(event.target.value, 10);
+		if(teamId > -1) {
+			const selectedTeam = teamsBuilt.find((team) => team.teamid === teamId);
+			console.log("selectedTeam: ", selectedTeam) ; 
+			if(selectedTeam) {
+				setTeamName(selectedTeam.teamname) ; 
+				const division = allDivisions.find((division) => division.divisionid === selectedTeam?.divisionid) ; 
+				if(division) {
+					setSelectedDivision(division) ; 
+				}
+			}
+		}
+	};
+
 	function updateTeamName() {
+		console.log("updateTeamName started: ") ;
 		var newTeamName = femalePlayer?.firstname + "/" + malePlayer?.firstname ; 
 		setTeamName(newTeamName) ; 
 		const teamNameField = document.getElementById('teamNameInput') ;
@@ -169,9 +185,28 @@ export default function AddTeam() {
 		console.log("--- onSaveClick ended") ; 
 	} ;
 
+	async function onUpdateClick() {
+		console.log("--- onUpdateClick started") ; 
+		const teamsSelect = document.getElementById("teamsSelect") as HTMLSelectElement;
+		const selectedIndex = teamsSelect.selectedIndex;
+		const idOfTeamToUpdate = parseInt(teamsSelect.options[selectedIndex].value, 10);
+		console.log("idOfTeamToUpdate: ", idOfTeamToUpdate) ;
+		var updatingTeam = teamsBuilt.find((team) => team.teamid === idOfTeamToUpdate) ; 
+		if(updatingTeam) {
+			const teamNameField = document.getElementById('teamNameInput') as HTMLInputElement ;
+			const newTeamName = teamNameField.value ; 
+			updatingTeam.teamname = newTeamName ; 
+			updatingTeam.divisionid = selectedDivision.divisionid ; 
+			console.log("updatingTeam: ", updatingTeam) ; 
+			let resultMessage = await updateTeamInfo(updatingTeam)
+			setSuccessMessage(resultMessage) ; 
+		}
+	}
+
 	function onTypedTeamName(event: React.ChangeEvent<HTMLInputElement>) {
 			const { name, value } = event.target;
 			setTeamName(value) ; 
+			console.log("onTypedTeamName") ; 
 	}
 
 	function removeTeamButtonClick() {
@@ -320,15 +355,17 @@ export default function AddTeam() {
 						</div>
 						<div id="teamNameDiv"  className="columnDiv">
 							<label className="inputLabel">Team Name:</label>
-							<input id="teamNameInput" onChange={onTypedTeamName}></input>
+							<input id="teamNameInput" value={teamName} onChange={onTypedTeamName}></input>
 							<br />
 						</div>
 						<div className="inlineInputContainer">
 							<label className="inputLabel">Division:</label>
 							<div className="division-radio-group" id="division-radio-group">
 								{allDivisions.map((division) => (
-						            <label  key={division.divisionid} className="radio-button"><input type="radio" name="division" key={division.divisionid} 
-									value={division.divisionid} onChange={divisionHandler}/> {division.divisionname}</label>
+						            <label  key={division.divisionid} className="radio-button">
+										<input type="radio" name="division" key={division.divisionid} 
+									value={division.divisionid} checked = {selectedDivision.divisionid === division.divisionid}
+									onChange={divisionHandler}/> {division.divisionname}</label>
           						))}
 							</div>
 							<div  style={{ marginLeft: '20px' }}> Name saved: {teamName}</div>
@@ -354,27 +391,32 @@ export default function AddTeam() {
 						</div>
 						<div id="buttonColumnDiv">
 							<div>
-								<button className="m-4 p-4 bg-blue-200 font-bold rounded-lg"  onClick={onMakeTeamButtonClick} >
+								<button className="m-2 p-4 bg-blue-200 font-bold rounded-lg"  onClick={onMakeTeamButtonClick} >
 									→
 								</button>
 							</div>
 							<div>
-								<button className="m-4 p-4 bg-blue-200 font-bold rounded-lg" onClick={removeTeamButtonClick} >
+								<button className="m-2 p-4 bg-blue-200 font-bold rounded-lg" onClick={removeTeamButtonClick} >
 									←
 								</button>
 							</div>
-							<button className="m-4 p-4 bg-blue-200 font-bold rounded-lg" onClick={onSaveClick} >
+							<button className="m-2 p-4 bg-blue-200 font-bold rounded-lg" onClick={onSaveClick} >
 								Save
 							</button>
 							<div>
-							<button className="m-4 p-4 bg-purple-200 font-bold rounded-lg" onClick={onDeleteClick} >
+							</div>
+							<button className="m-2 p-4 bg-green-200 font-bold rounded-lg" onClick={onUpdateClick} >
+								Update
+							</button>
+							<div>
+							<button className="m-2 p-4 bg-purple-200 font-bold rounded-lg" onClick={onDeleteClick} >
 								Delete
 							</button>
 							</div>
 							<div>
 								<br />
 								<Link
-									className=" m-4 p-4 bg-red-200 font-bold rounded-lg text-black-800 transition hover:text-blue-800/75"
+									className=" m-2 p-4 bg-red-200 font-bold rounded-lg text-black-800 transition hover:text-blue-800/75"
 									href="/admin"
 								>
 									Cancel
@@ -383,11 +425,11 @@ export default function AddTeam() {
 							</div>
 							<br />
 						</div>
-						<div id="matchesSelectionDiv" >
+						<div id="existingTeamsDiv" >
 							<div>
-								<label>Existing teams and teams to be saved:</label>
+								<label>Existing teams and teams to be saved</label>
 							</div>
-							<select id="teamsSelect" className="player-select" size={20} multiple={true}>
+							<select id="teamsSelect" className="player-select" size={20} onChange={teamSelected} >
 							{teamsBuilt.map((team) => (
 									<option key={team.teamid} value={team.teamid}>{team.teamname} {team.teamid}</option>
 								))}
