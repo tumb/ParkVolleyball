@@ -400,6 +400,7 @@ export default function MakeSchedule()
       
       async function onValidateSchedule() {
         let status = "No problems found" ;
+        clearMessages() ; 
         status = checkForDuplicateMatches() ; 
         status += "\n" + checkForCircles() ; 
         status += "\n" + await reportRecentDuplicates() ; 
@@ -456,6 +457,8 @@ export default function MakeSchedule()
           const teamMatches  = await fetchMatchHistory(team) ; 
           console.log("reportRecentDuplicates: ", team.teamname, "teamMatches.length: ", teamMatches.length) ;
           const opponents = findOpponents(team.teamid) ; 
+          console.log("Number of matches scheduled for this team:", opponents.length) ; 
+          if(opponents.length > 0) {
           for(const match of teamMatches) {
             const testDate = match.matchdate ; 
             if(matchdates.indexOf(testDate) > -1) {
@@ -476,6 +479,7 @@ export default function MakeSchedule()
                 }
               }
               else {
+                
                 if(match.team2 == opponents[0].teamid ) {
                   if(nothingFound) {
                     status = "" ; 
@@ -493,6 +497,7 @@ export default function MakeSchedule()
               }
             }
           }
+        }
       }
       console.log("ending reportRecentDuplicates") ;
       return status ; 
