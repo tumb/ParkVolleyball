@@ -9,7 +9,6 @@ import {findSelectedDivision, findSelectedTeam, isValidDate, createMatch, comput
 import { saveToSupabase } from "@/components/database/savesOrModifications";
 import { findMatchesForLeagueDateDivision, findDatesForLeague, fetchMatchesForTeam, findTeamsForLeague, findOutTeamsForLeagueAndDate } from "@/components/database/fetches";
 import { deleteFromSupabase } from "@/components/database/deletes";
-import { match } from "assert";
 
 // import '@/styles/layouts.css' ; Not allowed to add a global style sheet. I put this into ./pages/_app.tsx but don't know that I'll use it. 
 
@@ -360,8 +359,7 @@ export default function MakeSchedule()
                 const scheduledMatch: ScheduleProps | undefined = createMatch(tempMatchId, scheduleDate, team1, team2, leagueCtx.league.leagueid, selectedDivision.divisionid, 0, 0 ) ;
                 // console.log("Selected Team 1 name: ", team1?.teamname) ;
                 if(scheduledMatch) {
-                  newMatches.push(scheduledMatch) ;
-                  setNewMatches(newMatches) ; 
+                  setNewMatches([...newMatches, scheduledMatch]) ; 
                   // const newMatchOption = document.createElement("option") ;
                   // newMatchOption.value = "" + scheduledMatch.scheduleid ; 
                   // newMatchOption.text = team1.teamname + " vs " + team2.teamname + " id: " + tempMatchId ; 
@@ -540,7 +538,7 @@ export default function MakeSchedule()
       useEffect(() => {
         if(selectedDivision) {
           leagueCtx.league.divisionName = selectedDivision.divisionname ; 
-          newMatches.length = 0 ; 
+          setNewMatches([]) ; 
           updateTeams() ;
         } 
       }, [selectedDivision]) ;
@@ -726,7 +724,9 @@ export default function MakeSchedule()
             <label>Select 2 teams to play each other</label>
           </div>
           <select id="teamsSelect" size={20} multiple={true} onChange={onTeamSelectChange}> 
-          {teamsInDivision.map((team) => (
+          {teamsInDivision
+            .sort((a, b) => countMatchesForTeam(a.teamid) - countMatchesForTeam(b.teamid))
+            .map((team) => (
             <option key={team.teamid} value={team.teamid}>{countMatchesForTeam(team.teamid)} {team.teamname}</option> 
           ))}
           </select>
