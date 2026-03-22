@@ -1,6 +1,12 @@
 import { supabase } from "@/lib/supabase";
 import { DivisionProps, TeamProps, ScheduleProps, TeamOutProps } from "@/lib/types";
 
+export type RegularSeasonStandingRow = {
+  teamid: number;
+  totalpoints: number;
+  teamname: string;
+};
+
 export async function fetchAllYears () : Promise<number[]> {
   try {
     const { data: yearsData, error } = await supabase
@@ -250,5 +256,73 @@ export async function fetchMatchesForTeam(team: TeamProps) : Promise<SchedulePro
   catch (error: any) {
     console.log("error in fetchMatchesForTeam", error.message) ;
     throw error ; 
+  }
+}
+
+/**
+ * Computes weighted regular-season standings for one league.
+ * Points are based on the division assigned to each schedule row:
+ * - team1 points = team1wins * divisionvalue
+ * - team2 points = team2wins * divisionvalue
+ */
+export async function findRegularSeasonStandingsForLeague(
+  leagueId: number
+): Promise<RegularSeasonStandingRow[]> {
+  try {
+    const [teams, divisions, matches] = await Promise.all([
+      findTeamsForLeague(leagueId),
+      fetchDivisionsForLeague(leagueId),
+      findMatchesForLeague(leagueId),
+    ]);
+
+    const divisionValueById = new Map<number, number>();
+    for (const division of divisions) {
+      divisionValueById.set(division.divisionid, division.divisionvalue ?? 0);
+    }
+
+    const pointsByTeamId = new Map<number, number>();
+    const teamNameById = new Map<number, string>();
+
+    // Include all league teams, even if they currently have zero schedule points.
+    for (const team of teams) {
+      pointsByTeamId.set(team.teamid, 0);
+      teamNameById.set(team.teamid, team.teamname);
+    }
+
+    for (const match of matches) {
+      const divisionValue = divisionValueById.get(match.divisionid) ?? 0;
+      const team1Points = (match.team1wins ?? 0) * divisionValue;
+      const team2Points = (match.team2wins ?? 0) * divisionValue;
+
+      if (match.team1 > 0) {
+        const current = pointsByTeamId.get(match.team1) ?? 0;
+        pointsByTeamId.set(match.team1, current + team1Points);
+      }
+
+      if (match.team2 > 0) {
+        const current = pointsByTeamId.get(match.team2) ?? 0;
+        pointsByTeamId.set(match.team2, current + team2Points);
+      }
+    }
+
+    const standings: RegularSeasonStandingRow[] = Array.from(pointsByTeamId.entries()).map(
+      ([teamid, totalpoints]) => ({
+        teamid,
+        totalpoints,
+        teamname: teamNameById.get(teamid) ?? "",
+      })
+    );
+
+    standings.sort((a, b) => {
+      if (b.totalpoints !== a.totalpoints) {
+        return b.totalpoints - a.totalpoints;
+      }
+      return a.teamid - b.teamid;
+    });
+
+    return standings;
+  } catch (error: any) {
+    console.error("Error in findRegularSeasonStandingsForLeague:", error.message);
+    throw error;
   }
 }

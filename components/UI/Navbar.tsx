@@ -29,33 +29,57 @@ export default function Navbar() {
                 <li>
                   <Link
                     className="text-green-800 transition hover:text-blue-800/75"
-                    href="/teams"
+                    href="/admin"
                   >
-                    Teams
+                    Admin
                   </Link>
                 </li>
                 <li>
                   <Link
                     className="text-green-800 transition hover:text-blue-800/75"
-                    href="/rules"
+                    href="/makeSchedule"
                   >
-                    Rules
+                    Schedule
                   </Link>
                 </li>
                 <li>
                   <Link
                     className="text-green-800 transition hover:text-blue-800/75"
-                    href="/directions"
+                    href="/submitResults"
                   >
-                    Directions
+                    Submit
                   </Link>
                 </li>
                 <li>
                   <Link
                     className="text-green-800 transition hover:text-blue-800/75"
-                    href="/signupinfo"
+                    href="/teamOut"
                   >
-                    Signup Information 
+                    Team Out
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    className="text-green-800 transition hover:text-blue-800/75"
+                    href="/playoffs"
+                  >
+                    Playoffs
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    className="text-green-800 transition hover:text-blue-800/75"
+                    href="/addPlayer"
+                  >
+                    New Players
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    className="text-green-800 transition hover:text-blue-800/75"
+                    href="/addLeague"
+                  >
+                    New League
                   </Link>
                 </li>
               </ul>

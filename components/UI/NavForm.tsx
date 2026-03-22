@@ -15,7 +15,7 @@ export default function NavForm() {
   async function getAllYears() {
     const years = await fetchAllYears() ; 
     setAllYears(years) ; 
-    if (years.length > 0) {
+    if (years.length > 0 && (year == null || !years.includes(year))) {
       const maxYear = Math.max(...years);
       setYear(maxYear);
     }
@@ -57,48 +57,80 @@ export default function NavForm() {
   }, [day, year]);
 
   return (
-    <div className="mx-auto h-fit">
-      <form action="" className="">
-        <div className="flex items-center justify-between sm:flex-row">
-          <div className="flex w-full items-center justify-between p-2">
-            <label htmlFor="Day" className="px-2 text-sm font-semibold">
+    <div className="nav-form-wrap">
+      <form action="">
+        <div className="nav-form-row">
+          <div className="nav-field">
+            <label htmlFor="Day" className="nav-label">
               Day
             </label>
-
-            <div className="relative">
-              <select
-                className="min-w-full rounded-lg border border-gray-200 bg-white p-2 text-xs shadow-sm sm:text-sm"
-                placeholder="Enter Day"
-                value={day!}
-                onChange={(e) => setDay(e.target.value)}
-              >
-                <option value="Monday">Monday</option>
-                <option value="Thursday">Thursday</option>
-                <option value="Testday">Testday</option>
-              </select>
-            </div>
+            <select
+              id="Day"
+              className="nav-select"
+              placeholder="Enter Day"
+              value={day!}
+              onChange={(e) => setDay(e.target.value)}
+            >
+              <option value="Monday">Monday</option>
+              <option value="Thursday">Thursday</option>
+              <option value="Testday">Testday</option>
+            </select>
           </div>
 
-          <div className="flex w-full items-center justify-between p-2">
-            <label htmlFor="Year" className="px-2 text-sm font-semibold">
+          <div className="nav-field">
+            <label htmlFor="Year" className="nav-label">
               Year
             </label>
-
-            <div className="relative">
-              <select
-                className="min-w-full rounded-lg border border-gray-200 bg-white p-2 text-xs shadow-sm sm:text-sm"
-                placeholder="Enter Year"
-                value={year!}
-                onChange={(e) => setYear(parseInt(e.target.value))}
-              >
-               {allYears.map((yearOption) => (
-                <option key={yearOption} value={yearOption}>{yearOption}</option>
-               ))}
-              </select>
-            </div>
+            <select
+              id="Year"
+              className="nav-select"
+              placeholder="Enter Year"
+              value={year!}
+              onChange={(e) => setYear(parseInt(e.target.value))}
+            >
+              {allYears.map((yearOption) => (
+                <option key={yearOption} value={yearOption}>
+                  {yearOption}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
       </form>
+      <style jsx>{`
+        .nav-form-wrap {
+          max-width: 540px;
+        }
+        .nav-form-row {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 10px;
+          align-items: center;
+        }
+        .nav-field {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          padding: 6px 8px;
+          border: 1px solid #d7e1ef;
+          border-radius: 6px;
+          background: #f8fbff;
+        }
+        .nav-label {
+          font-size: 13px;
+          font-weight: 700;
+          color: #1e293b;
+          white-space: nowrap;
+        }
+        .nav-select {
+          min-width: 130px;
+          border: 1px solid #bfd4ea;
+          border-radius: 5px;
+          background: #fff;
+          padding: 4px 6px;
+          font-size: 13px;
+        }
+      `}</style>
     </div>
   );
 }

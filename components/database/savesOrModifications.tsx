@@ -2,6 +2,24 @@ import { supabase } from "@/lib/supabase";
 import { TeamProps, ScheduleProps, ExtraTeamProps, PlayerProps } from "@/lib/types";
 import { getCurrentFormattedDate } from "@/components/admin/scheduling_functions/SchedulingUI";
 
+async function ensureDivisionExistsForLeague(leagueid: number, divisionid: number): Promise<void> {
+  const { data, error } = await supabase
+    .from("division")
+    .select("divisionid")
+    .eq("leagueid", leagueid)
+    .eq("divisionid", divisionid)
+    .maybeSingle();
+
+  if (error) {
+    throw error;
+  }
+  if (!data) {
+    throw new Error(
+      `Division ${divisionid} was not found in league ${leagueid}. Refusing to save team division assignment.`
+    );
+  }
+}
+
 
 export async function saveToSupabase(schedule: ScheduleProps) {
   console.log("--- saveToSupabase started. ", schedule.scheduleid) ;
@@ -67,6 +85,8 @@ export async function saveTeamsToDatabase(newTeams: TeamProps[]): Promise<void> 
   let tempId = 0 ;
   for(const team of newTeams) {
   try {
+    await ensureDivisionExistsForLeague(team.leagueid, team.divisionid);
+
     // Omit the teamid property from the team object
     const { teamid, ...teamWithoutId } = team;
     const { data, error } = await supabase
@@ -107,6 +127,8 @@ export async function submitResultsToDatabase(updatedMatches: ScheduleProps[]): 
 
 export async function updateDivisionForATeam(extraTeam: ExtraTeamProps) {
   try {
+    await ensureDivisionExistsForLeague(extraTeam.leagueid, extraTeam.newdivisionid);
+
     const { data, error } = await supabase
       .from("team")
       .update({divisionid : extraTeam.newdivisionid}) 
@@ -147,6 +169,8 @@ export async function updateTeamInfo(teamInfo: TeamProps) {
   let message = " for team: " + teamInfo.teamname ; 
   const date = getCurrentFormattedDate() ; 
   try {
+    await ensureDivisionExistsForLeague(teamInfo.leagueid, teamInfo.divisionid);
+
     const {data, error } = await supabase.from("team")
       .update({teamname : teamInfo.teamname, divisionid : teamInfo.divisionid, })
       .eq("teamid", teamInfo.teamid) 

@@ -13,30 +13,51 @@ export default function Sidebar() {
           <NavForm />
           <Link
             className="flex items-center rounded-lg px-4 py-2 text-gray-500 hover:bg-gray-100 hover:text-gray-700"
-            href="/teams"
+            href="/admin"
           >
-            Teams
+            Admin
           </Link>
 
           <Link
             className="flex items-center rounded-lg px-4 py-2 text-gray-500 hover:bg-gray-100 hover:text-gray-700"
-            href="/rules"
+            href="/makeSchedule"
           >
-            Rules
+            Schedule
           </Link>
 
           <Link
             className="flex items-center rounded-lg px-4 py-2 text-gray-500 hover:bg-gray-100 hover:text-gray-700"
-            href="/directions"
+            href="/submitResults"
           >
-            Directions
+            Submit
           </Link>
 
           <Link
             className="flex items-center rounded-lg px-4 py-2 text-gray-500 hover:bg-gray-100 hover:text-gray-700"
-            href="/signupinfo"
+            href="/teamOut"
           >
-            Signup Information
+            Team Out
+          </Link>
+
+          <Link
+            className="flex items-center rounded-lg px-4 py-2 text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+            href="/playoffs"
+          >
+            Playoffs
+          </Link>
+
+          <Link
+            className="flex items-center rounded-lg px-4 py-2 text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+            href="/addPlayer"
+          >
+            New Players
+          </Link>
+
+          <Link
+            className="flex items-center rounded-lg px-4 py-2 text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+            href="/addLeague"
+          >
+            New League
           </Link>
         </nav>
       </div>

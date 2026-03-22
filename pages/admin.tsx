@@ -68,6 +68,12 @@ export default function admin()
                     Create New League
         </Link>
       </div>
+      <div>
+        <Link className="link-button"
+              href="/playoffs" >
+                    Playoffs
+        </Link>
+      </div>
     </div>
     </div>
   );

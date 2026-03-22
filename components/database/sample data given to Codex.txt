@@ -1,0 +1,823 @@
+-- Matches ####
+
+select s.matchdate,  d.divisionname, t1.teamname as t1name, team1, s.team1wins, t2.teamname as t2name, s.team2, s.team2wins, s.scheduleid
+--  select d.divisionname,  t1.teamname as team1, 'vs', t2.teamname as team2
+from schedule s
+join team t1  on t1.teamid = s.team1
+join team t2  on t2.teamid = s.team2
+join division d on s.divisionid = d.divisionid
+where  s.leagueid = 25
+and matchdate > '2025-06-08' 
+order by divisionname
+limit 5
+; 
+
+[
+  {
+    "matchdate": "2025-07-10",
+    "divisionname": "blue",
+    "t1name": "Lindsay/Kai",
+    "team1": 765,
+    "team1wins": 2,
+    "t2name": "Kera/Sean",
+    "team2": 776,
+    "team2wins": 0,
+    "scheduleid": 3715
+  },
+  {
+    "matchdate": "2025-07-24",
+    "divisionname": "blue",
+    "t1name": "AngeleneBelle/Thom",
+    "team1": 757,
+    "team1wins": 0,
+    "t2name": "Kat/Matt",
+    "team2": 763,
+    "team2wins": 2,
+    "scheduleid": 3811
+  },
+  {
+    "matchdate": "2025-06-26",
+    "divisionname": "blue",
+    "t1name": "Angela/Larry",
+    "team1": 756,
+    "team1wins": 2,
+    "t2name": "Tori/Matt",
+    "team2": 771,
+    "team2wins": 0,
+    "scheduleid": 3627
+  },
+  {
+    "matchdate": "2025-07-10",
+    "divisionname": "blue",
+    "t1name": "Hannah/Jonathan",
+    "team1": 761,
+    "team1wins": 1,
+    "t2name": "Kat/Matt",
+    "team2": 763,
+    "team2wins": 1,
+    "scheduleid": 3710
+  },
+  {
+    "matchdate": "2025-06-26",
+    "divisionname": "blue",
+    "t1name": "Angela/Larry",
+    "team1": 756,
+    "team1wins": 1,
+    "t2name": "Alyssa/Tyler",
+    "team2": 755,
+    "team2wins": 1,
+    "scheduleid": 3594
+  }
+]
+-- player ####
+select * from player 
+where firstname in('Nick', 'Angela', 'Shawn')
+limit 5
+; 
+
+[
+  {
+    "playerid": 43,
+    "firstname": "Shawn",
+    "lastname": "McCabe",
+    "gender": "M",
+    "email": null,
+    "phone": null,
+    "elo": null,
+    "entrydate": "2019-05-21 16:25:11",
+    "image_url": null,
+    "uid": null
+  },
+  {
+    "playerid": 120,
+    "firstname": "Shawn",
+    "lastname": "Tussing",
+    "gender": "M",
+    "email": null,
+    "phone": null,
+    "elo": null,
+    "entrydate": "2020-06-14 17:48:13",
+    "image_url": null,
+    "uid": null
+  },
+  {
+    "playerid": 114,
+    "firstname": "Shawn",
+    "lastname": "Castellan",
+    "gender": "M",
+    "email": "criscast@verizon.net",
+    "phone": "(716) 550-3231",
+    "elo": null,
+    "entrydate": "2020-06-14 17:48:13",
+    "image_url": null,
+    "uid": null
+  },
+  {
+    "playerid": 142,
+    "firstname": "Shawn",
+    "lastname": "Warmer",
+    "gender": "M",
+    "email": null,
+    "phone": null,
+    "elo": null,
+    "entrydate": "2021-05-24 21:42:41",
+    "image_url": null,
+    "uid": null
+  },
+  {
+    "playerid": 254,
+    "firstname": "Angela",
+    "lastname": "Collins",
+    "gender": "F",
+    "email": "angelacollins78@verizon.net",
+    "phone": "(716) 238-3624",
+    "elo": 1500,
+    "entrydate": "2025-04-24 00:00:00",
+    "image_url": null,
+    "uid": null
+  }
+]
+
+-- list of tables
+-- Some of these tables are probably obsolete and not used. For example distinct_matchdate.
+
+select table_name
+from information_schema.tables
+where table_schema = 'public';
+
+[
+  {
+    "table_name": "seed"
+  },
+  {
+    "table_name": "playoff_match"
+  },
+  {
+    "table_name": "league"
+  },
+  {
+    "table_name": "bracket"
+  },
+  {
+    "table_name": "player"
+  },
+  {
+    "table_name": "division"
+  },
+  {
+    "table_name": "content_pages"
+  },
+  {
+    "table_name": "team"
+  },
+  {
+    "table_name": "schedule"
+  },
+  {
+    "table_name": "team_out"
+  },
+  {
+    "table_name": "distinct_macthdate"
+  }
+]
+
+-- division ####
+
+select *, l.day, l.year from division d
+join league l on l.leagueid = d.leagueid
+where l.year > 2023
+limit 5
+;
+
+[
+  {
+    "divisionid": 39,
+    "leagueid": 18,
+    "divisionname": "green",
+    "divisionvalue": 2,
+    "day": "Testday",
+    "year": 2024
+  },
+  {
+    "divisionid": 40,
+    "leagueid": 18,
+    "divisionname": "blue",
+    "divisionvalue": 1,
+    "day": "Testday",
+    "year": 2024
+  },
+  {
+    "divisionid": 41,
+    "leagueid": 18,
+    "divisionname": "red",
+    "divisionvalue": 4,
+    "day": "Testday",
+    "year": 2024
+  },
+  {
+    "divisionid": 48,
+    "leagueid": 21,
+    "divisionname": "blue",
+    "divisionvalue": 1,
+    "day": "Monday",
+    "year": 2024
+  },
+  {
+    "divisionid": 49,
+    "leagueid": 21,
+    "divisionname": "red",
+    "divisionvalue": 4,
+    "day": "Monday",
+    "year": 2024
+  }
+]
+
+-- team ####
+
+select t.teamname, t.teamid, m.firstname boy, m.playerid, f.firstname girl, f.playerid girlid, t.leagueid, d.divisionname, t.divisionid from team t 
+join player m on t.maleid = m.playerid
+join player f on t.femaleid = f.playerid
+join division d on t.divisionid = d.divisionid
+ -- where  t.leagueid = 23
+-- where t.divisionid = 0 
+where m.firstname like 'Shaw%'
+
+order by teamname asc 
+limit 5; 
+
+[
+  {
+    "teamname": "Alexis",
+    "teamid": 195,
+    "boy": "Shawn",
+    "playerid": 142,
+    "girl": "Alexis",
+    "girlid": 98,
+    "leagueid": 10,
+    "divisionname": "green",
+    "divisionid": 20
+  },
+  {
+    "teamname": "Alexis",
+    "teamid": 108,
+    "boy": "Shawn",
+    "playerid": 142,
+    "girl": "Alexis",
+    "girlid": 98,
+    "leagueid": 6,
+    "divisionname": "green",
+    "divisionid": 12
+  },
+  {
+    "teamname": "Alexis Shawn",
+    "teamid": 542,
+    "boy": "Shawn",
+    "playerid": 142,
+    "girl": "Alexis",
+    "girlid": 98,
+    "leagueid": 17,
+    "divisionname": "blue",
+    "divisionid": 36
+  },
+  {
+    "teamname": "Alicia",
+    "teamid": 95,
+    "boy": "Shawn",
+    "playerid": 120,
+    "girl": "Alicia",
+    "girlid": 101,
+    "leagueid": 3,
+    "divisionname": "Green",
+    "divisionid": 6
+  },
+  {
+    "teamname": "Alyssa",
+    "teamid": 66,
+    "boy": "Shawn",
+    "playerid": 43,
+    "girl": "Alyssa",
+    "girlid": 17,
+    "leagueid": 5,
+    "divisionname": "Red",
+    "divisionid": 8
+  }
+]
+
+-- team_out ####
+
+select date_out, t.teamid, t.teamname, l.year,  l.day, o.leagueid
+from team_out o
+join team t on o.teamid = t.teamid
+join league l on o.leagueid = l.leagueid
+;
+
+[
+  {
+    "date_out": "2025-08-07",
+    "teamid": 776,
+    "teamname": "Kera/Sean",
+    "year": 2025,
+    "day": "Thursday",
+    "leagueid": 25
+  },
+  {
+    "date_out": "2025-11-13",
+    "teamid": 765,
+    "teamname": "Lindsay/Kai",
+    "year": 2025,
+    "day": "Thursday",
+    "leagueid": 25
+  },
+  {
+    "date_out": "2024-07-18",
+    "teamid": 624,
+    "teamname": "Castellan2",
+    "year": 2024,
+    "day": "Thursday",
+    "leagueid": 22
+  },
+  {
+    "date_out": "2024-06-27",
+    "teamid": 600,
+    "teamname": "Hannah/Jonathan",
+    "year": 2024,
+    "day": "Thursday",
+    "leagueid": 22
+  },
+  {
+    "date_out": "2024-07-15",
+    "teamid": 580,
+    "teamname": "Castellans",
+    "year": 2024,
+    "day": "Monday",
+    "leagueid": 21
+  },
+  {
+    "date_out": "2024-06-24",
+    "teamid": 623,
+    "teamname": "Kera/Sean",
+    "year": 2024,
+    "day": "Monday",
+    "leagueid": 21
+  },
+  {
+    "date_out": "2024-06-10",
+    "teamid": 623,
+    "teamname": "Kera/Sean",
+    "year": 2024,
+    "day": "Monday",
+    "leagueid": 21
+  },
+  {
+    "date_out": "2025-08-07",
+    "teamid": 754,
+    "teamname": "Alyssa/Adam",
+    "year": 2025,
+    "day": "Thursday",
+    "leagueid": 25
+  },
+  {
+    "date_out": "2025-06-23",
+    "teamid": 730,
+    "teamname": "Carly/Alex",
+    "year": 2025,
+    "day": "Monday",
+    "leagueid": 23
+  },
+  {
+    "date_out": "2025-06-05",
+    "teamid": 775,
+    "teamname": "Mary/Patrick ",
+    "year": 2025,
+    "day": "Thursday",
+    "leagueid": 25
+  },
+  {
+    "date_out": "2024-06-05",
+    "teamid": 563,
+    "teamname": "Onalee - Kevin",
+    "year": 2024,
+    "day": "Testday",
+    "leagueid": 18
+  },
+  {
+    "date_out": "2024-08-15",
+    "teamid": 604,
+    "teamname": "Sadie/Pat",
+    "year": 2024,
+    "day": "Thursday",
+    "leagueid": 22
+  },
+  {
+    "date_out": "2024-08-08",
+    "teamid": 604,
+    "teamname": "Sadie/Pat",
+    "year": 2024,
+    "day": "Thursday",
+    "leagueid": 22
+  },
+  {
+    "date_out": "2024-06-05",
+    "teamid": 553,
+    "teamname": "Hannah - Brian",
+    "year": 2024,
+    "day": "Testday",
+    "leagueid": 18
+  },
+  {
+    "date_out": "2024-06-05",
+    "teamid": 554,
+    "teamname": "Jen - Liam",
+    "year": 2024,
+    "day": "Testday",
+    "leagueid": 18
+  },
+  {
+    "date_out": "2024-06-05",
+    "teamid": 568,
+    "teamname": "Julie - Thom",
+    "year": 2024,
+    "day": "Testday",
+    "leagueid": 18
+  },
+  {
+    "date_out": "2024-06-27",
+    "teamid": 596,
+    "teamname": "Rachel/David",
+    "year": 2024,
+    "day": "Thursday",
+    "leagueid": 22
+  },
+  {
+    "date_out": "2024-08-15",
+    "teamid": 612,
+    "teamname": "Shae/David",
+    "year": 2024,
+    "day": "Thursday",
+    "leagueid": 22
+  },
+  {
+    "date_out": "2024-08-08",
+    "teamid": 612,
+    "teamname": "Shae/David",
+    "year": 2024,
+    "day": "Thursday",
+    "leagueid": 22
+  },
+  {
+    "date_out": "2025-06-19",
+    "teamid": 775,
+    "teamname": "Mary/Patrick ",
+    "year": 2025,
+    "day": "Thursday",
+    "leagueid": 25
+  },
+  {
+    "date_out": "2025-06-19",
+    "teamid": 754,
+    "teamname": "Alyssa/Adam",
+    "year": 2025,
+    "day": "Thursday",
+    "leagueid": 25
+  },
+  {
+    "date_out": "2025-06-23",
+    "teamid": 741,
+    "teamname": "Paige/Paulo",
+    "year": 2025,
+    "day": "Monday",
+    "leagueid": 23
+  },
+  {
+    "date_out": "2025-06-19",
+    "teamid": 777,
+    "teamname": "Caitlyn/Bryan",
+    "year": 2025,
+    "day": "Thursday",
+    "leagueid": 25
+  },
+  {
+    "date_out": "2025-06-19",
+    "teamid": 777,
+    "teamname": "Caitlyn/Bryan",
+    "year": 2025,
+    "day": "Thursday",
+    "leagueid": 25
+  },
+  {
+    "date_out": "2025-06-26",
+    "teamid": 769,
+    "teamname": "Sadie/Pat",
+    "year": 2025,
+    "day": "Thursday",
+    "leagueid": 25
+  },
+  {
+    "date_out": "2025-06-26",
+    "teamid": 778,
+    "teamname": "Megan/Mike",
+    "year": 2025,
+    "day": "Thursday",
+    "leagueid": 25
+  },
+  {
+    "date_out": "2025-06-30",
+    "teamid": 727,
+    "teamname": "Angela/Justin",
+    "year": 2025,
+    "day": "Monday",
+    "leagueid": 23
+  },
+  {
+    "date_out": "2025-07-03",
+    "teamid": 775,
+    "teamname": "Mary/Patrick ",
+    "year": 2025,
+    "day": "Thursday",
+    "leagueid": 25
+  },
+  {
+    "date_out": "2025-06-26",
+    "teamid": 775,
+    "teamname": "Mary/Patrick ",
+    "year": 2025,
+    "day": "Thursday",
+    "leagueid": 25
+  },
+  {
+    "date_out": "2025-07-10",
+    "teamid": 775,
+    "teamname": "Mary/Patrick ",
+    "year": 2025,
+    "day": "Thursday",
+    "leagueid": 25
+  },
+  {
+    "date_out": "2025-07-17",
+    "teamid": 775,
+    "teamname": "Mary/Patrick ",
+    "year": 2025,
+    "day": "Thursday",
+    "leagueid": 25
+  },
+  {
+    "date_out": "2025-07-24",
+    "teamid": 775,
+    "teamname": "Mary/Patrick ",
+    "year": 2025,
+    "day": "Thursday",
+    "leagueid": 25
+  },
+  {
+    "date_out": "2025-07-31",
+    "teamid": 775,
+    "teamname": "Mary/Patrick ",
+    "year": 2025,
+    "day": "Thursday",
+    "leagueid": 25
+  },
+  {
+    "date_out": "2025-08-07",
+    "teamid": 775,
+    "teamname": "Mary/Patrick ",
+    "year": 2025,
+    "day": "Thursday",
+    "leagueid": 25
+  },
+  {
+    "date_out": "2025-08-14",
+    "teamid": 782,
+    "teamname": "Kelsey/Jared",
+    "year": 2025,
+    "day": "Thursday",
+    "leagueid": 25
+  },
+  {
+    "date_out": "2025-08-14",
+    "teamid": 775,
+    "teamname": "Mary/Patrick ",
+    "year": 2025,
+    "day": "Thursday",
+    "leagueid": 25
+  },
+  {
+    "date_out": "2025-08-21",
+    "teamid": 775,
+    "teamname": "Mary/Patrick ",
+    "year": 2025,
+    "day": "Thursday",
+    "leagueid": 25
+  },
+  {
+    "date_out": "2025-07-03",
+    "teamid": 754,
+    "teamname": "Alyssa/Adam",
+    "year": 2025,
+    "day": "Thursday",
+    "leagueid": 25
+  },
+  {
+    "date_out": "2025-07-03",
+    "teamid": 761,
+    "teamname": "Hannah/Jonathan",
+    "year": 2025,
+    "day": "Thursday",
+    "leagueid": 25
+  },
+  {
+    "date_out": "2025-07-03",
+    "teamid": 778,
+    "teamname": "Megan/Mike",
+    "year": 2025,
+    "day": "Thursday",
+    "leagueid": 25
+  },
+  {
+    "date_out": "2025-07-03",
+    "teamid": 776,
+    "teamname": "Kera/Sean",
+    "year": 2025,
+    "day": "Thursday",
+    "leagueid": 25
+  },
+  {
+    "date_out": "2025-07-03",
+    "teamid": 780,
+    "teamname": "Lindsay/Joshua",
+    "year": 2025,
+    "day": "Thursday",
+    "leagueid": 25
+  },
+  {
+    "date_out": "2025-07-03",
+    "teamid": 774,
+    "teamname": "Sophia/Sam",
+    "year": 2025,
+    "day": "Thursday",
+    "leagueid": 25
+  },
+  {
+    "date_out": "2025-07-10",
+    "teamid": 754,
+    "teamname": "Alyssa/Adam",
+    "year": 2025,
+    "day": "Thursday",
+    "leagueid": 25
+  },
+  {
+    "date_out": "2025-07-17",
+    "teamid": 772,
+    "teamname": "Zoey/Shawn",
+    "year": 2025,
+    "day": "Thursday",
+    "leagueid": 25
+  },
+  {
+    "date_out": "2025-07-14",
+    "teamid": 742,
+    "teamname": "Rebecca/Shawn",
+    "year": 2025,
+    "day": "Monday",
+    "leagueid": 23
+  },
+  {
+    "date_out": "2025-07-17",
+    "teamid": 778,
+    "teamname": "Megan/Mike",
+    "year": 2025,
+    "day": "Thursday",
+    "leagueid": 25
+  },
+  {
+    "date_out": "2025-07-24",
+    "teamid": 754,
+    "teamname": "Alyssa/Adam",
+    "year": 2025,
+    "day": "Thursday",
+    "leagueid": 25
+  },
+  {
+    "date_out": "2025-07-31",
+    "teamid": 754,
+    "teamname": "Alyssa/Adam",
+    "year": 2025,
+    "day": "Thursday",
+    "leagueid": 25
+  },
+  {
+    "date_out": "2025-07-31",
+    "teamid": 778,
+    "teamname": "Megan/Mike",
+    "year": 2025,
+    "day": "Thursday",
+    "leagueid": 25
+  },
+  {
+    "date_out": "2025-07-24",
+    "teamid": 778,
+    "teamname": "Megan/Mike",
+    "year": 2025,
+    "day": "Thursday",
+    "leagueid": 25
+  },
+  {
+    "date_out": "2025-08-07",
+    "teamid": 778,
+    "teamname": "Megan/Mike",
+    "year": 2025,
+    "day": "Thursday",
+    "leagueid": 25
+  },
+  {
+    "date_out": "2025-08-14",
+    "teamid": 778,
+    "teamname": "Megan/Mike",
+    "year": 2025,
+    "day": "Thursday",
+    "leagueid": 25
+  },
+  {
+    "date_out": "2025-08-21",
+    "teamid": 754,
+    "teamname": "Alyssa/Adam",
+    "year": 2025,
+    "day": "Thursday",
+    "leagueid": 25
+  },
+  {
+    "date_out": "2025-08-21",
+    "teamid": 778,
+    "teamname": "Megan/Mike",
+    "year": 2025,
+    "day": "Thursday",
+    "leagueid": 25
+  }
+]
+
+-- Playoff Matches ####
+
+select m.bracketid, b.bracketname, m.round, m.location, ta.teamname as a_name, m."teamASeed", tb.teamname as b_name, m."teamBSeed", m."teamAWonMatch" 
+from playoff_match m
+join bracket b on m.bracketid = b.bracketid
+join team ta on m."teamAId" = ta.teamid
+join team tb on m."teamBId" = tb.teamid
+order by m.bracketid, m.round, m.location 
+limit 5 ;
+
+[
+  {
+    "bracketid": 1,
+    "bracketname": "blue",
+    "round": 0,
+    "location": 1,
+    "a_name": "Carly/Alex",
+    "teamASeed": 9,
+    "b_name": "Laura/Jeff",
+    "teamBSeed": 8,
+    "teamAWonMatch": false
+  },
+  {
+    "bracketid": 1,
+    "bracketname": "blue",
+    "round": 1,
+    "location": 1,
+    "a_name": "Molly/Chris",
+    "teamASeed": 1,
+    "b_name": "Laura/Jeff",
+    "teamBSeed": 8,
+    "teamAWonMatch": true
+  },
+  {
+    "bracketid": 1,
+    "bracketname": "blue",
+    "round": 1,
+    "location": 2,
+    "a_name": "Kera/Sean",
+    "teamASeed": 5,
+    "b_name": "Alison/Greg",
+    "teamBSeed": 4,
+    "teamAWonMatch": false
+  },
+  {
+    "bracketid": 1,
+    "bracketname": "blue",
+    "round": 1,
+    "location": 3,
+    "a_name": "Tori/Larry",
+    "teamASeed": 3,
+    "b_name": "Julie/Thom",
+    "teamBSeed": 6,
+    "teamAWonMatch": true
+  },
+  {
+    "bracketid": 1,
+    "bracketname": "blue",
+    "round": 1,
+    "location": 4,
+    "a_name": "Morgan/Fred",
+    "teamASeed": 7,
+    "b_name": "Angela/Justin",
+    "teamBSeed": 2,
+    "teamAWonMatch": false
+  }
+]
