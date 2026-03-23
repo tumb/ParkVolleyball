@@ -37,6 +37,12 @@ const SLOT_THEME: Record<ProposedDivisionSlot, { name: string; color: string }> 
   4: { name: "Purple", color: "#7e22ce" },
 };
 
+const BRACKET_CARD_HEIGHT = 98;
+const BRACKET_CARD_WIDTH = 204;
+const BRACKET_BASE_GAP = 16;
+const BRACKET_CONNECTOR_STUB = 14;
+const BRACKET_CONNECTOR_JOIN = 18;
+
 function normalizeLabel(value: string | null | undefined): string {
   return (value ?? "").trim().toLowerCase();
 }
@@ -248,8 +254,19 @@ export default function PlayoffsAdmin() {
   );
 
   const standingsRowsForSetup = useMemo(
-    () => standingsRows.filter((standing) => !byeTeamIdSet.has(standing.teamid)),
-    [byeTeamIdSet, standingsRows]
+    () =>
+      standingsRows.filter(
+        (standing) => !byeTeamIdSet.has(standing.teamid) && !outTeamIdSet.has(standing.teamid)
+      ),
+    [byeTeamIdSet, outTeamIdSet, standingsRows]
+  );
+
+  const outStandingsRowsForSelectedDate = useMemo(
+    () =>
+      standingsRows.filter(
+        (standing) => !byeTeamIdSet.has(standing.teamid) && outTeamIdSet.has(standing.teamid)
+      ),
+    [byeTeamIdSet, outTeamIdSet, standingsRows]
   );
 
   const standingsOrderedTeamIds = useMemo(
@@ -276,6 +293,39 @@ export default function PlayoffsAdmin() {
     }
     return allBrackets.find((bracket) => bracket.divisionid === selectedSlotDivision.divisionid) ?? null;
   }, [allBrackets, selectedSlotDivision]);
+
+  const bracketRounds = useMemo(() => {
+    const matches = playoffData?.matches ?? [];
+    const roundMap = new Map<number, typeof matches>();
+    for (const match of matches) {
+      const existing = roundMap.get(match.round) ?? [];
+      existing.push(match);
+      roundMap.set(match.round, existing);
+    }
+
+    return Array.from(roundMap.entries())
+      .sort((a, b) => a[0] - b[0])
+      .map(([round, roundMatches]) => ({
+        round,
+        matches: [...roundMatches].sort((a, b) => a.location - b.location),
+      }));
+  }, [playoffData?.matches]);
+
+  const bracketTotalHeight = useMemo(() => {
+    const firstRoundCount = bracketRounds[0]?.matches.length ?? 0;
+    if (firstRoundCount <= 0) {
+      return BRACKET_CARD_HEIGHT;
+    }
+    return firstRoundCount * BRACKET_CARD_HEIGHT + (firstRoundCount - 1) * BRACKET_BASE_GAP;
+  }, [bracketRounds]);
+
+  const seedByTeamIdForBracket = useMemo(() => {
+    const map = new Map<number, number>();
+    for (const seedRow of playoffData?.seeds ?? []) {
+      map.set(seedRow.teamid, seedRow.seed);
+    }
+    return map;
+  }, [playoffData?.seeds]);
 
   const teamsForSelectedDivision = useMemo(() => {
     return teamsInLeagueForSetup
@@ -375,23 +425,35 @@ export default function PlayoffsAdmin() {
   }, [leagueCtx.league.day, scheduleDates]);
 
   useEffect(() => {
+    let isCancelled = false;
+
     async function loadOutTeams() {
       const leagueid = leagueCtx.league.leagueid;
       if (!leagueid || leagueid <= 0 || !selectedPlayoffDate) {
-        setOutTeamIdSet(new Set());
+        if (!isCancelled) {
+          setOutTeamIdSet(new Set());
+        }
         return;
       }
 
       try {
         const outTeamIds = await findOutTeamsForLeagueAndDate(leagueid, selectedPlayoffDate);
-        setOutTeamIdSet(new Set(outTeamIds));
+        if (!isCancelled) {
+          setOutTeamIdSet(new Set(outTeamIds));
+        }
       } catch (error: any) {
-        setErrorMessage(`Failed to load Team Out data for playoff date: ${error.message}`);
-        setOutTeamIdSet(new Set());
+        if (!isCancelled) {
+          setErrorMessage(`Failed to load Team Out data for playoff date: ${error.message}`);
+          setOutTeamIdSet(new Set());
+        }
       }
     }
 
     loadOutTeams();
+
+    return () => {
+      isCancelled = true;
+    };
   }, [leagueCtx.league.leagueid, selectedPlayoffDate]);
 
   useEffect(() => {
@@ -472,6 +534,23 @@ export default function PlayoffsAdmin() {
       return "BYE";
     }
     return `${team.teamname ?? "Unknown"} (id ${teamid})`;
+  }
+
+  function formatBracketTeamLabel(teamid: number | null): string {
+    if (teamid == null) {
+      return "TBD";
+    }
+
+    const team = teamsInLeague.find((t) => t.teamid === teamid);
+    if (!team) {
+      return "TBD";
+    }
+
+    const seed = seedByTeamIdForBracket.get(teamid);
+    if (seed != null) {
+      return `${team.teamname ?? "Unknown"} (${seed})`;
+    }
+    return `${team.teamname ?? "Unknown"} (?)`;
   }
 
   function formatDivisionLabel(slot: ProposedDivisionSlot): string {
@@ -920,6 +999,113 @@ export default function PlayoffsAdmin() {
             font-size: 13px;
             font-weight: 600;
           }
+          .bracket-grid {
+            display: flex;
+            align-items: flex-start;
+            gap: 24px;
+            width: 100%;
+            padding-bottom: 6px;
+          }
+          .round-column {
+            position: relative;
+            width: ${BRACKET_CARD_WIDTH + BRACKET_CONNECTOR_STUB + BRACKET_CONNECTOR_JOIN + 20}px;
+          }
+          .round-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 8px;
+          }
+          .round-track {
+            position: relative;
+          }
+          .match-node {
+            position: absolute;
+            left: 0;
+            width: ${BRACKET_CARD_WIDTH}px;
+            height: ${BRACKET_CARD_HEIGHT}px;
+          }
+          .match-card {
+            border: 1px solid var(--line-soft);
+            border-radius: 8px;
+            background: #fff;
+            padding: 6px;
+            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+            height: 100%;
+          }
+          .match-card-id {
+            font-size: 12px;
+            font-weight: 700;
+            color: #334155;
+            margin-bottom: 6px;
+          }
+          .bracket-team-line {
+            font-size: 13px;
+            color: #0f172a;
+            margin-bottom: 4px;
+          }
+          .bracket-team-line.winner {
+            font-weight: 700;
+            color: #14532d;
+          }
+          .champion-line {
+            margin-top: 4px;
+            font-size: 12px;
+            color: #7c2d12;
+            font-weight: 700;
+          }
+          .connector-out {
+            position: absolute;
+            left: ${BRACKET_CARD_WIDTH}px;
+            top: ${Math.floor(BRACKET_CARD_HEIGHT / 2)}px;
+            width: ${BRACKET_CONNECTOR_STUB}px;
+            border-top: 2px solid #cbd5e1;
+          }
+          .connector-in {
+            position: absolute;
+            left: -${BRACKET_CONNECTOR_STUB}px;
+            top: ${Math.floor(BRACKET_CARD_HEIGHT / 2)}px;
+            width: ${BRACKET_CONNECTOR_STUB}px;
+            border-top: 2px solid #cbd5e1;
+          }
+          .connector-join-vertical {
+            position: absolute;
+            left: ${BRACKET_CARD_WIDTH + BRACKET_CONNECTOR_STUB}px;
+            border-left: 2px solid #cbd5e1;
+          }
+          .connector-join-right {
+            position: absolute;
+            left: ${BRACKET_CARD_WIDTH + BRACKET_CONNECTOR_STUB}px;
+            width: ${BRACKET_CONNECTOR_JOIN}px;
+            border-top: 2px solid #cbd5e1;
+          }
+          .out-team-section {
+            margin-top: 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            background: #f8fafc;
+            padding: 8px 10px;
+          }
+          .out-team-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #475569;
+            margin-bottom: 6px;
+          }
+          .out-team-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+          }
+          .out-team-chip {
+            border: 1px solid #cbd5e1;
+            border-radius: 999px;
+            padding: 2px 8px;
+            color: #64748b;
+            background: #f1f5f9;
+            font-size: 12px;
+            font-weight: 600;
+          }
         `}
       </style>
 
@@ -1095,6 +1281,18 @@ export default function PlayoffsAdmin() {
           <button className="link-button" onClick={onSaveDivisionAssignments}>
             Save Division Assignments (and Create Missing Divisions/Brackets)
           </button>
+          {outStandingsRowsForSelectedDate.length > 0 && (
+            <div className="out-team-section">
+              <div className="out-team-title">Out For Selected Playoff Date</div>
+              <div className="out-team-list">
+                {outStandingsRowsForSelectedDate.map((standing) => (
+                  <span key={`out-team-${standing.teamid}`} className="out-team-chip">
+                    {standing.teamname} (id {standing.teamid})
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         <div id="section-card">
@@ -1240,45 +1438,83 @@ export default function PlayoffsAdmin() {
             <div>No seeds assigned yet.</div>
           )}
 
-          <h3 style={{ marginTop: "12px" }}>Existing Matches</h3>
           {selectedBracket ? (
-            playoffData?.matches && playoffData.matches.length > 0 ? (
-              <div className="table-wrap">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>round</th>
-                      <th>location</th>
-                      <th>team A</th>
-                      <th>team B</th>
-                      <th>winner</th>
-                      <th>is_completed</th>
-                      <th>nextplayoffmatchid</th>
-                      <th>nextslot</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {playoffData.matches.map((match) => (
-                      <tr key={`match-row-${match.playoffmatchid}`}>
-                        <td>{match.round}</td>
-                        <td>{match.location}</td>
-                        <td>{formatTeamLabel(match.teamaid)}</td>
-                        <td>{formatTeamLabel(match.teambid)}</td>
-                        <td>{formatTeamLabel(match.winnerteamid)}</td>
-                        <td>{match.is_completed ? "true" : "false"}</td>
-                        <td>{match.nextplayoffmatchid ?? ""}</td>
-                        <td>{match.nextslot ?? ""}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            ) : (
-              <div>No playoff matches generated yet.</div>
-            )
-          ) : (
-            <div>No playoff matches generated yet.</div>
-          )}
+            <>
+              <h3 style={{ marginTop: "12px" }}>Bracket View</h3>
+              {bracketRounds.length > 0 ? (
+                <div style={{ borderTop: `3px solid ${getDivisionColor(selectedDivisionSlot)}` }}>
+                  <div className="bracket-grid">
+                    {bracketRounds.map((roundBlock, roundIndex) => {
+                      const layoutMultiplier = 2 ** roundIndex;
+                      const step = (BRACKET_CARD_HEIGHT + BRACKET_BASE_GAP) * layoutMultiplier;
+                      const startOffset =
+                        ((BRACKET_CARD_HEIGHT + BRACKET_BASE_GAP) * (layoutMultiplier - 1)) / 2;
+                      const isFinalRound = roundIndex === bracketRounds.length - 1;
+                      const hasPreviousRound = roundIndex > 0;
+                      const hasNextRound = !isFinalRound;
+
+                      return (
+                      <div key={`round-col-${roundBlock.round}`} className="round-column">
+                        <div className="round-title">Round {roundBlock.round}</div>
+                        <div className="round-track" style={{ height: `${bracketTotalHeight}px` }}>
+                          {roundBlock.matches.map((match, matchIndex) => {
+                            const top = startOffset + matchIndex * step;
+                            const isTopFeederInPair = hasNextRound && matchIndex % 2 === 0 && matchIndex + 1 < roundBlock.matches.length;
+                            const pairMidY = top + BRACKET_CARD_HEIGHT / 2 + step / 2;
+
+                            return (
+                          <div key={`bracket-card-${match.playoffmatchid}`} className="match-node" style={{ top }}>
+                            <div className="match-card">
+                              <div className="match-card-id">
+                                Match {match.playoffmatchid}
+                              </div>
+                              <div className={`bracket-team-line ${match.winnerteamid != null && match.winnerteamid === match.teamaid ? "winner" : ""}`}>
+                                {formatBracketTeamLabel(match.teamaid)}
+                              </div>
+                              <div className={`bracket-team-line ${match.winnerteamid != null && match.winnerteamid === match.teambid ? "winner" : ""}`}>
+                                {formatBracketTeamLabel(match.teambid)}
+                              </div>
+                              {isFinalRound && (
+                                <div className="champion-line">
+                                  Champion{match.winnerteamid != null ? `: ${formatBracketTeamLabel(match.winnerteamid)}` : ""}
+                                </div>
+                              )}
+                            </div>
+                            {hasPreviousRound && <div className="connector-in" />}
+                            {hasNextRound && <div className="connector-out" />}
+                            {isTopFeederInPair && (
+                              <>
+                                <div
+                                  className="connector-join-vertical"
+                                  style={{
+                                    top: `${BRACKET_CARD_HEIGHT / 2}px`,
+                                    height: `${step}px`,
+                                  }}
+                                />
+                                <div
+                                  className="connector-join-right"
+                                  style={{
+                                    top: `${pairMidY - top}px`,
+                                  }}
+                                />
+                              </>
+                            )}
+                          </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ) : (
+                <div className="subtle-line" style={{ marginBottom: "10px" }}>
+                  No playoff matches generated yet.
+                </div>
+              )}
+            </>
+          ) : null}
         </div>
 
         <div>
