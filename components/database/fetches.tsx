@@ -97,7 +97,9 @@ export async function findOutTeamsForLeagueAndDate(leagueId: number, date: strin
     if(error) {
       throw error ; 
     }
-    const teamIds: number[] = teamData.map((team) => ( team.teamid)) ;
+    const teamIds: number[] = (teamData ?? [])
+      .map((team) => team.teamid)
+      .filter((teamid): teamid is number => teamid !== null) ;
     // console.log("--- Ending findTeamsForLeague. teams.length:",  teams.length) ;
     return teamIds ; 
   } 
