@@ -9,6 +9,8 @@ import {
   type RegularSeasonStandingRow,
 } from "@/components/database/fetches";
 import {
+  clearPlayoffMatchesForBracket,
+  completePlayoffMatch,
   createPlayoffBracketsForLeague,
   findBracketsForLeague,
   findPlayoffBracketData,
@@ -194,6 +196,29 @@ function buildProposedDivisionAssignmentsFromStandings(
   return map;
 }
 
+function buildProposedDivisionAssignmentsFromSavedData(
+  savedDivisionByTeamId: Map<number, number>,
+  proposalDivisionSlots: ProposalDivisionSlotEntry[]
+): Map<number, ProposedDivisionSlot> {
+  const map = new Map<number, ProposedDivisionSlot>();
+  const slotByDivisionId = new Map<number, ProposedDivisionSlot>();
+
+  for (const entry of proposalDivisionSlots) {
+    if (entry.division) {
+      slotByDivisionId.set(entry.division.divisionid, entry.slot);
+    }
+  }
+
+  for (const [teamid, divisionid] of savedDivisionByTeamId.entries()) {
+    const slot = slotByDivisionId.get(divisionid);
+    if (slot) {
+      map.set(teamid, slot);
+    }
+  }
+
+  return map;
+}
+
 export default function PlayoffsAdmin() {
   const leagueCtx = useContext(LeagueContext);
 
@@ -217,6 +242,8 @@ export default function PlayoffsAdmin() {
 
   const [playoffData, setPlayoffData] = useState<PlayoffBracketData | null>(null);
   const [seedByTeamId, setSeedByTeamId] = useState<Map<number, string>>(new Map());
+  const [pendingWinnerByMatchId, setPendingWinnerByMatchId] = useState<Record<number, number>>({});
+  const [updatingMatchId, setUpdatingMatchId] = useState<number | null>(null);
   const [pendingForceSeedPayload, setPendingForceSeedPayload] = useState<
     { bracketid: number; seeds: { seed: number; teamid: number }[] } | null
   >(null);
@@ -341,6 +368,11 @@ export default function PlayoffsAdmin() {
         return (a.teamname ?? "").localeCompare(b.teamname ?? "");
       });
   }, [proposedDivisionByTeamId, selectedDivisionSlot, standingsByTeamId, teamsInLeagueForSetup]);
+
+  const selectedDivisionTeamIds = useMemo(
+    () => new Set(teamsForSelectedDivision.map((team) => team.teamid)),
+    [teamsForSelectedDivision]
+  );
 
   async function loadLeagueData(leagueid: number, applyDefaultDivisionCountForLeague: boolean = false) {
     setIsLoading(true);
@@ -476,12 +508,22 @@ export default function PlayoffsAdmin() {
   }, [missingSlots]);
 
   useEffect(() => {
+    const savedAssignments = buildProposedDivisionAssignmentsFromSavedData(
+      savedDivisionByTeamId,
+      proposalDivisionSlots
+    );
+
     const nextProposal = buildProposedDivisionAssignmentsFromStandings(
       standingsOrderedTeamIds,
       desiredDivisionCount
     );
+
+    for (const [teamid, slot] of savedAssignments.entries()) {
+      nextProposal.set(teamid, slot);
+    }
+
     setProposedDivisionByTeamId(nextProposal);
-  }, [desiredDivisionCount, standingsOrderedTeamIds]);
+  }, [desiredDivisionCount, proposalDivisionSlots, savedDivisionByTeamId, standingsOrderedTeamIds]);
 
   useEffect(() => {
     async function loadBracketData() {
@@ -568,6 +610,56 @@ export default function PlayoffsAdmin() {
     return `${proposedName || slotName} (proposed)`;
   }
 
+  function onSelectWinner(playoffmatchid: number, winnerTeamId: number | null) {
+    if (winnerTeamId == null || !selectedBracket) {
+      return;
+    }
+
+    setPendingWinnerByMatchId((current) => ({ ...current, [playoffmatchid]: winnerTeamId }));
+    setErrorMessage("");
+    setStatusMessage(`Pending winner selected for match ${playoffmatchid}. Save bracket changes to persist it.`);
+  }
+
+  async function onSaveBracketChanges() {
+    if (!selectedBracket || Object.keys(pendingWinnerByMatchId).length === 0) {
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      setUpdatingMatchId(null);
+      setErrorMessage("");
+      setStatusMessage("");
+
+      const orderedMatches = [...(playoffData?.matches ?? [])].sort((a, b) => {
+        if (a.round !== b.round) {
+          return a.round - b.round;
+        }
+        return a.location - b.location;
+      });
+
+      for (const match of orderedMatches) {
+        const pendingWinnerTeamId = pendingWinnerByMatchId[match.playoffmatchid];
+        if (pendingWinnerTeamId == null || match.is_completed) {
+          continue;
+        }
+
+        setUpdatingMatchId(match.playoffmatchid);
+        await completePlayoffMatch({ playoffmatchid: match.playoffmatchid, winnerteamid: pendingWinnerTeamId });
+      }
+
+      const refreshed = await findPlayoffBracketData(selectedBracket.bracketid);
+      setPlayoffData(refreshed);
+      setPendingWinnerByMatchId({});
+      setStatusMessage("Bracket changes saved to the database.");
+    } catch (error: any) {
+      setErrorMessage(`Could not save bracket changes: ${error?.message ?? "Unknown error"}`);
+    } finally {
+      setIsLoading(false);
+      setUpdatingMatchId(null);
+    }
+  }
+
   function getDivisionColor(slot: ProposedDivisionSlot): string {
     return SLOT_THEME[slot]?.color ?? "#334155";
   }
@@ -648,8 +740,42 @@ export default function PlayoffsAdmin() {
 
       await saveTeamPlayoffDivisionAssignments(assignments);
 
+      const nextSavedDivisionByTeamId = new Map<number, number>();
+      for (const assignment of assignments) {
+        nextSavedDivisionByTeamId.set(assignment.teamid, assignment.divisionid);
+      }
+      setSavedDivisionByTeamId(nextSavedDivisionByTeamId);
+
+      const nextProposal = new Map(proposedDivisionByTeamId);
+      for (const assignment of assignments) {
+        const nextSlot = [...proposalDivisionSlots].find(
+          (entry) => entry.division?.divisionid === assignment.divisionid
+        )?.slot;
+        if (nextSlot) {
+          nextProposal.set(assignment.teamid, nextSlot as ProposedDivisionSlot);
+        }
+      }
+      setProposedDivisionByTeamId(nextProposal);
+
+      const sortedTeams = [...teamsInLeagueForSetup].sort((a, b) => {
+        const pointsA = standingsByTeamId.get(a.teamid) ?? 0;
+        const pointsB = standingsByTeamId.get(b.teamid) ?? 0;
+        if (pointsB !== pointsA) {
+          return pointsB - pointsA;
+        }
+        return (a.teamname ?? "").localeCompare(b.teamname ?? "");
+      });
+      const refreshedAssignments = new Map<number, ProposedDivisionSlot>();
+      for (const team of sortedTeams) {
+        const updatedSlot = nextProposal.get(team.teamid);
+        if (updatedSlot) {
+          refreshedAssignments.set(team.teamid, updatedSlot);
+        }
+      }
+      setProposedDivisionByTeamId(refreshedAssignments);
+
       await loadLeagueData(leagueid);
-      setStatusMessage("Division assignments saved, including any required division/bracket creation.");
+      setStatusMessage("New playoff division assignments were successfully saved.");
     } catch (error: any) {
       setErrorMessage(`Save Division Assignments failed: ${error.message}`);
     } finally {
@@ -740,12 +866,8 @@ export default function PlayoffsAdmin() {
     if (savedSeedCount < 2) {
       return "At least 2 saved seeds are required before generating matches.";
     }
-    const existingMatchCount = playoffData?.matches?.length ?? 0;
-    if (existingMatchCount > 0) {
-      return "Matches already exist for this bracket.";
-    }
     return "";
-  }, [playoffData?.matches?.length, playoffData?.seeds?.length, selectedBracket]);
+  }, [playoffData?.seeds?.length, selectedBracket]);
 
   async function onGenerateMatches() {
     if (!selectedBracket) {
@@ -767,18 +889,20 @@ export default function PlayoffsAdmin() {
         setErrorMessage("Generate Matches requires at least 2 saved seeds for this bracket.");
         return;
       }
+
       if (existingMatchCount > 0) {
-        setWarningMessage(
-          `Matches already exist for bracket ${selectedBracket.bracketid}; generation was not run.`
-        );
-        return;
+        await clearPlayoffMatchesForBracket(selectedBracket.bracketid);
       }
 
       await generateBracketStructure(selectedBracket.bracketid);
 
       const refreshed = await findPlayoffBracketData(selectedBracket.bracketid);
       setPlayoffData(refreshed);
-      setStatusMessage(`Generated ${refreshed.matches.length} playoff matches for bracket ${selectedBracket.bracketid}.`);
+      setStatusMessage(
+        existingMatchCount > 0
+          ? `Regenerated ${refreshed.matches.length} playoff matches for bracket ${selectedBracket.bracketid} from the updated seeds.`
+          : `Generated ${refreshed.matches.length} playoff matches for bracket ${selectedBracket.bracketid}.`
+      );
     } catch (error: any) {
       setErrorMessage(`Generate Matches failed: ${error.message}`);
     } finally {
@@ -1047,6 +1171,38 @@ export default function PlayoffsAdmin() {
           .bracket-team-line.winner {
             font-weight: 700;
             color: #14532d;
+          }
+          .bracket-team-button {
+            width: 100%;
+            text-align: left;
+            border: 1px solid #dbeafe;
+            border-radius: 6px;
+            padding: 6px 8px;
+            background: #f8fbff;
+            color: #0f172a;
+            cursor: pointer;
+            margin-bottom: 4px;
+            font-size: 13px;
+            transition: background-color 0.15s ease, border-color 0.15s ease;
+          }
+          .bracket-team-button:hover:not(:disabled) {
+            background: #e8f3ff;
+            border-color: #93c5fd;
+          }
+          .bracket-team-button:disabled {
+            cursor: default;
+            opacity: 0.8;
+          }
+          .bracket-team-button.winner {
+            font-weight: 700;
+            color: #14532d;
+            background: #ecfdf3;
+            border-color: #86efac;
+          }
+          .bracket-team-button.pending {
+            background: #fff7ed;
+            border-color: #fb923c;
+            color: #9a2c00;
           }
           .champion-line {
             margin-top: 4px;
@@ -1441,6 +1597,18 @@ export default function PlayoffsAdmin() {
           {selectedBracket ? (
             <>
               <h3 style={{ marginTop: "12px" }}>Bracket View</h3>
+              <div className="actions-row" style={{ marginBottom: "10px" }}>
+                <button
+                  className="small-button"
+                  onClick={onSaveBracketChanges}
+                  disabled={isLoading || Object.keys(pendingWinnerByMatchId).length === 0}
+                >
+                  Save Bracket Changes
+                </button>
+                {Object.keys(pendingWinnerByMatchId).length > 0 && (
+                  <span className="subtle-line">{Object.keys(pendingWinnerByMatchId).length} pending selection(s)</span>
+                )}
+              </div>
               {bracketRounds.length > 0 ? (
                 <div style={{ borderTop: `3px solid ${getDivisionColor(selectedDivisionSlot)}` }}>
                   <div className="bracket-grid">
@@ -1468,12 +1636,24 @@ export default function PlayoffsAdmin() {
                               <div className="match-card-id">
                                 Match {match.playoffmatchid}
                               </div>
-                              <div className={`bracket-team-line ${match.winnerteamid != null && match.winnerteamid === match.teamaid ? "winner" : ""}`}>
+                              <button
+                                type="button"
+                                className={`bracket-team-button ${match.winnerteamid != null && match.winnerteamid === match.teamaid ? "winner" : ""} ${pendingWinnerByMatchId[match.playoffmatchid] === match.teamaid ? "pending" : ""}`}
+                                onClick={() => onSelectWinner(match.playoffmatchid, match.teamaid)}
+                                disabled={match.is_completed || updatingMatchId === match.playoffmatchid || match.teamaid == null}
+                                title={match.teamaid == null ? "No team assigned yet" : `Select ${formatBracketTeamLabel(match.teamaid)} as winner`}
+                              >
                                 {formatBracketTeamLabel(match.teamaid)}
-                              </div>
-                              <div className={`bracket-team-line ${match.winnerteamid != null && match.winnerteamid === match.teambid ? "winner" : ""}`}>
+                              </button>
+                              <button
+                                type="button"
+                                className={`bracket-team-button ${match.winnerteamid != null && match.winnerteamid === match.teambid ? "winner" : ""} ${pendingWinnerByMatchId[match.playoffmatchid] === match.teambid ? "pending" : ""}`}
+                                onClick={() => onSelectWinner(match.playoffmatchid, match.teambid)}
+                                disabled={match.is_completed || updatingMatchId === match.playoffmatchid || match.teambid == null}
+                                title={match.teambid == null ? "No team assigned yet" : `Select ${formatBracketTeamLabel(match.teambid)} as winner`}
+                              >
                                 {formatBracketTeamLabel(match.teambid)}
-                              </div>
+                              </button>
                               {isFinalRound && (
                                 <div className="champion-line">
                                   Champion{match.winnerteamid != null ? `: ${formatBracketTeamLabel(match.winnerteamid)}` : ""}

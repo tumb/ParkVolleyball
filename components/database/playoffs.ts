@@ -518,10 +518,6 @@ export async function assignSeeds(
   seeds: SeedAssignmentInput[],
   options?: SaveSeedsOptions
 ): Promise<SeedRow[]> {
-  if (seeds.length === 0) {
-    return [];
-  }
-
   const { data: existingMatches, error: existingMatchesError } = await supabase
     .from("playoff_match")
     .select("playoffmatchid")
@@ -542,9 +538,22 @@ export async function assignSeeds(
     teamid: seed.teamid,
   }));
 
+  const { error: deleteError } = await supabase
+    .from("seed")
+    .delete()
+    .eq("bracketid", bracketid);
+
+  if (deleteError) {
+    throw deleteError;
+  }
+
+  if (payload.length === 0) {
+    return [];
+  }
+
   const { data, error } = await supabase
     .from("seed")
-    .upsert(payload, { onConflict: "bracketid,seed" })
+    .insert(payload)
     .select();
 
   if (error) {
@@ -628,6 +637,19 @@ export async function createPlayoffMatches(
     return a.location - b.location;
   });
   return inserted;
+}
+
+export async function clearPlayoffMatchesForBracket(
+  bracketid: number
+): Promise<void> {
+  const { error } = await supabase
+    .from("playoff_match")
+    .delete()
+    .eq("bracketid", bracketid);
+
+  if (error) {
+    throw error;
+  }
 }
 
 export async function findPlayoffMatchesForBracket(
