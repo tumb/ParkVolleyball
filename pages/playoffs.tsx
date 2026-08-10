@@ -1435,7 +1435,7 @@ export default function PlayoffsAdmin() {
             </table>
           </div>
           <button className="link-button" onClick={onSaveDivisionAssignments}>
-            Save Division Assignments (and Create Missing Divisions/Brackets)
+            Save Division Assignments (and Create Missing Divisions/Brackets) 4:54
           </button>
           {outStandingsRowsForSelectedDate.length > 0 && (
             <div className="out-team-section">
