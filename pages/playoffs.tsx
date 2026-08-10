@@ -209,7 +209,7 @@ function buildProposedDivisionAssignmentsFromSavedData(
     }
   }
 
-  for (const [teamid, divisionid] of savedDivisionByTeamId.entries()) {
+  for (const [teamid, divisionid] of Array.from(savedDivisionByTeamId.entries())) {
     const slot = slotByDivisionId.get(divisionid);
     if (slot) {
       map.set(teamid, slot);
@@ -518,7 +518,7 @@ export default function PlayoffsAdmin() {
       desiredDivisionCount
     );
 
-    for (const [teamid, slot] of savedAssignments.entries()) {
+    for (const [teamid, slot] of Array.from(savedAssignments.entries())) {
       nextProposal.set(teamid, slot);
     }
 
