@@ -9,16 +9,21 @@ import {
   type RegularSeasonStandingRow,
 } from "@/components/database/fetches";
 import {
+  clearPlayoffMatchResult,
   clearPlayoffMatchesForBracket,
   completePlayoffMatch,
   createPlayoffBracketsForLeague,
+  findBracketTeamPhotosForBracket,
   findBracketsForLeague,
+  findChampionPhotoForBracket,
   findPlayoffBracketData,
   findDivisionsForLeagueRaw,
   generateBracketStructure,
   saveSeedsForBracket,
   saveTeamPlayoffDivisionAssignments,
+  upsertBracketTeamPhoto,
   type BracketRow,
+  type BracketTeamPhotoRow,
   type DivisionRow,
   type PlayoffBracketData,
   type TeamDivisionAssignmentInput,
@@ -244,6 +249,9 @@ export default function PlayoffsAdmin() {
   const [seedByTeamId, setSeedByTeamId] = useState<Map<number, string>>(new Map());
   const [pendingWinnerByMatchId, setPendingWinnerByMatchId] = useState<Record<number, number>>({});
   const [updatingMatchId, setUpdatingMatchId] = useState<number | null>(null);
+  const [bracketChampionPhotoUrl, setBracketChampionPhotoUrl] = useState<string>("");
+  const [selectedChampionTeamId, setSelectedChampionTeamId] = useState<number | null>(null);
+  const [isUploadingChampionPhoto, setIsUploadingChampionPhoto] = useState<boolean>(false);
   const [pendingForceSeedPayload, setPendingForceSeedPayload] = useState<
     { bracketid: number; seeds: { seed: number; teamid: number }[] } | null
   >(null);
@@ -564,6 +572,40 @@ export default function PlayoffsAdmin() {
     setWarningMessage("");
   }, [selectedDivisionSlot, teamsForSelectedDivision, playoffData?.seeds, playoffData?.bracket?.bracketid]);
 
+  useEffect(() => {
+    async function loadChampionPhoto() {
+      if (!selectedBracket) {
+        setBracketChampionPhotoUrl("");
+        setSelectedChampionTeamId(null);
+        return;
+      }
+
+      try {
+        const championPhoto = await findChampionPhotoForBracket(selectedBracket.bracketid);
+        setBracketChampionPhotoUrl(championPhoto?.image_url ?? "");
+        if (selectedChampionTeamId == null && championPhoto?.teamid != null) {
+          setSelectedChampionTeamId(championPhoto.teamid);
+        }
+      } catch (error: any) {
+        setBracketChampionPhotoUrl("");
+      }
+    }
+
+    loadChampionPhoto();
+  }, [selectedBracket?.bracketid]);
+
+  useEffect(() => {
+    if (!selectedChampionTeamId && teamsForSelectedDivision.length > 0) {
+      const finalMatchWinner = playoffData?.matches
+        .filter((match) => match.round === Math.max(...(playoffData.matches.map((match) => match.round)), 0))
+        .find((match) => match.is_completed && match.winnerteamid != null)?.winnerteamid;
+
+      if (finalMatchWinner != null && teamsForSelectedDivision.some((team) => team.teamid === finalMatchWinner)) {
+        setSelectedChampionTeamId(finalMatchWinner);
+      }
+    }
+  }, [playoffData?.matches, selectedChampionTeamId, teamsForSelectedDivision]);
+
   function formatTeamLabel(teamid: number | null): string {
     if (teamid == null) {
       return "TBD";
@@ -615,9 +657,25 @@ export default function PlayoffsAdmin() {
       return;
     }
 
+    const match = playoffData?.matches.find((candidate) => candidate.playoffmatchid === playoffmatchid);
+    const currentWinnerTeamId = match?.winnerteamid ?? null;
+    if (match?.is_completed && currentWinnerTeamId === winnerTeamId) {
+      setPendingWinnerByMatchId((current) => {
+        const next = { ...current };
+        delete next[playoffmatchid];
+        return next;
+      });
+      setStatusMessage(`Match ${playoffmatchid} already has ${formatBracketTeamLabel(winnerTeamId)} as its winner.`);
+      return;
+    }
+
     setPendingWinnerByMatchId((current) => ({ ...current, [playoffmatchid]: winnerTeamId }));
     setErrorMessage("");
-    setStatusMessage(`Pending winner selected for match ${playoffmatchid}. Save bracket changes to persist it.`);
+    setStatusMessage(
+      match?.is_completed
+        ? `Pending correction selected for match ${playoffmatchid}. Save bracket changes to replace the winner.`
+        : `Pending winner selected for match ${playoffmatchid}. Save bracket changes to persist it.`
+    );
   }
 
   async function onSaveBracketChanges() {
@@ -640,12 +698,27 @@ export default function PlayoffsAdmin() {
 
       for (const match of orderedMatches) {
         const pendingWinnerTeamId = pendingWinnerByMatchId[match.playoffmatchid];
-        if (pendingWinnerTeamId == null || match.is_completed) {
+        if (pendingWinnerTeamId == null) {
+          continue;
+        }
+
+        const currentWinnerTeamId = match.winnerteamid ?? null;
+        const isSameWinner = currentWinnerTeamId === pendingWinnerTeamId;
+
+        if (match.is_completed && isSameWinner) {
           continue;
         }
 
         setUpdatingMatchId(match.playoffmatchid);
-        await completePlayoffMatch({ playoffmatchid: match.playoffmatchid, winnerteamid: pendingWinnerTeamId });
+
+        if (match.is_completed && currentWinnerTeamId != null && currentWinnerTeamId !== pendingWinnerTeamId) {
+          await clearPlayoffMatchResult({ playoffmatchid: match.playoffmatchid });
+        }
+
+        await completePlayoffMatch({
+          playoffmatchid: match.playoffmatchid,
+          winnerteamid: pendingWinnerTeamId,
+        });
       }
 
       const refreshed = await findPlayoffBracketData(selectedBracket.bracketid);
@@ -657,6 +730,41 @@ export default function PlayoffsAdmin() {
     } finally {
       setIsLoading(false);
       setUpdatingMatchId(null);
+    }
+  }
+
+  async function onChooseChampionPhoto(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0] ?? null;
+    if (!file || !selectedBracket || selectedChampionTeamId == null) {
+      setErrorMessage("Select a champion team before uploading the photo.");
+      return;
+    }
+
+    try {
+      setIsUploadingChampionPhoto(true);
+      setErrorMessage("");
+      setStatusMessage("");
+
+      const savedPhoto = await upsertBracketTeamPhoto({
+        bracketid: selectedBracket.bracketid,
+        teamid: selectedChampionTeamId,
+        photoType: "champion",
+        file,
+      });
+      setBracketChampionPhotoUrl(savedPhoto.image_url ?? "");
+
+      const photos = await findBracketTeamPhotosForBracket(selectedBracket.bracketid);
+      setStatusMessage(
+        `Champion photo saved. ${photos.length} bracket photo row(s) found for bracket ${selectedBracket.bracketid}.`
+      );
+
+      const refreshed = await findPlayoffBracketData(selectedBracket.bracketid);
+      setPlayoffData(refreshed);
+    } catch (error: any) {
+      setErrorMessage(`Could not save champion photo: ${error?.message ?? "Unknown error"}`);
+    } finally {
+      setIsUploadingChampionPhoto(false);
+      event.target.value = "";
     }
   }
 
@@ -1204,6 +1312,31 @@ export default function PlayoffsAdmin() {
             border-color: #fb923c;
             color: #9a2c00;
           }
+          .champion-photo-preview {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+            padding: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            background: #f8fafc;
+          }
+          .champion-photo-preview img {
+            display: block;
+            max-height: 96px;
+            max-width: 160px;
+            object-fit: contain;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            background: #fff;
+          }
+          .champion-photo-text {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            color: #475569;
+          }
           .champion-line {
             margin-top: 4px;
             font-size: 12px;
@@ -1367,7 +1500,6 @@ export default function PlayoffsAdmin() {
         {isLoading && <div id="status">Working...</div>}
         {statusMessage && <div id="status">{statusMessage}</div>}
         {warningMessage && <div id="warning">{warningMessage}</div>}
-        {errorMessage && <div id="error">{errorMessage}</div>}
 
         <div id="section-card">
           <h2>Regular-Season Standings (For Seeding)</h2>
@@ -1435,7 +1567,7 @@ export default function PlayoffsAdmin() {
             </table>
           </div>
           <button className="link-button" onClick={onSaveDivisionAssignments}>
-            Save Division Assignments (and Create Missing Divisions/Brackets) 4:54
+            Save Division Assignments (and Create Missing Divisions/Brackets)
           </button>
           {outStandingsRowsForSelectedDate.length > 0 && (
             <div className="out-team-section">
@@ -1608,7 +1740,70 @@ export default function PlayoffsAdmin() {
                 {Object.keys(pendingWinnerByMatchId).length > 0 && (
                   <span className="subtle-line">{Object.keys(pendingWinnerByMatchId).length} pending selection(s)</span>
                 )}
+                <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: "8px" }}>
+                  <select
+                    value={selectedChampionTeamId ?? ""}
+                    onChange={(e) => setSelectedChampionTeamId(e.target.value ? Number(e.target.value) : null)}
+                    disabled={isLoading || !selectedBracket}
+                    style={{ minWidth: 180 }}
+                  >
+                    <option value="">Select champion team</option>
+                    {teamsForSelectedDivision.map((team) => (
+                      <option key={`champion-team-option-${team.teamid}`} value={team.teamid}>
+                        {team.teamname ?? "Unknown"} (id {team.teamid})
+                      </option>
+                    ))}
+                  </select>
+                  <label className="small-button" style={{ display: "inline-flex", alignItems: "center", cursor: "pointer" }}>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={onChooseChampionPhoto}
+                      disabled={isLoading || isUploadingChampionPhoto || !selectedBracket || selectedChampionTeamId == null}
+                      style={{ display: "none" }}
+                    />
+                    {isUploadingChampionPhoto ? "Uploading..." : "Upload Champion Photo"}
+                  </label>
+                  {bracketChampionPhotoUrl && (
+                    <img
+                      src={bracketChampionPhotoUrl}
+                      alt="Saved champion team photo"
+                      style={{
+                        maxHeight: 64,
+                        maxWidth: 120,
+                        objectFit: "contain",
+                        border: "1px solid #cbd5e1",
+                        borderRadius: 6,
+                        background: "#fff",
+                      }}
+                    />
+                  )}
+                </div>
               </div>
+              {errorMessage && (
+                <div id="error" style={{ marginTop: 8, marginBottom: 8 }}>
+                  {errorMessage}
+                </div>
+              )}
+              <div className="subtle-line" style={{ marginBottom: "8px" }}>
+                Click a different team on a completed match to correct the winner before saving.
+              </div>
+              {bracketChampionPhotoUrl ? (
+                <div className="champion-photo-preview">
+                  <img
+                    src={bracketChampionPhotoUrl}
+                    alt={`Champion photo for ${formatTeamLabel(selectedChampionTeamId)}`}
+                  />
+                  <div className="champion-photo-text">
+                    <strong>Champion photo</strong>
+                    <div>{selectedChampionTeamId ? formatTeamLabel(selectedChampionTeamId) : "Winner"}</div>
+                  </div>
+                </div>
+              ) : selectedChampionTeamId ? (
+                <div className="subtle-line" style={{ marginBottom: "8px" }}>
+                  No champion photo uploaded for {formatTeamLabel(selectedChampionTeamId)}.
+                </div>
+              ) : null}
               {bracketRounds.length > 0 ? (
                 <div style={{ borderTop: `3px solid ${getDivisionColor(selectedDivisionSlot)}` }}>
                   <div className="bracket-grid">
@@ -1640,7 +1835,7 @@ export default function PlayoffsAdmin() {
                                 type="button"
                                 className={`bracket-team-button ${match.winnerteamid != null && match.winnerteamid === match.teamaid ? "winner" : ""} ${pendingWinnerByMatchId[match.playoffmatchid] === match.teamaid ? "pending" : ""}`}
                                 onClick={() => onSelectWinner(match.playoffmatchid, match.teamaid)}
-                                disabled={match.is_completed || updatingMatchId === match.playoffmatchid || match.teamaid == null}
+                                disabled={updatingMatchId === match.playoffmatchid || match.teamaid == null}
                                 title={match.teamaid == null ? "No team assigned yet" : `Select ${formatBracketTeamLabel(match.teamaid)} as winner`}
                               >
                                 {formatBracketTeamLabel(match.teamaid)}
@@ -1649,7 +1844,7 @@ export default function PlayoffsAdmin() {
                                 type="button"
                                 className={`bracket-team-button ${match.winnerteamid != null && match.winnerteamid === match.teambid ? "winner" : ""} ${pendingWinnerByMatchId[match.playoffmatchid] === match.teambid ? "pending" : ""}`}
                                 onClick={() => onSelectWinner(match.playoffmatchid, match.teambid)}
-                                disabled={match.is_completed || updatingMatchId === match.playoffmatchid || match.teambid == null}
+                                disabled={updatingMatchId === match.playoffmatchid || match.teambid == null}
                                 title={match.teambid == null ? "No team assigned yet" : `Select ${formatBracketTeamLabel(match.teambid)} as winner`}
                               >
                                 {formatBracketTeamLabel(match.teambid)}

@@ -20,6 +20,7 @@ export type Database = {
           bracketname: string | null
           created_at: string
           divisionid: number
+          image_url: string | null
           leagueid: number
         }
         Insert: {
@@ -27,6 +28,7 @@ export type Database = {
           bracketname?: string | null
           created_at?: string
           divisionid: number
+          image_url?: string | null
           leagueid: number
         }
         Update: {
@@ -34,6 +36,7 @@ export type Database = {
           bracketname?: string | null
           created_at?: string
           divisionid?: number
+          image_url?: string | null
           leagueid?: number
         }
         Relationships: [
@@ -70,6 +73,51 @@ export type Database = {
           leagueid?: number
         }
         Relationships: []
+      }
+      bracket_team_photo: {
+        Row: {
+          bracketid: number
+          created_at: string
+          id: number
+          image_url: string | null
+          photo_type: string
+          storage_path: string | null
+          teamid: number
+        }
+        Insert: {
+          bracketid: number
+          created_at?: string
+          id?: number
+          image_url?: string | null
+          photo_type: string
+          storage_path?: string | null
+          teamid: number
+        }
+        Update: {
+          bracketid?: number
+          created_at?: string
+          id?: number
+          image_url?: string | null
+          photo_type?: string
+          storage_path?: string | null
+          teamid?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bracket_team_photo_bracketid_fkey"
+            columns: ["bracketid"]
+            isOneToOne: false
+            referencedRelation: "bracket"
+            referencedColumns: ["bracketid"]
+          },
+          {
+            foreignKeyName: "bracket_team_photo_teamid_fkey"
+            columns: ["teamid"]
+            isOneToOne: false
+            referencedRelation: "team"
+            referencedColumns: ["teamid"]
+          },
+        ]
       }
       content_pages: {
         Row: {

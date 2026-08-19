@@ -1,6 +1,6 @@
 
 create sequence team_out_id_seq 
-start_with 1
+start with 1
 increment by 1 ; 
 
 create table team_out (

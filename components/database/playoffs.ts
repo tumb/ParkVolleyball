@@ -24,6 +24,13 @@ export type SeedRow = Database["public"]["Tables"]["seed"]["Row"];
 export type SeedInsert = Database["public"]["Tables"]["seed"]["Insert"];
 export type SeedUpdate = Database["public"]["Tables"]["seed"]["Update"];
 
+export type BracketTeamPhotoRow =
+  Database["public"]["Tables"]["bracket_team_photo"]["Row"];
+export type BracketTeamPhotoInsert =
+  Database["public"]["Tables"]["bracket_team_photo"]["Insert"];
+export type BracketTeamPhotoUpdate =
+  Database["public"]["Tables"]["bracket_team_photo"]["Update"];
+
 export type PlayoffMatchRow =
   Database["public"]["Tables"]["playoff_match"]["Row"];
 export type PlayoffMatchInsert =
@@ -691,6 +698,155 @@ export async function findPlayoffBracketData(
     seeds,
     matches,
   };
+}
+
+export async function findBracketTeamPhotosForBracket(
+  bracketid: number
+): Promise<BracketTeamPhotoRow[]> {
+  const { data, error } = await supabase
+    .from("bracket_team_photo")
+    .select()
+    .eq("bracketid", bracketid)
+    .order("photo_type", { ascending: true })
+    .order("teamid", { ascending: true });
+
+  if (error) {
+    throw error;
+  }
+
+  return data ?? [];
+}
+
+export async function findChampionPhotoForBracket(
+  bracketid: number
+): Promise<BracketTeamPhotoRow | null> {
+  const { data, error } = await supabase
+    .from("bracket_team_photo")
+    .select()
+    .eq("bracketid", bracketid)
+    .eq("photo_type", "champion")
+    .maybeSingle();
+
+  if (error) {
+    throw error;
+  }
+
+  return data ?? null;
+}
+
+export async function upsertBracketTeamPhoto(input: {
+  bracketid: number;
+  teamid: number;
+  photoType: string;
+  file: File;
+}): Promise<BracketTeamPhotoRow> {
+  const safeName = `${input.bracketid}-${input.teamid}-${input.photoType}-${Date.now()}-${input.file.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
+  const bucketNames = ["playoff-team-photos", "bracket-images"];
+  let usedBucketName = bucketNames[0];
+  let lastError: Error | null = null;
+
+  for (const bucketName of bucketNames) {
+    const { error } = await supabase.storage
+      .from(bucketName)
+      .upload(safeName, input.file, {
+        cacheControl: "3600",
+        upsert: true,
+        contentType: input.file.type || "image/png",
+      });
+
+    if (!error) {
+      usedBucketName = bucketName;
+      lastError = null;
+      break;
+    }
+
+    lastError = error;
+    if (!error.message?.toLowerCase().includes("bucket not found")) {
+      break;
+    }
+  }
+
+  if (lastError) {
+    throw new Error(
+      `Failed to upload playoff team photo. Tried buckets ${bucketNames.join(", ")} - ${lastError.message}`
+    );
+  }
+
+  const { data: publicUrlData } = supabase.storage
+    .from(usedBucketName)
+    .getPublicUrl(safeName);
+
+  if (!publicUrlData?.publicUrl) {
+    throw new Error("Supabase did not return a public image URL for the uploaded playoff team photo.");
+  }
+
+  const payload = {
+    bracketid: input.bracketid,
+    teamid: input.teamid,
+    photo_type: input.photoType,
+    image_url: publicUrlData.publicUrl,
+    storage_path: safeName,
+  };
+
+  const { data, error } = await supabase
+    .from("bracket_team_photo")
+    .upsert(payload, { onConflict: "bracketid,teamid,photo_type" })
+    .select()
+    .single();
+
+  if (error) {
+    throw error;
+  }
+
+  return data;
+}
+
+export async function updateBracketImageUrl(
+  bracketid: number,
+  imageUrl: string | null
+): Promise<BracketRow> {
+  const { data, error } = await supabase
+    .from("bracket")
+    .update({ image_url: imageUrl })
+    .eq("bracketid", bracketid)
+    .select()
+    .single();
+
+  if (error) {
+    throw error;
+  }
+
+  return data;
+}
+
+export async function uploadBracketImageFile(
+  bracketid: number,
+  file: File
+): Promise<BracketRow> {
+  const safeName = `${bracketid}-${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
+  const bucketName = "bracket-images";
+
+  const { error: uploadError } = await supabase.storage
+    .from(bucketName)
+    .upload(safeName, file, {
+      cacheControl: "3600",
+      upsert: true,
+      contentType: file.type || "image/png",
+    });
+
+  if (uploadError) {
+    throw uploadError;
+  }
+
+  const { data: publicUrlData } = supabase.storage
+    .from(bucketName)
+    .getPublicUrl(safeName);
+
+  if (!publicUrlData?.publicUrl) {
+    throw new Error("Supabase did not return a public image URL for the uploaded bracket image.");
+  }
+
+  return updateBracketImageUrl(bracketid, publicUrlData.publicUrl);
 }
 
 export async function completePlayoffMatch(
