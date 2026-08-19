@@ -574,19 +574,22 @@ export default function PlayoffsAdmin() {
 
   useEffect(() => {
     async function loadChampionPhoto() {
+      // Always reset the champion selection when loading a new bracket so a
+      // previously-selected value from a different bracket doesn't persist.
+      setBracketChampionPhotoUrl("");
+      setSelectedChampionTeamId(null);
+
       if (!selectedBracket) {
-        setBracketChampionPhotoUrl("");
-        setSelectedChampionTeamId(null);
         return;
       }
 
       try {
         const championPhoto = await findChampionPhotoForBracket(selectedBracket.bracketid);
         setBracketChampionPhotoUrl(championPhoto?.image_url ?? "");
-        if (selectedChampionTeamId == null && championPhoto?.teamid != null) {
+        if (championPhoto?.teamid != null) {
           setSelectedChampionTeamId(championPhoto.teamid);
         }
-      } catch (error: any) {
+      } catch (_error: any) {
         setBracketChampionPhotoUrl("");
       }
     }
@@ -596,8 +599,10 @@ export default function PlayoffsAdmin() {
 
   useEffect(() => {
     if (!selectedChampionTeamId && teamsForSelectedDivision.length > 0) {
-      const finalMatchWinner = playoffData?.matches
-        .filter((match) => match.round === Math.max(...(playoffData.matches.map((match) => match.round)), 0))
+      const matches = playoffData?.matches ?? [];
+      const maxRound = matches.length > 0 ? Math.max(...matches.map((m) => m.round)) : 0;
+      const finalMatchWinner = matches
+        .filter((match) => match.round === maxRound)
         .find((match) => match.is_completed && match.winnerteamid != null)?.winnerteamid;
 
       if (finalMatchWinner != null && teamsForSelectedDivision.some((team) => team.teamid === finalMatchWinner)) {
@@ -1741,29 +1746,22 @@ export default function PlayoffsAdmin() {
                   <span className="subtle-line">{Object.keys(pendingWinnerByMatchId).length} pending selection(s)</span>
                 )}
                 <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: "8px" }}>
-                  <select
-                    value={selectedChampionTeamId ?? ""}
-                    onChange={(e) => setSelectedChampionTeamId(e.target.value ? Number(e.target.value) : null)}
-                    disabled={isLoading || !selectedBracket}
-                    style={{ minWidth: 180 }}
-                  >
-                    <option value="">Select champion team</option>
-                    {teamsForSelectedDivision.map((team) => (
-                      <option key={`champion-team-option-${team.teamid}`} value={team.teamid}>
-                        {team.teamname ?? "Unknown"} (id {team.teamid})
-                      </option>
-                    ))}
-                  </select>
-                  <label className="small-button" style={{ display: "inline-flex", alignItems: "center", cursor: "pointer" }}>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={onChooseChampionPhoto}
-                      disabled={isLoading || isUploadingChampionPhoto || !selectedBracket || selectedChampionTeamId == null}
-                      style={{ display: "none" }}
-                    />
-                    {isUploadingChampionPhoto ? "Uploading..." : "Upload Champion Photo"}
-                  </label>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <div style={{ minWidth: 220 }}>
+                      <div style={{ fontSize: 12, color: '#475569', fontWeight: 700 }}>Champion</div>
+                      <div style={{ marginTop: 4 }}>{selectedChampionTeamId ? formatTeamLabel(selectedChampionTeamId) : 'TBD'}</div>
+                    </div>
+
+                    <label className="small-button" style={{ display: 'inline-flex', alignItems: 'center', cursor: 'pointer' }}>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={onChooseChampionPhoto}
+                        disabled={isLoading || isUploadingChampionPhoto || !selectedBracket || selectedChampionTeamId == null}
+                        style={{ display: "none" }}
+                      />
+                      {isUploadingChampionPhoto ? "Uploading..." : "Upload Champion Photo"}
+                    </label>
                   {bracketChampionPhotoUrl && (
                     <img
                       src={bracketChampionPhotoUrl}
