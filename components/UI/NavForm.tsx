@@ -12,15 +12,6 @@ export default function NavForm() {
   const [year, setYear] = useState(leagueCtx.league?.year);
   const [allYears, setAllYears] = useState<number[]>([]) ; 
 
-  async function getAllYears() {
-    const years = await fetchAllYears() ; 
-    setAllYears(years) ; 
-    if (years.length > 0 && (year == null || !years.includes(year))) {
-      const maxYear = Math.max(...years);
-      setYear(maxYear);
-    }
-  }
-
   const handleLeagueSearch = async () => {
   //  const notification = toast.loading("Searching for a league 22...");
     console.log("--- start handleLeagueSearch day: ", day) ; 
@@ -49,11 +40,37 @@ export default function NavForm() {
 
 
   useEffect(() => {
-    getAllYears() ;
-  }, [])
+    async function fetchYears() {
+      const years = await fetchAllYears();
+      setAllYears(years);
+      if (years.length > 0 && (year == null || !years.includes(year))) {
+        const maxYear = Math.max(...years);
+        setYear(maxYear);
+      }
+    }
+    fetchYears();
+  }, []);
 
   useEffect(() => {
-    handleLeagueSearch();
+    async function searchLeague() {
+      // reuse handleLeagueSearch logic inline to avoid stale-deps warnings
+      let { data: league, error } = await supabase
+        .from("league")
+        .select()
+        .eq("day", day)
+        .eq("year", year);
+
+      if (league?.length) {
+        leagueCtx.onUpdate({
+          day: league[0].day !== null ? league[0].day : "Monday",
+          leagueid: league[0].leagueid,
+          year: league[0].year !== null ? league[0].year : 2024,
+          matchDate: "",
+        });
+      }
+    }
+
+    searchLeague();
   }, [day, year]);
 
   return (

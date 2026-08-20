@@ -1491,7 +1491,7 @@ export default function PlayoffsAdmin() {
                   key={`new-division-slot-${slot}`}
                   className="inline-input"
                   value={newDivisionNameBySlot.get(slot) ?? ""}
-                  placeholder={`${SLOT_THEME[slot]?.name ?? `Division ${slot}`} (proposed)`}
+                  placeholder={(SLOT_THEME[slot]?.name ?? `Division ${slot}`) + ' (proposed)'}
                   onChange={(e) => onNewDivisionNameChange(slot, e.target.value)}
                 />
               ))}
@@ -1776,6 +1776,7 @@ export default function PlayoffsAdmin() {
                       }}
                     />
                   )}
+                  </div>
                 </div>
               </div>
               {errorMessage && (

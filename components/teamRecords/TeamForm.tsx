@@ -18,22 +18,27 @@ export default function TeamForm() {
   const [day, setDay] = useState(leagueCtx.league?.day);
   const [year, setYear] = useState(leagueCtx.league?.year);
 
-  const getTeams = async () => {
-    setLoading(true);
-    let { data: team, error } = await supabase
-      .from("team")
-      .select("*")
-      .eq("leagueid", leagueCtx.league?.leagueid)
-      .order("teamname");
+  // load teams when league selection changes
+  useEffect(() => {
+    async function getTeams() {
+      setLoading(true);
+      let { data: team, error } = await supabase
+        .from("team")
+        .select("*")
+        .eq("leagueid", leagueCtx.league?.leagueid)
+        .order("teamname");
 
-    if (error) {
+      if (error) {
+        setLoading(false);
+        toast.error("Error getting teams");
+      }
+
+      setTeamData(team);
       setLoading(false);
-      toast.error("Error getting teams");
     }
 
-    setTeamData(team);
-    setLoading(false);
-  };
+    getTeams();
+  }, [leagueCtx.league?.leagueid]);
 
   const handleTeamChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedTeamId(parseInt(event.target.value));
@@ -77,9 +82,7 @@ export default function TeamForm() {
     }
   };
 
-  useEffect(() => {
-    getTeams();
-  }, [leagueCtx.league?.leagueid]);
+  
 
   useEffect(() => {
     if (teamData && teamData.length > 0) {
@@ -91,7 +94,30 @@ export default function TeamForm() {
   }, [teamData]);
 
   useEffect(() => {
-    handleLeagueSearch();
+    async function searchLeague() {
+      const notification = toast.loading("Searching for a league...");
+
+      let { data: league, error } = await supabase
+        .from("league")
+        .select()
+        .eq("day", day)
+        .eq("year", year);
+
+      if (league?.length) {
+        toast.success("Found it 😊", { id: notification });
+
+        leagueCtx.onUpdate({
+          day: league[0].day !== null ? league[0].day : "Monday",
+          leagueid: league[0].leagueid,
+          year: league[0].year != null ? league[0].year : 2024,
+          matchDate: "",
+        });
+      } else {
+        toast.error("No league found! Please try again", { id: notification });
+      }
+    }
+
+    searchLeague();
   }, [day, year]);
 
   return (
